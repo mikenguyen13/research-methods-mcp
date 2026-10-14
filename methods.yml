@@ -1,0 +1,579 @@
+# Curated method catalog behind the `choose_method` tool.
+#
+# Each entry maps a research situation to the sections that teach the method
+# and to the R and Python packages that implement it. Section ids are checked
+# when the index is built, so a renamed section fails the build instead of
+# producing a dead link.
+
+methods:
+  # --- Experiments -----------------------------------------------------------
+  - id: rct
+    name: Randomized experiment (RCT, A/B test, field experiment)
+    family: Experiments
+    use_when: You can randomize who gets the treatment, as in an A/B test, a field experiment, or a lab study.
+    assumptions: [Random assignment, No interference between units (SUTVA), No differential attrition, Compliance or an intention-to-treat estimand]
+    keywords: [randomized, randomization, experiment, a/b test, ab test, rct, field experiment, treatment group, control group, conversion, lift]
+    sections: [data_analysis:sec-experimental-design, causalverse:articles/d_rct, marketing_research:47-causal-inference]
+    packages: { r: [estimatr, DeclareDesign, randomizr], python: [statsmodels, scipy] }
+
+  - id: power
+    name: Power analysis and sample size
+    family: Experiments
+    use_when: You are planning a study and need the sample size for a target effect, or the smallest effect a given sample can detect.
+    assumptions: [A defensible effect size, A variance estimate, The design and test you will actually run]
+    keywords: [power, sample size, minimum detectable effect, mde, how many observations, underpowered, stopping rule]
+    sections: [data_analysis:sec-experimental-design#turning-the-sample-size-into-a-stopping-rule, data_analysis:sec-analysis-of-variance-anova#procedure-for-sample-size-selection, data_analysis:sec-mediation#power-analysis-for-mediation]
+    packages: { r: [pwr, DeclareDesign, simr], python: [statsmodels] }
+
+  - id: interference
+    name: Interference and spillover effects
+    family: Experiments
+    use_when: One unit's treatment can affect another unit's outcome, as with peers, networks, markets, or clustered rollouts.
+    assumptions: [A known exposure mapping or partial interference within groups, Randomization at the cluster or saturation level]
+    keywords: [interference, spillover, network effects, peer effects, sutva violation, two-stage randomization, saturation design, contagion]
+    sections: [data_analysis:sec-interference-spillover, data_analysis:sec-interference-spillover#sec-ipw-two-stage]
+    packages: { r: [inferference], python: [] }
+
+  - id: anova
+    name: ANOVA and factorial designs
+    family: Experiments
+    use_when: You compare means across several groups or factor combinations in a designed experiment.
+    assumptions: [Independent observations, Homogeneous variances or a correction, Approximately normal residuals]
+    keywords: [anova, analysis of variance, factorial, f test, post hoc, tukey, repeated measures, ancova]
+    sections: [data_analysis:sec-analysis-of-variance-anova]
+    packages: { r: [car, emmeans], python: [statsmodels, pingouin] }
+
+  # --- Difference-in-differences family --------------------------------------
+  - id: did
+    name: Difference-in-differences (two groups, two periods)
+    family: Quasi-experimental
+    use_when: A policy or shock hits some units at one point in time and you observe treated and untreated units before and after.
+    assumptions: [Parallel trends in the absence of treatment, No anticipation, Stable group composition, No spillovers to the control group]
+    avoid_when: Treatment timing varies across units and effects may differ by cohort; use the staggered estimators instead of two-way fixed effects.
+    keywords: [difference-in-differences, diff-in-diff, did, policy change, natural experiment, before and after, parallel trends, two-way fixed effects, twfe]
+    sections: [data_analysis:sec-difference-in-differences, data_analysis:sec-difference-in-differences#sec-two-way-fixed-effects, data_analysis:sec-difference-in-differences#sec-did-debiasing, causalverse:articles/c_did]
+    packages: { r: [fixest, did, HonestDiD], python: [pyfixest, linearmodels] }
+
+  - id: did_staggered
+    name: Staggered adoption difference-in-differences
+    family: Quasi-experimental
+    use_when: Units adopt the treatment at different times (rollouts across states, stores, or users) and effects may change with exposure time.
+    assumptions: [Parallel trends for each cohort, No anticipation, A never-treated or not-yet-treated comparison group]
+    avoid_when: You plan to read a plain two-way fixed effects coefficient as the average effect; with heterogeneous effects it can even have the wrong sign.
+    keywords: [staggered, staggered adoption, rollout, varying treatment timing, callaway sant'anna, sun abraham, de chaisemartin, borusyak, imputation estimator, event study, dynamic effects, goodman-bacon]
+    sections: [data_analysis:sec-difference-in-differences#sec-modern-estimators-for-staggered-adoption, data_analysis:sec-difference-in-differences#sec-group-time-average-treatment-effects-callaway2021difference, causalverse:articles/c_did]
+    packages: { r: [did, fixest, didimputation, did2s, staggered, DIDmultiplegtDYN, HonestDiD], python: [csdid, pyfixest, differences] }
+
+  - id: sdid
+    name: Synthetic difference-in-differences
+    family: Quasi-experimental
+    use_when: You have a balanced panel with few treated units, and parallel trends is doubtful without reweighting units and periods.
+    assumptions: [Block or staggered treatment, Pre-treatment fit achievable with unit and time weights, Enough pre-periods]
+    keywords: [synthetic difference-in-differences, synthdid, sdid, unit weights, time weights, few treated units, panel]
+    sections: [data_analysis:sec-synthetic-difference-in-differences, data_analysis:sec-synthetic-difference-in-differences#staggered-adoption, causalverse:articles/b_synthdid]
+    packages: { r: [synthdid, causalverse], python: [synthdid] }
+
+  - id: synthetic_control
+    name: Synthetic control
+    family: Quasi-experimental
+    use_when: One or a few aggregate units (a state, country, firm, or market) are treated and you have a long pre-treatment period and a donor pool.
+    assumptions: [Treated unit lies in the convex hull of donors, No spillovers to donors, Good pre-treatment fit, No anticipation]
+    keywords: [synthetic control, scm, single treated unit, one treated unit, case study, donor pool, comparative case study, augmented synthetic control, placebo inference, one state, single state, one country, one city, state law, law passed]
+    sections: [data_analysis:sec-synthetic-control, data_analysis:sec-synthetic-control#inference-in-scm, data_analysis:sec-synthetic-control#sec-augmented-synthetic-control, causalverse:articles/f_sc]
+    packages: { r: [Synth, tidysynth, augsynth, scpi], python: [pysyncon, scpi_pkg] }
+
+  - id: generalized_sc
+    name: Generalized synthetic control and interactive fixed effects
+    family: Quasi-experimental
+    use_when: Many treated units with staggered timing and unobserved factors that trend differently across units.
+    assumptions: [A low-rank factor structure in untreated outcomes, Enough pre-periods to estimate the factors]
+    keywords: [generalized synthetic control, gsynth, interactive fixed effects, factor model, matrix completion, counterfactual estimator, fect]
+    sections: [data_analysis:sec-synthetic-control#sec-generalized-synthetic-control]
+    packages: { r: [gsynth, fect], python: [] }
+
+  - id: changes_in_changes
+    name: Changes-in-changes
+    family: Quasi-experimental
+    use_when: You want the effect on the whole outcome distribution in a DiD setting, or parallel trends in levels is implausible.
+    assumptions: [Outcome is monotone in a scalar unobservable, The unobservable's distribution is stable over time within groups]
+    keywords: [changes-in-changes, quantile treatment effects, distributional effects, athey imbens, nonlinear did]
+    sections: [data_analysis:sec-changes-in-changes]
+    packages: { r: [qte], python: [] }
+
+  - id: event_study_finance
+    name: Event study (abnormal returns)
+    family: Quasi-experimental
+    use_when: You measure how stock prices react to announcements, such as earnings, mergers, CEO changes, or marketing events.
+    assumptions: [Efficient markets, A clean estimation window, No confounding events in the event window]
+    keywords: [event study, abnormal returns, cumulative abnormal returns, car, stock price reaction, announcement, market model, finance]
+    sections: [data_analysis:sec-event-studies, causalverse:articles/h_event_study]
+    packages: { r: [estudy2, causalverse], python: [statsmodels] }
+
+  # --- Discontinuities and time --------------------------------------------
+  - id: rd
+    name: Regression discontinuity (sharp and fuzzy)
+    family: Quasi-experimental
+    use_when: Treatment changes at a known cutoff of a running variable, such as a score, age, date, vote share, or distance.
+    assumptions: [Continuity of potential outcomes at the cutoff, No precise manipulation of the running variable, Local estimand at the cutoff]
+    keywords: [regression discontinuity, rdd, rd, cutoff, threshold, running variable, forcing variable, bandwidth, sharp, fuzzy, manipulation test, mccrary, density test]
+    sections: [data_analysis:sec-regression-discontinuity, data_analysis:sec-regression-discontinuity#sec-sharp-regression-discontinuity-design, data_analysis:sec-regression-discontinuity#sec-fuzzy-regression-discontinuity-design, data_analysis:sec-regression-discontinuity#sec-sorting-bunching-and-manipulation, causalverse:articles/e_rd]
+    packages: { r: [rdrobust, rddensity, rdlocrand, rdmulti], python: [rdrobust, rddensity] }
+
+  - id: rkd
+    name: Regression kink design
+    family: Quasi-experimental
+    use_when: The slope (not the level) of a policy schedule changes at a threshold, as with benefit formulas or tax brackets.
+    assumptions: [Smooth density of the running variable at the kink, No other policy kinks at the same point]
+    keywords: [regression kink, rkd, kink, slope change, benefit schedule, tax bracket]
+    sections: [data_analysis:sec-regression-discontinuity#sec-regression-kink-design]
+    packages: { r: [rdrobust], python: [rdrobust] }
+
+  - id: its
+    name: Interrupted time series
+    family: Quasi-experimental
+    use_when: A single series is interrupted by an intervention at a known date and there is no comparison group.
+    assumptions: [The pre-intervention trend would have continued, No co-occurring shocks, Correct handling of autocorrelation and seasonality]
+    keywords: [interrupted time series, its, segmented regression, single series, intervention date, causalimpact, bayesian structural time series]
+    sections: [data_analysis:sec-temporal-discontinuity-designs#sec-interrupted-time-series, data_analysis:sec-temporal-discontinuity-designs]
+    packages: { r: [CausalImpact, sandwich], python: [statsmodels, tfcausalimpact] }
+
+  # --- Instruments and endogeneity ------------------------------------------
+  - id: iv
+    name: Instrumental variables (2SLS)
+    family: Endogeneity
+    use_when: The regressor of interest is endogenous and you have a variable that shifts it but affects the outcome only through it.
+    assumptions: [Relevance (a strong first stage), Exclusion restriction, Independence, Monotonicity for a LATE reading]
+    avoid_when: The first stage is weak; use weak-instrument-robust inference such as Anderson-Rubin.
+    keywords: [instrumental variables, iv, 2sls, two-stage least squares, endogeneity, instrument, exclusion restriction, first stage, weak instruments, late, complier]
+    sections: [data_analysis:sec-instrumental-variables, data_analysis:sec-instrumental-variables#sec-weak-instruments-problem, data_analysis:sec-instrumental-variables#sec-anderson-rubin-approach, causalverse:articles/g_iv]
+    packages: { r: [fixest, ivreg, ivmodel, ivDiag], python: [linearmodels, pyfixest] }
+
+  - id: shift_share
+    name: Shift-share (Bartik) instruments
+    family: Endogeneity
+    use_when: Your instrument combines local exposure shares with aggregate shocks, as with industry mix times national growth.
+    assumptions: [Exogenous shares or exogenous shocks (pick one identification argument), Many independent shocks for shock-based identification]
+    keywords: [shift-share, bartik, exposure shares, industry shocks, local labor markets, recentered instruments]
+    sections: [data_analysis:sec-instrumental-variables#sec-shift-share-iv, data_analysis:sec-instrumental-variables#sec-recentered-iv]
+    packages: { r: [ShiftShareSE, fixest], python: [] }
+
+  - id: examiner_iv
+    name: Examiner and judge leniency designs
+    family: Endogeneity
+    use_when: Cases are as-good-as-randomly assigned to decision makers (judges, examiners, caseworkers, loan officers) who differ in leniency.
+    assumptions: [Random assignment of cases to decision makers, Exclusion (decision makers affect outcomes only through the decision), Monotonicity across decision makers]
+    keywords: [judge, examiner, leniency, decision maker, random assignment of judges, caseworker, loan officer, patent examiner, judge fixed effects]
+    sections: [data_analysis:sec-instrumental-variables#sec-examiner-design]
+    packages: { r: [fixest], python: [linearmodels, pyfixest] }
+
+  - id: control_function
+    name: Control function and copula approaches
+    family: Endogeneity
+    use_when: Endogeneity in a nonlinear model, or no external instrument but a credible non-normality or copula argument.
+    assumptions: [A correctly specified first stage, Non-normal endogenous regressor for copula methods]
+    keywords: [control function, gaussian copula, instrument-free, nonlinear endogeneity, residual inclusion, park gupta]
+    sections: [data_analysis:sec-instrumental-variables#sec-control-function-approach, data_analysis:sec-endogeneity#the-gaussian-copula-control-function]
+    packages: { r: [REndo], python: [] }
+
+  - id: measurement_error_iv
+    name: Measurement error and internal instruments
+    family: Endogeneity
+    use_when: A regressor is mismeasured or you lack external instruments and must rely on higher moments or lags.
+    assumptions: [Classical measurement error or non-normality (higher-moment IV), Sequential exogeneity (dynamic panel GMM)]
+    keywords: [measurement error, attenuation bias, higher moments, lewbel, dynamic panel, arellano bond, gmm, lagged instruments]
+    sections: [data_analysis:sec-instrumental-variables#sec-higher-moment-iv, data_analysis:sec-instrumental-variables#sec-dynamic-panel-iv, data_analysis:sec-endogeneity]
+    packages: { r: [REndo, plm], python: [linearmodels] }
+
+  - id: selection
+    name: Sample selection (Heckman) and reject inference
+    family: Endogeneity
+    use_when: Outcomes are observed only for a selected sample, such as wages for workers or default for approved loans.
+    assumptions: [An exclusion restriction in the selection equation, Joint normality or a semiparametric alternative]
+    keywords: [heckman, sample selection, selection bias, tobit-2, inverse mills ratio, reject inference, approved applicants, truncation]
+    sections: [data_analysis:sec-structural-selection#sec-heckman-selection, data_analysis:sec-endogeneity#tobit-2-heckmans-sample-selection-model, credit_score:chapters/10-reject-inference]
+    packages: { r: [sampleSelection], python: [statsmodels] }
+
+  # --- Selection on observables and causal ML --------------------------------
+  - id: matching
+    name: Matching and propensity scores
+    family: Selection on observables
+    use_when: Treatment is not randomized but you believe you observe the variables that drive both treatment and outcome.
+    assumptions: [Conditional independence (no unobserved confounding), Overlap (common support), Correct balance on covariates]
+    keywords: [matching, propensity score, psm, nearest neighbor, coarsened exact matching, cem, entropy balancing, covariate balance, observational study]
+    sections: [data_analysis:sec-matching-methods, data_analysis:sec-matching-methods#sec-propensity-scores, data_analysis:sec-matching-methods#sec-cem, data_analysis:sec-matching-methods#entropy-balancing, causalverse:articles/i_matching]
+    packages: { r: [MatchIt, cobalt, WeightIt, optmatch], python: [dowhy, scikit-learn] }
+
+  - id: ipw_dr
+    name: Inverse probability weighting and doubly robust estimators
+    family: Selection on observables
+    use_when: Selection on observables, and you want protection if either the outcome model or the propensity model is wrong.
+    assumptions: [Conditional independence, Overlap, One of the two nuisance models correctly specified]
+    keywords: [inverse probability weighting, ipw, doubly robust, aipw, tmle, targeted learning, augmented ipw]
+    sections: [data_analysis:sec-matching-methods#sec-inverse-probability-weighting, data_analysis:sec-ml-causal#doubly-robust-estimation-and-targeted-learning, data_analysis:sec-ml-causal#augmented-inverse-probability-weighting]
+    packages: { r: [WeightIt, AIPW, tmle], python: [econml, dowhy, zepid] }
+
+  - id: dml
+    name: Double/debiased machine learning
+    family: Causal machine learning
+    use_when: Many controls or nonlinear confounding; you want a treatment effect with valid inference while using ML for the nuisance functions.
+    assumptions: [Conditional independence given the controls, Overlap, Cross-fitting]
+    keywords: [double machine learning, dml, debiased machine learning, cross-fitting, high-dimensional controls, partially linear model, chernozhukov]
+    sections: [data_analysis:sec-ml-causal#sec-double-ml, data_analysis:sec-mediation#double-machine-learning-for-mediation, credit_score:chapters/28-causal-credit]
+    packages: { r: [DoubleML, hdm], python: [doubleml, econml] }
+
+  - id: hte
+    name: Heterogeneous treatment effects and causal forests
+    family: Causal machine learning
+    use_when: You want to know who benefits most from a treatment, or to target it, rather than only the average effect.
+    assumptions: [Unconfoundedness or randomization, Overlap, Honest estimation for valid intervals]
+    keywords: [heterogeneous treatment effects, hte, cate, causal forest, generalized random forest, grf, honesty, targeting, personalization, policy learning]
+    sections: [data_analysis:sec-ml-causal#causal-forests-and-generalized-random-forests, data_analysis:sec-ml-causal#sec-honesty-tradeoff, data_analysis:sec-ml-causal#causal-trees-honest-recursive-partitioning, causalverse:articles/k_hte]
+    packages: { r: [grf, policytree], python: [econml, causalml] }
+
+  - id: uplift
+    name: Uplift modeling
+    family: Causal machine learning
+    use_when: You want to pick which customers to treat (send an offer, email, or discount) to maximize incremental response.
+    assumptions: [Experimental or unconfounded training data, Honest out-of-sample evaluation with Qini or uplift curves]
+    keywords: [uplift, uplift modeling, incremental response, qini, persuadables, targeting, marketing campaign, t-learner, x-learner]
+    sections: [data_analysis:sec-uplift-modeling, data_analysis:sec-uplift-modeling#honest-cross-fit-evaluation]
+    packages: { r: [grf], python: [causalml, scikit-uplift] }
+
+  # --- Mechanisms and moderation -------------------------------------------
+  - id: mediation
+    name: Mediation analysis
+    family: Mechanisms
+    use_when: You want to know how much of an effect runs through an intermediate variable.
+    assumptions: [Sequential ignorability (no unmeasured mediator-outcome confounding), No treatment-induced confounders unless modeled]
+    keywords: [mediation, mediator, indirect effect, direct effect, mechanism, causal pathway, baron kenny, acme, natural indirect effect]
+    sections: [data_analysis:sec-mediation, data_analysis:sec-mediation#causal-inference-approach-to-mediation, data_analysis:sec-mediation#sec-med-sensitivity-bounds, causalverse:articles/l_mediation]
+    packages: { r: [mediation, lavaan], python: [statsmodels] }
+
+  - id: moderation
+    name: Moderation, interactions, and conditional process analysis
+    family: Mechanisms
+    use_when: You ask for whom or under what conditions an effect is stronger, or combine moderation with mediation.
+    assumptions: [Correct functional form for the interaction, Moderator not affected by treatment]
+    keywords: [moderation, moderator, interaction, conditional effect, simple slopes, johnson-neyman, moderated mediation, conditional process, marginal effects]
+    sections: [data_analysis:sec-moderation, data_analysis:sec-conditional-process, data_analysis:sec-marginal-effects]
+    packages: { r: [marginaleffects, interactions, lavaan], python: [marginaleffects, statsmodels] }
+
+  - id: decomposition
+    name: Decomposition methods
+    family: Mechanisms
+    use_when: You want to split a gap (between groups or over time) or a variance into explained and unexplained parts.
+    assumptions: [The reference coefficients chosen for the counterfactual, Additivity of the decomposition]
+    keywords: [oaxaca, blinder, decomposition, wage gap, variance decomposition, explained unexplained, components of variance, how much does x matter]
+    sections: [data_analysis:sec-decomposition]
+    packages: { r: [oaxaca, lme4], python: [statsmodels] }
+
+  # --- Robustness and inference -------------------------------------------
+  - id: sensitivity
+    name: Sensitivity analysis for unobserved confounding
+    family: Robustness
+    use_when: You report an observational estimate and need to show how strong an unobserved confounder would have to be to overturn it.
+    assumptions: [A benchmark covariate or plausible bounds on confounding strength]
+    keywords: [sensitivity analysis, unobserved confounding, omitted variable bias, e-value, rosenbaum bounds, sensemakr, robustness value, oster, coefficient stability, konfound]
+    sections: [data_analysis:sec-matching-methods#sec-rosenbaum-bounds, data_analysis:sec-matching-methods#sec-coefficient-stability-bounds, data_analysis:sec-endogeneity#sec-omitted-variable-bias, causalverse:articles/j_sensitivity]
+    packages: { r: [sensemakr, EValue, rbounds, konfound], python: [PySensemakr] }
+
+  - id: clustered_se
+    name: Clustered and robust standard errors
+    family: Robustness
+    use_when: Errors are correlated within groups (firms, schools, states, markets) or treatment is assigned at the group level.
+    assumptions: [Clusters independent of each other, Enough clusters, or a wild cluster bootstrap when they are few]
+    keywords: [clustered standard errors, cluster-robust, robust standard errors, heteroskedasticity, wild cluster bootstrap, few clusters, sandwich]
+    sections: [data_analysis:sec-clustered-inference, data_analysis:sec-clustered-inference#sec-clu-crve, data_analysis:sec-clustered-inference#sec-clu-sim-few]
+    packages: { r: [sandwich, fixest, fwildclusterboot], python: [pyfixest, wildboottest, statsmodels] }
+
+  - id: dag_controls
+    name: Causal graphs (DAGs) and choosing controls
+    family: Research design
+    use_when: You need to decide which variables to control for, and which would introduce bias (colliders, mediators, bad controls).
+    assumptions: [A defensible causal graph of the data-generating process]
+    keywords: [dag, directed acyclic graph, backdoor, collider, bad controls, confounder, which controls, adjustment set, d-separation]
+    sections: [data_analysis:sec-directed-acyclic-graphs, data_analysis:sec-controls]
+    packages: { r: [dagitty, ggdag], python: [dowhy, networkx] }
+
+  # --- Regression and models -----------------------------------------------
+  - id: panel
+    name: Panel data (fixed and random effects)
+    family: Regression
+    use_when: You observe the same units repeatedly and want to control for time-invariant unobserved differences.
+    assumptions: [Strict exogeneity conditional on unit effects, Random effects need unit effects uncorrelated with regressors (Hausman test)]
+    keywords: [panel data, fixed effects, random effects, within estimator, hausman, mundlak, longitudinal, unit fixed effects]
+    sections: [data_analysis:data#sec-panel-data, data_analysis:data#sec-fixed-effects-estimator, data_analysis:data#sec-mundlak-hausman, causalverse:articles/m_panel]
+    packages: { r: [fixest, plm], python: [linearmodels, pyfixest] }
+
+  - id: glm
+    name: Generalized linear models and limited dependent variables
+    family: Regression
+    use_when: The outcome is binary, a count, a proportion, or a choice among categories.
+    assumptions: [Correct link and variance function, Independent observations]
+    keywords: [glm, logistic regression, logit, probit, poisson, negative binomial, count data, binary outcome, multinomial, ordered logit, tobit]
+    sections: [data_analysis:generalized-linear-models, data_analysis:sec-discrete-choice]
+    packages: { r: [MASS, nnet, fixest], python: [statsmodels] }
+
+  - id: mixed_models
+    name: Mixed (multilevel, hierarchical) models
+    family: Regression
+    use_when: Observations are nested (students in schools, repeated measures in subjects) and you want group-level variation.
+    assumptions: [Random effects uncorrelated with regressors, Correct random-effects structure]
+    keywords: [mixed model, multilevel, hierarchical, random intercept, random slope, lme4, nested data, repeated measures]
+    sections: [data_analysis:sec-linear-mixed-models, data_analysis:sec-nonlinear-and-generalized-linear-mixed-models]
+    packages: { r: [lme4, glmmTMB, nlme], python: [statsmodels] }
+
+  - id: quantile
+    name: Quantile and distributional regression
+    family: Regression
+    use_when: You care about effects on the tails or the whole distribution, not only the mean.
+    assumptions: [Correct quantile specification; rank invariance for individual-level readings]
+    keywords: [quantile regression, distributional regression, median regression, tails, conditional quantiles]
+    sections: [data_analysis:sec-quantile-distributional]
+    packages: { r: [quantreg], python: [statsmodels] }
+
+  - id: time_series
+    name: Time series analysis and forecasting
+    family: Regression
+    use_when: You model or forecast a series over time with trend, seasonality, and autocorrelation.
+    assumptions: [Stationarity or appropriate differencing, Stable dynamics over the sample]
+    keywords: [time series, forecasting, arima, var, stationarity, unit root, seasonality, autocorrelation, cointegration]
+    sections: [data_analysis:sec-time-series]
+    packages: { r: [forecast, fable, tseries], python: [statsmodels] }
+
+  - id: missing_data
+    name: Missing data and multiple imputation
+    family: Data
+    use_when: Some values are missing and dropping incomplete rows would bias results or waste data.
+    assumptions: [Missing at random given observed data for standard multiple imputation]
+    keywords: [missing data, imputation, multiple imputation, mice, missing at random, mar, mcar, mnar]
+    sections: [data_analysis:imputation-missing-data]
+    packages: { r: [mice, missForest, Amelia], python: [scikit-learn, statsmodels] }
+
+  - id: survey_measurement
+    name: Survey measurement, scales, and reliability
+    family: Data
+    use_when: You build or validate multi-item scales, or analyze survey data with weights and design effects.
+    assumptions: [The items measure the intended construct, A known sampling design for weighting]
+    keywords: [survey, scale, reliability, cronbach alpha, validity, confirmatory factor analysis, cfa, measurement, likert, survey weights, sampling design]
+    sections: [data_analysis:sec-survey-reliability, data_analysis:sampling, marketing_research:30-measurement-scales]
+    packages: { r: [lavaan, psych, survey], python: [semopy, factor_analyzer, samplics] }
+
+  # --- Structural and marketing ---------------------------------------------
+  - id: demand
+    name: Discrete choice and demand estimation (logit, nested logit, BLP)
+    family: Structural
+    use_when: You estimate consumer demand, substitution patterns, elasticities, or simulate prices and mergers from market or choice data.
+    assumptions: [A specified utility model, Instruments for price in market-level data]
+    keywords: [demand estimation, blp, random coefficients, nested logit, mixed logit, discrete choice, elasticities, market shares, merger simulation]
+    sections: [data_analysis:sec-discrete-choice, data_analysis:sec-structural-io#the-blp-random-coefficients-model, data_analysis:sec-demand-systems, data_analysis:sec-markups-mergers]
+    packages: { r: [mlogit, logitr], python: [pyblp, xlogit] }
+
+  - id: production
+    name: Production functions, productivity, and markups
+    family: Structural
+    use_when: You estimate firm productivity or markups from production data.
+    assumptions: [A timing assumption for inputs (Olley-Pakes, Levinsohn-Petrin, ACF), Scalar unobservable productivity]
+    keywords: [production function, productivity, tfp, olley pakes, levinsohn petrin, ackerberg caves frazer, markups, de loecker]
+    sections: [data_analysis:sec-production-productivity, data_analysis:sec-production-productivity#markups-and-market-power-the-production-approach]
+    packages: { r: [prodest], python: [] }
+
+  - id: clv
+    name: Customer lifetime value and customer-base analysis
+    family: Marketing
+    use_when: You value customers or predict future purchases and churn from transaction histories.
+    assumptions: [A latent attrition process (Pareto/NBD, BG/NBD) appropriate to the business]
+    keywords: [customer lifetime value, clv, ltv, churn, pareto nbd, bg nbd, buy till you die, customer base, retention]
+    sections: [marketing_research:13-clv, marketing_research:13a-customer-base-analysis, data_analysis:sec-structural-marketing#customer-relationship-management-and-lifetime-value]
+    packages: { r: [CLVTools, BTYD], python: [pymc-marketing, lifetimes] }
+
+  - id: mmm
+    name: Marketing mix models
+    family: Marketing
+    use_when: You attribute sales to advertising channels over time and plan budgets from aggregate data.
+    assumptions: [Adstock and saturation functional forms, Enough variation in spend, Control for confounders such as seasonality and promotions]
+    keywords: [marketing mix model, mmm, media mix, adstock, saturation, advertising effectiveness, budget allocation, attribution]
+    sections: [marketing_research:36-marketing-mix-models, marketing_research:10-advertising]
+    packages: { r: [Robyn], python: [pymc-marketing, google-meridian] }
+
+  - id: preference
+    name: Preference measurement and conjoint analysis
+    family: Marketing
+    use_when: You measure how people trade off product attributes, prices, or features.
+    assumptions: [Attributes randomized independently, Utility model appropriate to the choice task]
+    keywords: [conjoint, choice-based conjoint, preference measurement, willingness to pay, attribute importance, maxdiff, choice experiment, consumers value, customers value, product attributes, product features, versus price, trade-offs, attribute levels]
+    sections: [marketing_research:32-preference-measurement]
+    packages: { r: [cregg, logitr], python: [xlogit] }
+
+  - id: text_as_data
+    name: Text as data
+    family: Data
+    use_when: Your treatment, outcome, or confounder is text, such as reviews, filings, speeches, or social media posts.
+    assumptions: [Validated text measures, Train/test separation when text is a treatment or outcome]
+    keywords: [text as data, nlp, topic model, stm, sentiment, embeddings, text classification, reviews, transcripts]
+    sections: [data_analysis:sec-nlp-causal, marketing_research:49-text-as-data, credit_score:chapters/25-nlp-text]
+    packages: { r: [quanteda, stm, text2vec], python: [scikit-learn, sentence-transformers, gensim] }
+
+  # --- Prediction and credit risk --------------------------------------------
+  - id: credit_scorecard
+    name: Credit scorecards (logistic regression with binning)
+    family: Credit risk
+    use_when: You build an interpretable probability-of-default model that regulators and risk teams can audit.
+    assumptions: [Monotone, stable bins (weight of evidence), A representative development sample]
+    keywords: [credit scorecard, scorecard, probability of default, pd model, weight of evidence, woe, information value, logistic regression, credit risk]
+    sections: [credit_score:chapters/07-logistic-scorecard, credit_score:chapters/04-metrics]
+    packages: { r: [scorecard], python: [optbinning, scikit-learn] }
+
+  - id: survival
+    name: Survival analysis and time-to-event
+    family: Prediction
+    use_when: The outcome is the time until an event (default, churn, failure, death) with censoring.
+    assumptions: [Non-informative censoring, Proportional hazards for Cox models (or a time-varying alternative)]
+    keywords: [survival analysis, time to event, hazard, cox model, kaplan meier, censoring, censored, time to default, churn timing, how long until, time until, still active, duration]
+    sections: [credit_score:chapters/09-survival-analysis]
+    packages: { r: [survival], python: [lifelines, scikit-survival] }
+
+  - id: gbm
+    name: Gradient-boosted trees and ensembles
+    family: Prediction
+    use_when: Tabular prediction where accuracy matters, such as default, churn, fraud, or demand.
+    assumptions: [Out-of-sample validation, Leakage-free features]
+    keywords: [gradient boosting, xgboost, lightgbm, catboost, random forest, ensemble, tabular prediction, boosting]
+    sections: [credit_score:chapters/12-ensembles, ai_in_action:106-gradient-boosting, ai_in_action:108-lightgbm, ai_in_action:102-random-forests]
+    packages: { r: [xgboost, lightgbm, ranger], python: [xgboost, lightgbm, catboost, scikit-learn] }
+
+  - id: imbalanced
+    name: Imbalanced classification
+    family: Prediction
+    use_when: The positive class is rare (default, fraud) and accuracy is a misleading metric.
+    assumptions: [Evaluation with PR curves or cost-sensitive metrics, Resampling inside cross-validation only]
+    keywords: [imbalanced data, rare events, class imbalance, smote, oversampling, undersampling, cost-sensitive, fraud]
+    sections: [credit_score:chapters/15-imbalanced, ai_in_action:155-classification-metrics-pr-curves]
+    packages: { r: [themis], python: [imbalanced-learn] }
+
+  - id: model_evaluation
+    name: Model evaluation and validation
+    family: Prediction
+    use_when: You compare models or report predictive performance honestly.
+    assumptions: [A held-out or time-based validation split that matches deployment]
+    keywords: [model evaluation, cross-validation, auc, gini, ks statistic, calibration, brier score, backtesting, out-of-sample, metrics]
+    sections: [credit_score:chapters/04-metrics, ai_in_action:151-philosophy-of-evaluation, ai_in_action:079-cross-validation-techniques, ai_in_action:169-bootstrapping-evaluation]
+    packages: { r: [yardstick, pROC], python: [scikit-learn] }
+
+  - id: explainability
+    name: Explainability (SHAP and XAI)
+    family: Prediction
+    use_when: You must explain individual predictions or global drivers of a model, such as adverse action reasons in lending.
+    assumptions: [Explanations describe the model, not causal effects]
+    keywords: [explainability, xai, shap, feature importance, adverse action, interpretability, partial dependence, lime]
+    sections: [credit_score:chapters/21-xai, credit_score:chapters/22-shap-practice]
+    packages: { r: [fastshap, DALEX], python: [shap] }
+
+  - id: fairness
+    name: Algorithmic fairness
+    family: Prediction
+    use_when: Model decisions affect people and you must test for disparate impact or choose a fairness criterion.
+    assumptions: [A chosen fairness definition (they conflict), Access to or proxies for protected attributes]
+    keywords: [fairness, algorithmic fairness, disparate impact, bias, equal opportunity, demographic parity, ecoa, fair lending]
+    sections: [credit_score:chapters/23-fairness-theory, credit_score:chapters/24-fairness-empirical]
+    packages: { r: [fairmodels], python: [fairlearn, aif360] }
+
+  - id: conformal
+    name: Conformal prediction and uncertainty
+    family: Prediction
+    use_when: You need prediction intervals or sets with guaranteed coverage from any model.
+    assumptions: [Exchangeability between calibration and test data]
+    keywords: [conformal prediction, uncertainty quantification, prediction intervals, coverage, calibration set]
+    sections: [credit_score:chapters/22d-conformal-uncertainty]
+    packages: { r: [], python: [mapie] }
+
+  # --- Unsupervised and AI ----------------------------------------------------
+  - id: regularization
+    name: Regularized regression and variable selection (lasso, ridge, elastic net)
+    family: Prediction
+    use_when: Many predictors relative to observations, or you need a sparse, stable model.
+    assumptions: [Standardized predictors, Penalty chosen by cross-validation; post-selection inference needs extra care]
+    keywords: [lasso, ridge, elastic net, regularization, penalized regression, variable selection, high-dimensional, sparsity]
+    sections: [ai_in_action:085-regularization-lasso-sparsity, ai_in_action:084-regularization-ridge, data_analysis:variable-selection]
+    packages: { r: [glmnet], python: [scikit-learn] }
+
+  - id: clustering
+    name: Clustering and segmentation
+    family: Unsupervised
+    use_when: You want to find groups (customer segments, archetypes) without labels.
+    assumptions: [A meaningful distance or density notion, Validation of the number of clusters]
+    keywords: [clustering, segmentation, k-means, hierarchical clustering, dbscan, hdbscan, customer segments, unsupervised]
+    sections: [ai_in_action:122-clustering-fundamentals, ai_in_action:123-kmeans-clustering, ai_in_action:132-clustering-validation-metrics]
+    packages: { r: [cluster, dbscan], python: [scikit-learn, hdbscan] }
+
+  - id: dimension_reduction
+    name: Dimensionality reduction (PCA, factor analysis, UMAP)
+    family: Unsupervised
+    use_when: You compress many correlated variables into a few components or visualize high-dimensional data.
+    assumptions: [Linear structure for PCA, Scaling choices made deliberately]
+    keywords: [pca, principal components, factor analysis, dimensionality reduction, t-sne, umap, multivariate]
+    sections: [ai_in_action:067-dimensionality-reduction-pca, ai_in_action:068-dimensionality-reduction-tsne-umap, data_analysis:sec-multivariate-methods]
+    packages: { r: [psych, uwot], python: [scikit-learn, umap-learn] }
+
+  - id: anomaly
+    name: Anomaly detection
+    family: Unsupervised
+    use_when: You flag unusual transactions, sessions, or measurements with few or no labels.
+    assumptions: [Anomalies are rare and differ from normal data in the chosen representation]
+    keywords: [anomaly detection, outlier detection, fraud detection, isolation forest, one-class svm, novelty detection]
+    sections: [ai_in_action:144-anomaly-detection-foundations, ai_in_action:145-statistical-anomaly-detection, ai_in_action:148-one-class-svm]
+    packages: { r: [isotree], python: [scikit-learn, pyod] }
+
+  - id: embeddings
+    name: Text embeddings and semantic similarity
+    family: AI
+    use_when: You need numeric representations of text for search, clustering, or as model features.
+    assumptions: [An embedding model suited to the domain and language]
+    keywords: [embeddings, sentence embeddings, semantic similarity, sentence-bert, vector search, representation learning]
+    sections: [ai_in_action:328-sentence-embeddings-overview, ai_in_action:329-sentence-bert, ai_in_action:representations_embeddings]
+    packages: { r: [text2vec], python: [sentence-transformers] }
+
+  - id: rag_agents
+    name: Retrieval-augmented generation and LLM agents
+    family: AI
+    use_when: You build LLM applications that retrieve documents, call tools, or coordinate several agents.
+    assumptions: [An evaluation set for retrieval and answer quality, Guardrails for tool use]
+    keywords: [rag, retrieval-augmented generation, graphrag, llm agents, tool use, planning, multi-agent, large language model applications]
+    sections: [ai_in_action:469-graphrag-foundations, ai_in_action:485-tool-use-foundations, ai_in_action:489-planning-llm-based, ai_in_action:498-multi-agent-systems-foundations, ai_in_action:163-information-retrieval-metrics]
+    packages: { r: [ellmer], python: [langgraph, sentence-transformers] }
+
+  - id: finetuning
+    name: Fine-tuning language models (LoRA, BERT)
+    family: AI
+    use_when: You adapt a pretrained language model to a classification or generation task with your own labeled data.
+    assumptions: [Enough labeled examples, A held-out evaluation set]
+    keywords: [fine-tuning, lora, qlora, peft, bert, transfer learning, text classification, adapters]
+    sections: [ai_in_action:703-parameter-efficient-finetuning-lora, ai_in_action:283-bert-finetuning, ai_in_action:781-transfer-learning-foundations]
+    packages: { r: [], python: [transformers, peft] }
+
+  - id: bayesian
+    name: Bayesian inference
+    family: Inference
+    use_when: You want full posterior uncertainty, to encode prior information, or to model hierarchical structure.
+    assumptions: [Priors stated and checked, MCMC convergence diagnostics]
+    keywords: [bayesian, posterior, prior, mcmc, stan, credible interval, bayes theorem, hierarchical bayes]
+    sections: [ai_in_action:031-probability-bayes-theorem-inference, data_analysis:sec-difference-in-differences#posterior-inference-and-credible-intervals]
+    packages: { r: [brms, rstanarm], python: [pymc] }
+
+  - id: hypothesis_testing
+    name: Hypothesis testing and statistical inference basics
+    family: Inference
+    use_when: You compare groups, test a claim, or need the right test for your data type.
+    assumptions: [The test's distributional and independence assumptions, A correction when running many tests]
+    keywords: [hypothesis test, t-test, chi-square, p-value, confidence interval, nonparametric test, multiple testing, wilcoxon]
+    sections: [data_analysis:basic-statistical-inference, data_analysis:hypothesis-testing]
+    packages: { r: [stats], python: [scipy, statsmodels] }
+
+  - id: differential_privacy
+    name: Differential privacy
+    family: Data
+    use_when: You release statistics or models from sensitive data and need a formal privacy guarantee.
+    assumptions: [A privacy budget (epsilon), Bounded sensitivity of the released statistic]
+    keywords: [differential privacy, privacy budget, epsilon, laplace mechanism, synthetic data, privacy-preserving]
+    sections: [data_analysis:sec-differential-privacy]
+    packages: { r: [], python: [opendp] }

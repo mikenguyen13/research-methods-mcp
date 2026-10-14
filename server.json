@@ -1,0 +1,33 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mikenguyen13/research-methods-mcp",
+  "title": "Research Methods Library",
+  "description": "Research methods for AI assistants: R and Python code, method advice, and citations from open books",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/mikenguyen13/research-methods-mcp",
+  "repository": {
+    "url": "https://github.com/mikenguyen13/research-methods-mcp",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/mikenguyen13/research-methods-mcp/main/assets/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "research-methods-mcp",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://YOUR-HOST/mcp"
+    }
+  ]
+}

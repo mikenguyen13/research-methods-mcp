@@ -1,0 +1,80 @@
+{
+  "name": "research-methods-mcp",
+  "version": "0.1.0",
+  "description": "Research methods library for AI assistants: causal inference, econometrics, experiments, marketing research, credit scoring, and AI, with runnable R and Python code and a ready-made citation in every answer.",
+  "mcpName": "io.github.mikenguyen13/research-methods-mcp",
+  "type": "module",
+  "bin": {
+    "research-methods-mcp": "dist/stdio.js"
+  },
+  "files": [
+    "dist/stdio.js",
+    "dist/http.js",
+    "data/index.json.gz",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:index": "tsx scripts/build-index.ts",
+    "build": "node scripts/bundle.mjs",
+    "start": "node dist/http.js",
+    "dev": "tsx src/node-http.ts",
+    "stdio": "tsx src/stdio.ts",
+    "test": "tsx test/smoke.ts",
+    "check-links": "tsx scripts/check-links.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build && npm test && npm run check-release",
+    "set-endpoint": "tsx scripts/set-endpoint.ts",
+    "check-release": "node scripts/check-release.mjs",
+    "pack:mcpb": "npx -y @anthropic-ai/mcpb pack . research-methods-mcp.mcpb"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "research-methods",
+    "causal-inference",
+    "econometrics",
+    "statistics",
+    "data-analysis",
+    "difference-in-differences",
+    "regression-discontinuity",
+    "instrumental-variables",
+    "synthetic-control",
+    "machine-learning",
+    "credit-scoring",
+    "marketing-research",
+    "r",
+    "python",
+    "citations"
+  ],
+  "author": "Mike Nguyen (https://github.com/mikenguyen13)",
+  "license": "MIT",
+  "homepage": "https://github.com/mikenguyen13/research-methods-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikenguyen13/research-methods-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mikenguyen13/research-methods-mcp/issues"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.3.1",
+    "@modelcontextprotocol/node": "^2.1.1",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@modelcontextprotocol/server": "^2.3.1",
+    "@types/node": "^24.19.2",
+    "esbuild": "^0.28.2",
+    "minisearch": "^7.2.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "config": {
+    "endpoint": "https://YOUR-HOST/mcp"
+  }
+}

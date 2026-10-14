@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Research Methods Library">
+  <rect x="15" y="15" width="482" height="482" rx="92" fill="#22385c"/>
+  <rect x="133" y="214" width="51" height="82" rx="6" fill="#8fd3c7"/>
+  <rect x="230" y="163" width="51" height="133" rx="6" fill="#f2b84b"/>
+  <rect x="328" y="112" width="51" height="184" rx="6" fill="#ffffff"/>
+  <path d="M92 328 L251 343 L251 420 L92 405 Z" fill="#ffffff"/>
+  <path d="M261 343 L420 328 L420 405 L261 420 Z" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,182 @@
+# Every work the server knows about.
+#
+# To add a book: add an entry here, then run `npm run build:index`.
+# Paths in `repo` are relative to SOURCES_ROOT (default: the folder that
+# contains this repo, i.e. the sibling checkouts in ~/github).
+#
+# text_access
+#   full    section text, code, and links are served
+#   teaser  only titles, a short opening excerpt, code, and links are served
+#           (use for books whose prose is all rights reserved)
+#
+# Each source has one default `citation`. `volume_citations` maps chapter files
+# to a different work (e.g. the Springer print volume that contains them); a
+# section in one of those files is cited as that volume first and the online
+# edition second.
+
+authors: &mike
+  - family: Nguyen
+    given: Mike
+    orcid: 0000-0002-3432-8595
+
+sources:
+  - id: data_analysis
+    title: A Guide on Data Analysis
+    summary: >-
+      Data analysis, econometrics, and causal inference in R: regression, GLMs,
+      mixed models, experiments, difference-in-differences, synthetic control,
+      regression discontinuity, instrumental variables, matching, double machine
+      learning, mediation, sensitivity analysis, and structural IO.
+    repo: data_analysis
+    format: bookdown
+    site: https://bookdown.org/mike/data_analysis/
+    github: https://github.com/mikenguyen13/data_analysis
+    text_access: full
+    license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
+    exclude:
+      - 50.2-bookdown_cheat_sheet.Rmd
+    citation:
+      key: Nguyen2020Guide
+      type: book
+      title: A Guide on Data Analysis
+      authors: *mike
+      year: 2020
+      publisher: Bookdown
+      url: https://bookdown.org/mike/data_analysis/
+    volume_citations:
+      - files: [02.1-prerequisites.Rmd, 02.2-general-math.Rmd, 02.3-data-mani.Rmd, 03-descriptive-stat.Rmd, 04-basic-inference.Rmd]
+        citation:
+          key: Nguyen2025Vol1
+          type: book
+          title: Foundations of Data Analysis
+          volume: 1
+          authors: *mike
+          year: 2025
+          publisher: Springer
+          place: Cham
+          doi: 10.1007/978-3-032-01858-8
+          url: https://doi.org/10.1007/978-3-032-01858-8
+      - files: [05-linear-regression.Rmd, 06-nonlinear-regession.Rmd, 07-generalized-linear-models.Rmd, 08-linear-mixed-models.Rmd, 09-nonlinear_generalized_linear_mixed.Rmd, 10-nonparam-regression.Rmd]
+        citation:
+          key: Nguyen2025Vol2
+          type: book
+          title: Regression Techniques for Data Analysis
+          volume: 2
+          authors: *mike
+          year: 2025
+          publisher: Springer
+          place: Cham
+          isbn: 978-3-032-01834-2
+          url: https://link.springer.com/book/9783032018342
+      - files: [11-data.Rmd, 12-variable_transformation.Rmd, 13-imputation.Rmd, 14-model_specification.Rmd, 15-variable-selection.Rmd, 16-hypothesis.Rmd, 17-marginal-effect.Rmd, 18-moderation.Rmd, 19-mediation.Rmd, 20-prediction_estimation.Rmd]
+        citation:
+          key: Nguyen2025Vol3
+          type: book
+          title: Advanced Modeling and Data Challenges
+          volume: 3
+          authors: *mike
+          year: 2025
+          publisher: Springer
+          place: Cham
+          isbn: 978-3-032-01718-5
+          url: https://link.springer.com/book/9783032017185
+      - files: [21-causality.Rmd, 22-experiment.Rmd, 23-sampling.Rmd, 24-ANOVA.Rmd, 25-multivariate.Rmd]
+        citation:
+          key: Nguyen2025Vol4
+          type: book
+          title: Experimental Design
+          volume: 4
+          authors: *mike
+          year: 2025
+          publisher: Springer
+          place: Cham
+          isbn: 978-3-032-01838-0
+          url: https://link.springer.com/book/9783032018380
+
+  - id: causalverse
+    title: "causalverse: The All-in-One Causal Inference Toolkit"
+    summary: >-
+      R package for the full causal inference pipeline: RCTs and power, DiD and
+      staggered adoption, synthetic DiD, synthetic control, RD, IV, event
+      studies, matching, heterogeneous effects, mediation, sensitivity, and
+      publication-ready output. Vignettes plus a function reference.
+    repo: causalverse
+    format: r-package
+    site: https://mikenguyen13.github.io/causalverse/
+    github: https://github.com/mikenguyen13/causalverse
+    text_access: full
+    license: { text: GPL-3.0, code: GPL-3.0 }
+    citation:
+      key: Nguyen2026causalverse
+      type: software
+      title: "causalverse: The All-in-One Causal Inference Toolkit"
+      authors: *mike
+      year: 2026
+      version: 1.1.0
+      publisher: Zenodo
+      doi: 10.5281/zenodo.8254063
+      url: https://doi.org/10.5281/zenodo.8254063
+
+  - id: credit_score
+    title: "Credit Scoring: Theory, Methods, and Practice"
+    summary: >-
+      Executable handbook on credit scoring in Python: scorecards, PD models,
+      survival and time-to-default, reject inference, gradient boosting, deep
+      learning, explainability, fairness, regulation (Basel, IFRS 9, CECL), and
+      production deployment.
+    repo: credit_score/book
+    format: quarto
+    site: https://mikenguyen13.github.io/credit_score/
+    github: https://github.com/mikenguyen13/credit_score
+    text_access: full
+    license: { text: CC-BY-4.0, code: MIT }
+    citation:
+      key: Nguyen2026Credit
+      type: book
+      title: "Credit Scoring: Theory, Methods, and Practice"
+      subtitle: An Executable Handbook for Practitioners and Academics
+      authors: *mike
+      year: 2026
+      url: https://mikenguyen13.github.io/credit_score/
+
+  - id: marketing_research
+    title: "Marketing Research: A Technical and Academic Treatment"
+    summary: >-
+      Marketing research constructs, substantive domains (branding, advertising,
+      pricing, CLV, influencer marketing, privacy), and methods (metrics,
+      measurement, empirical and structural models) with reproducible R code.
+    repo: marketing_research
+    format: quarto
+    site: https://mike-marketing-research.share.connect.posit.cloud/
+    github: https://github.com/mikenguyen13/marketing_research
+    # Prose is all rights reserved (reserved for print); code is MIT.
+    text_access: teaser
+    license: { text: All-Rights-Reserved, code: MIT }
+    citation:
+      key: Nguyen2026Marketing
+      type: book
+      title: "Marketing Research: A Technical and Academic Treatment"
+      authors: *mike
+      year: 2026
+      url: https://mike-marketing-research.share.connect.posit.cloud/
+
+  - id: ai_in_action
+    title: "AI in Action: A Reference for Artificial Intelligence"
+    summary: >-
+      Implementation-first reference for modern AI in Python: foundations,
+      machine learning, deep learning, large language models, retrieval-augmented
+      generation, and AI agents.
+    repo: ai_in_action
+    format: quarto
+    site: https://mikenguyen13.github.io/ai_in_action/
+    github: https://github.com/mikenguyen13/ai_in_action
+    # No license file yet; the site footer says all rights reserved.
+    text_access: teaser
+    license: { text: All-Rights-Reserved, code: unspecified }
+    citation:
+      key: Nguyen2025AIinAction
+      type: book
+      title: "AI in Action: A Reference for Artificial Intelligence"
+      authors: *mike
+      year: 2025
+      url: https://mikenguyen13.github.io/ai_in_action/

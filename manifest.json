@@ -1,0 +1,42 @@
+{
+  "manifest_version": "0.3",
+  "name": "research-methods-mcp",
+  "display_name": "Research Methods Library",
+  "version": "0.1.0",
+  "description": "Research methods for AI assistants: R and Python code, method advice, and citations from open books.",
+  "long_description": "Ask Claude how to analyze your data and get answers grounded in open books on causal inference, econometrics, experiments, marketing research, credit scoring, and AI. Choose a design for your research question, read the relevant sections, get runnable R and Python code, and get a reference list in APA, Chicago, MLA, Harvard, BibTeX, or RIS. Runs locally; no account or API key.",
+  "author": {
+    "name": "Mike Nguyen",
+    "url": "https://github.com/mikenguyen13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikenguyen13/research-methods-mcp"
+  },
+  "homepage": "https://github.com/mikenguyen13/research-methods-mcp",
+  "documentation": "https://github.com/mikenguyen13/research-methods-mcp#readme",
+  "support": "https://github.com/mikenguyen13/research-methods-mcp/issues",
+  "icon": "assets/icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/stdio.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/stdio.js"]
+    }
+  },
+  "tools": [
+    { "name": "choose_method", "description": "Recommend methods for a research question, with assumptions, R and Python packages, and readings." },
+    { "name": "search", "description": "Search the library's sections." },
+    { "name": "fetch", "description": "Read a section with its code, link, and citation." },
+    { "name": "get_code", "description": "Get runnable R, Python, or Julia code for a task." },
+    { "name": "cite", "description": "Format references in APA, Chicago, MLA, Harvard, BibTeX, or RIS." },
+    { "name": "list_sources", "description": "List the books and packages in the library." }
+  ],
+  "keywords": ["research methods", "causal inference", "econometrics", "statistics", "R", "Python", "citations", "data analysis"],
+  "license": "MIT",
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=20.0.0" }
+  }
+}

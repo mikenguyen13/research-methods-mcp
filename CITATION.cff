@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "Research Methods Library: an MCP server for research methods with citations"
+message: "If you use this server, please cite the books and packages it draws on; the server's cite tool formats them. To cite the server itself, use this entry."
+type: software
+authors:
+  - family-names: Nguyen
+    given-names: Mike
+    orcid: "https://orcid.org/0000-0002-3432-8595"
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/mikenguyen13/research-methods-mcp"
+keywords:
+  - model context protocol
+  - research methods
+  - causal inference
+  - econometrics
+  - R
+  - Python
