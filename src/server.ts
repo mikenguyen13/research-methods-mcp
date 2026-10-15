@@ -99,13 +99,13 @@ export function createServer(lib: Library): McpServer {
       const lines: string[] = [];
       for (const [i, m] of methods.entries()) {
         lines.push(`## ${i + 1}. ${m.name}`, `**Use when:** ${m.use_when}`, `**Key assumptions:** ${m.assumptions.join('; ')}.`);
-        if (m.avoid_when) lines.push(`**Watch out:** ${m.avoid_when}`);
+        if (m.avoid_when) lines.push(`**Not suitable when:** ${m.avoid_when}`);
         const pk = Object.entries(m.packages).filter(([, v]) => v?.length).map(([k, v]) => `${k === 'r' ? 'R' : k[0].toUpperCase() + k.slice(1)}: ${v!.join(', ')}`);
         if (pk.length) lines.push(`**Packages:** ${pk.join(' | ')}`);
-        lines.push('**Read:**', ...m.sections.map((s) => `- [${s.title}](${s.url}) (id: \`${s.id}\`)`), '');
+        lines.push('**Readings:**', ...m.sections.map((s) => `- [${s.title}](${s.url}) (id: \`${s.id}\`)`), '');
       }
       if (related.length) {
-        lines.push('## Other relevant sections', ...related.map((h) => `- [${h.title}](${h.url}) (id: \`${h.id}\`)`), '');
+        lines.push('## Related sections', ...related.map((h) => `- [${h.title}](${h.url}) (id: \`${h.id}\`)`), '');
       }
       const works = uniqueWorks(lib, [...methods.flatMap((m) => m.sections.map((s) => s.id)), ...related.map((h) => h.id)]);
       lines.push('## Sources', ...works.map((w) => `- ${formatWork(w, 'apa')}`));
@@ -180,7 +180,7 @@ export function createServer(lib: Library): McpServer {
         ...references.map((r) => (block ? r.text + '\n' : `- ${r.text}`)),
         block ? '```' : '',
       ].filter((l) => l !== '');
-      if (sections.length) lines.push('', 'Sections used:', ...sections.map((s) => `- [${s.title}](${s.url}) [${s.cite_key}]`));
+      if (sections.length) lines.push('', 'Sections cited:', ...sections.map((s) => `- [${s.title}](${s.url}) [${s.cite_key}]`));
       if (unknown.length) lines.push('', `Not found in the library: ${unknown.join(', ')}`);
       return markdown(lines.join('\n'), { style, references, sections, unknown });
     },
