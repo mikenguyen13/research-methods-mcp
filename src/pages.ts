@@ -54,25 +54,25 @@ export function landingPage(lib: Library, origin: string): string {
   const total = lib.index.records.length.toLocaleString('en-US');
   return page(SERVER_TITLE, `
 <h1>${SERVER_TITLE}</h1>
-<p class="lede">Ask your AI assistant how to analyze your data and get answers grounded in ${total} sections of open books on causal inference, econometrics, experiments, marketing research, credit scoring, and AI. You get runnable R and Python code, the assumptions to check, and a citation for every source. Free, no account, no API key.</p>
+<p class="lede">A Model Context Protocol server that grounds AI assistants in ${total} sections of methodological texts on causal inference, econometrics, experimental design, marketing research, credit scoring, and artificial intelligence. Responses include study design recommendations, the assumptions to verify, runnable R and Python code, and a citation for every source. Access is free and requires no account or API key.</p>
 <div class="endpoint"><pre><code id="ep">${esc(endpoint)}</code></pre><button onclick="navigator.clipboard.writeText(document.getElementById('ep').textContent)">Copy URL</button></div>
 <div class="badges"><a href="${esc(links.cursor)}">Add to Cursor</a><a href="${esc(links.vscode)}">Install in VS Code</a></div>
 
-<h2>Add it to your assistant</h2>
+<h2>Installation</h2>
 <dl>
-<dt>Claude (claude.ai, Desktop, mobile)</dt><dd>Settings → Connectors → Add custom connector, then paste the URL above.</dd>
+<dt>Claude (web, desktop, and mobile)</dt><dd>Settings → Connectors → Add custom connector; enter the endpoint URL above.</dd>
 <dt>Claude Code</dt><dd><pre><code>${esc(links.claudeCode)}</code></pre></dd>
-<dt>ChatGPT</dt><dd>Turn on developer mode in Settings, add a custom connector (MCP server), paste the URL above, and choose no authentication.</dd>
-<dt>Cursor, VS Code, Windsurf, Cline, Zed, and other MCP clients</dt><dd>Use the buttons above, or add this to the client's MCP configuration:<pre><code>${esc(links.json)}</code></pre></dd>
-<dt>Run it locally instead (needs Node.js 20 or later)</dt><dd><pre><code>${esc(links.stdio)}</code></pre></dd>
+<dt>ChatGPT</dt><dd>Enable developer mode in Settings, add a custom connector of type MCP server with the endpoint URL above, and select no authentication.</dd>
+<dt>Cursor, Visual Studio Code, Windsurf, Cline, Zed, and other MCP clients</dt><dd>Use the buttons above, or add the following to the client's MCP configuration:<pre><code>${esc(links.json)}</code></pre></dd>
+<dt>Local installation (requires Node.js 20 or later)</dt><dd><pre><code>${esc(links.stdio)}</code></pre></dd>
 </dl>
 
-<h2>What you can ask</h2>
+<h2>Example queries</h2>
 <div class="grid">
-<div class="card"><h3>Choose a design</h3><p>"States raised the minimum wage in different years. How do I estimate the effect on teen employment?"</p></div>
-<div class="card"><h3>Get working code</h3><p>"Give me Python code for a regression discontinuity with a data-driven bandwidth."</p></div>
-<div class="card"><h3>Check assumptions</h3><p>"What could break my synthetic control estimate, and how do I test for it?"</p></div>
-<div class="card"><h3>Cite what you used</h3><p>"Write my methods section and give me BibTeX for the sources."</p></div>
+<div class="card"><h3>Study design</h3><p>"States raised the minimum wage in different years. How do I estimate the effect on teen employment?"</p></div>
+<div class="card"><h3>Implementation</h3><p>"Give me Python code for a regression discontinuity with a data-driven bandwidth."</p></div>
+<div class="card"><h3>Identifying assumptions</h3><p>"What could break my synthetic control estimate, and how do I test for it?"</p></div>
+<div class="card"><h3>Citation</h3><p>"Write my methods section and give me BibTeX for the sources."</p></div>
 </div>
 
 <h2>Tools</h2>
@@ -80,7 +80,7 @@ export function landingPage(lib: Library, origin: string): string {
 <dt><code>choose_method</code></dt><dd>Matches a research question to methods, with assumptions, R and Python packages, and readings.</dd>
 <dt><code>search</code> and <code>fetch</code></dt><dd>Find and read sections, with code and links. Compatible with ChatGPT deep research.</dd>
 <dt><code>get_code</code></dt><dd>Runnable R, Python, or Julia code for a task.</dd>
-<dt><code>cite</code></dt><dd>References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections you used.</dd>
+<dt><code>cite</code></dt><dd>References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.</dd>
 <dt><code>list_sources</code></dt><dd>The books and packages in the library.</dd>
 </dl>
 
@@ -92,19 +92,19 @@ export function landingPage(lib: Library, origin: string): string {
 export function privacyPage(): string {
   return page(`Privacy · ${SERVER_TITLE}`, `
 <h1>Privacy policy</h1>
-<p class="lede">Short version: no accounts, no tracking, nothing about you is stored by this service.</p>
+<p class="lede">In brief: the service has no user accounts, performs no tracking, and stores no information about its users.</p>
 <h2>What the service receives</h2>
-<p>When your AI assistant calls a tool, the service receives the tool's arguments: a search query, a section id, a topic, or a citation style. It uses them to look up an answer in a read-only index of published books and returns the result.</p>
+<p>When an AI assistant calls a tool, the service receives the tool's arguments: a search query, a section identifier, a topic, or a citation style. These are used to look up an answer in a read-only index of published works, and the result is returned.</p>
 <h2>What the service stores</h2>
 <p>Nothing. Tool arguments are processed in memory and are not written to a database or log by this service. There are no user accounts, cookies, analytics, or advertising.</p>
 <h2>Hosting provider</h2>
 <p>The hosting provider may keep standard request logs (such as IP address, time, and requested path) for security and operations, under its own privacy policy.</p>
-<h2>Your assistant</h2>
-<p>Your conversation stays with the AI assistant you use (for example Claude or ChatGPT) and is governed by that provider's policy. This service never sees the conversation, only the tool arguments the assistant sends.</p>
+<h2>AI assistant providers</h2>
+<p>Conversations remain with the AI assistant in use (for example, Claude or ChatGPT) and are governed by that provider's privacy policy. The service never receives the conversation, only the tool arguments the assistant sends.</p>
 <h2>Children</h2>
 <p>The service collects no personal information from anyone, including children.</p>
 <h2>Contact</h2>
-<p>Questions: <a href="${HOMEPAGE}/issues">open an issue on GitHub</a>.</p>
+<p>Questions about this policy may be raised by <a href="${HOMEPAGE}/issues">opening an issue on GitHub</a>.</p>
 `);
 }
 
@@ -113,12 +113,12 @@ export function termsPage(): string {
 <h1>Terms of use</h1>
 <p>The ${SERVER_TITLE} is a free, read-only service that returns excerpts, code, and citations from books and software written by Mike Nguyen.</p>
 <h2>Content and licenses</h2>
-<p>Each work keeps its own license, listed by the <code>list_sources</code> tool and on each book's website. Some books are served in full under open licenses; for others only short excerpts and code are served, and the full text stays on the book's website. Please cite the works you use; the <code>cite</code> tool formats the references.</p>
+<p>Each work retains its own license, listed by the <code>list_sources</code> tool and on each work's website. Works under open licenses are served in full; for the others, only short excerpts and code are served, and the full text remains on the work's website. Users are asked to cite the works they draw on; the <code>cite</code> tool formats the references.</p>
 <h2>No warranty</h2>
-<p>The service and its content are provided as is, without warranty of any kind. Statistical guidance is educational; check results and assumptions for your own data before relying on them.</p>
-<h2>Fair use of the service</h2>
-<p>Do not overload the service or use it to mirror the books wholesale. Access may be rate limited or changed at any time.</p>
+<p>The service and its content are provided as is, without warranty of any kind. Statistical guidance is provided for educational purposes; users should verify results and assumptions against their own data before relying on them.</p>
+<h2>Acceptable use</h2>
+<p>The service must not be overloaded or used to reproduce the works wholesale. Access may be rate limited or changed at any time.</p>
 <h2>Contact</h2>
-<p><a href="${HOMEPAGE}/issues">Open an issue on GitHub</a>.</p>
+<p>Questions may be raised by <a href="${HOMEPAGE}/issues">opening an issue on GitHub</a>.</p>
 `);
 }

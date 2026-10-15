@@ -3,8 +3,8 @@
   "name": "research-methods-mcp",
   "display_name": "Research Methods Library",
   "version": "0.1.0",
-  "description": "Research methods for AI assistants: R and Python code, method advice, and citations from open books.",
-  "long_description": "Ask Claude how to analyze your data and get answers grounded in open books on causal inference, econometrics, experiments, marketing research, credit scoring, and AI. Choose a design for your research question, read the relevant sections, get runnable R and Python code, and get a reference list in APA, Chicago, MLA, Harvard, BibTeX, or RIS. Runs locally; no account or API key.",
+  "description": "Research methods for AI assistants: study design guidance, R and Python code, and citations.",
+  "long_description": "Grounds Claude in methodological texts on causal inference, econometrics, experimental design, marketing research, credit scoring, and artificial intelligence. The server recommends designs for a research question, retrieves the relevant sections, returns runnable R and Python code, and formats references in APA, Chicago, MLA, Harvard, BibTeX, or RIS. It runs locally and requires no account or API key.",
   "author": {
     "name": "Mike Nguyen",
     "url": "https://github.com/mikenguyen13"

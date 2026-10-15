@@ -3,7 +3,7 @@
 <h1 align="center">Research Methods Library</h1>
 
 <p align="center">
-Ask your AI assistant how to analyze your data. Get the right design, the assumptions to check, runnable R and Python code, and a citation for every source.
+A Model Context Protocol server that grounds AI assistants in methodological texts: study design recommendations, identifying assumptions, runnable R and Python code, and a citation for every source.
 </p>
 
 <p align="center">
@@ -12,31 +12,37 @@ Ask your AI assistant how to analyze your data. Get the right design, the assump
 <img src="https://img.shields.io/badge/MCP-remote%20%7C%20stdio-5b3fd1" alt="MCP">
 </p>
 
-An [MCP](https://modelcontextprotocol.io) server that gives Claude, ChatGPT, Cursor, VS Code, and any other MCP client grounded answers from about 13,000 sections of open books and an R package on causal inference, econometrics, experiments, marketing research, credit scoring, machine learning, and AI. Free, no account, no API key.
+The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 13,000 sections from four textbooks and one R package (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
 
-## Install
+The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
+
+## Installation
 
 <!-- install:start -->
-**Endpoint:** `https://YOUR-HOST/mcp` (free, no account, no API key)
+**Endpoint:** `https://mcp.research-methods.deno.net/mcp`. Access is free and requires no account or API key.
 
-| Client | How to add it |
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=research-methods&config=eyJ1cmwiOiJodHRwczovL21jcC5yZXNlYXJjaC1tZXRob2RzLmRlbm8ubmV0L21jcCJ9)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_server-0098FF?logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=research-methods&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.research-methods.deno.net%2Fmcp%22%7D)
+
+| Client | Configuration |
 | --- | --- |
-| Claude (claude.ai, Desktop, mobile) | Settings → Connectors → **Add custom connector**, paste the endpoint |
-| Claude Code | `claude mcp add --transport http research-methods https://YOUR-HOST/mcp` |
-| ChatGPT | Settings → turn on developer mode → add a custom connector (MCP server) with the endpoint and no authentication |
-| Windsurf, Cline, Zed, and other clients | Add the JSON below to the client's MCP settings |
+| Claude (web, desktop, and mobile) | Settings → Connectors → **Add custom connector**; enter the endpoint |
+| Claude Code | `claude mcp add --transport http research-methods https://mcp.research-methods.deno.net/mcp` |
+| ChatGPT | Settings → enable developer mode → add a custom connector of type MCP server with the endpoint and no authentication |
+| Cursor, Visual Studio Code | Use the buttons above |
+| Windsurf, Cline, Zed, and other clients | Add the following JSON to the client's MCP configuration |
 
 ```json
 {
   "mcpServers": {
     "research-methods": {
-      "url": "https://YOUR-HOST/mcp"
+      "url": "https://mcp.research-methods.deno.net/mcp"
     }
   }
 }
 ```
 
-Prefer to run it on your own machine? It needs Node.js 20 or later:
+To run the server locally instead (requires Node.js 20 or later):
 
 ```json
 {
@@ -53,11 +59,11 @@ Prefer to run it on your own machine? It needs Node.js 20 or later:
 ```
 <!-- install:end -->
 
-## What you can ask
+## Example queries
 
 > States raised the minimum wage in different years. How do I estimate the effect on teen employment?
 
-The assistant calls `choose_method`, which returns staggered difference-in-differences: when to use it, why a plain two-way fixed effects regression can mislead, the assumptions to check, the R packages (`did`, `fixest`, `didimputation`, `HonestDiD`) and Python packages (`csdid`, `pyfixest`, `differences`), and the sections to read.
+For this query the assistant calls `choose_method`, which returns staggered difference-in-differences together with its scope conditions, the reason a conventional two-way fixed-effects regression can be biased when treatment effects are heterogeneous, the assumptions to verify, implementations in R (`did`, `fixest`, `didimputation`, `HonestDiD`) and Python (`csdid`, `pyfixest`, `differences`), and the relevant readings.
 
 > Give me Python code for a probability-of-default model with gradient boosting.
 
@@ -65,7 +71,7 @@ The assistant calls `choose_method`, which returns staggered difference-in-diffe
 
 > Write the methods section for my regression discontinuity and give me BibTeX for the sources.
 
-Every answer links to the exact section it used and carries the citation of the book it came from.
+Each response links to the specific section consulted and carries the citation of the work from which it is drawn.
 
 ## Tools
 
@@ -75,12 +81,12 @@ Every answer links to the exact section it used and carries the citation of the 
 | `search` | Finds sections across all works, with links, snippets, code languages, and a citation. Compatible with ChatGPT deep research. |
 | `fetch` | Reads a section in full, with its code, link, and citation. Compatible with ChatGPT deep research. |
 | `get_code` | Runnable R, Python, or Julia code for a task, with the packages it uses. |
-| `cite` | References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections you used, deduplicated by work. |
+| `cite` | References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted, deduplicated by work. |
 | `list_sources` | The books and packages, with topics, languages, licenses, and links. |
 
 Prompts (slash commands in clients that support them): `plan_analysis`, `write_methods_section`, `explain_method`. Resources: the library catalog and a table of contents for each work.
 
-All tools are read-only. The server makes no calls to language models and stores nothing about you; see the [privacy policy](https://YOUR-HOST/privacy).
+All tools are read-only. The server makes no calls to language models and stores no information about its users; see the [privacy policy](https://mcp.research-methods.deno.net/privacy).
 
 ## Sources
 
@@ -94,9 +100,9 @@ All tools are read-only. The server makes no calls to language models and stores
 
 Chapters of *A Guide on Data Analysis* that appear in the Springer print volumes are cited as those volumes, for example Nguyen, M. (2025). *Foundations of data analysis* (Vol. 1). Springer Cham. https://doi.org/10.1007/978-3-032-01858-8.
 
-## How it works
+## Method
 
-The books are parsed from their source files (`.Rmd`, `.qmd`, `.Rd`) into one index of sections, code blocks, and citations. Every link is checked against the live websites when the index is built: a section whose anchor is missing links to its chapter page, and pages that are not published yet are left out. The server searches that index in memory; there is no database and no model in the loop.
+The source files of each work (`.Rmd`, `.qmd`, `.Rd`) are parsed into a single index of sections, code blocks, and citations. During index construction every link is verified against the published website: a section whose anchor is absent links to its chapter page, and unpublished pages are excluded. Queries are answered from the in-memory index; no database or language model is involved.
 
 ## Self-hosting
 
@@ -119,9 +125,9 @@ npm run check-links   # audit every link in the index against the live sites
 
 To add a book, add an entry to [`sources.yml`](sources.yml) and rebuild the index. To add or tune a method, edit [`methods.yml`](methods.yml); the build fails if a method points at a section that does not exist.
 
-## Citing
+## Citation
 
-Please cite the works you use; the `cite` tool formats them. To cite the server itself, see [`CITATION.cff`](CITATION.cff).
+Users are asked to cite the works they draw on; the `cite` tool formats the references. To cite the server itself, see [`CITATION.cff`](CITATION.cff).
 
 ## License
 

@@ -1,7 +1,7 @@
 {
   "name": "research-methods-mcp",
   "version": "0.1.0",
-  "description": "Research methods library for AI assistants: causal inference, econometrics, experiments, marketing research, credit scoring, and AI, with runnable R and Python code and a ready-made citation in every answer.",
+  "description": "Research methods library for AI assistants: study design guidance for causal inference, econometrics, experimental design, marketing research, credit scoring, and AI, with runnable R and Python code and a citation for every source.",
   "mcpName": "io.github.mikenguyen13/research-methods-mcp",
   "type": "module",
   "bin": {
@@ -75,6 +75,6 @@
     "zod": "^4.6.7"
   },
   "config": {
-    "endpoint": "https://YOUR-HOST/mcp"
+    "endpoint": "https://mcp.research-methods.deno.net/mcp"
   }
 }

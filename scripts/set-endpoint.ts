@@ -26,25 +26,24 @@ await writeFile('server.json', JSON.stringify(server, null, 2) + '\n');
 
 const l = installLinks(endpoint);
 const block = `<!-- install:start -->
-**Endpoint:** \`${endpoint}\` (free, no account, no API key)
+**Endpoint:** \`${endpoint}\`. Access is free and requires no account or API key.
 
 [![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](${l.cursor})
 [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_server-0098FF?logo=visualstudiocode&logoColor=white)](${l.vscode})
 
-| Client | How to add it |
+| Client | Configuration |
 | --- | --- |
-| Claude (claude.ai, Desktop, mobile) | Settings → Connectors → **Add custom connector**, paste the endpoint |
+| Claude (web, desktop, and mobile) | Settings → Connectors → **Add custom connector**; enter the endpoint |
 | Claude Code | \`${l.claudeCode}\` |
-| ChatGPT | Settings → turn on developer mode → add a custom connector (MCP server) with the endpoint and no authentication |
-| Cursor, VS Code | Use the buttons above |
-| Windsurf, Cline, Zed, and other clients | Add the JSON below to the client's MCP settings |
-| Claude Desktop, offline | Download \`research-methods-mcp.mcpb\` from [Releases](https://github.com/mikenguyen13/research-methods-mcp/releases) and double-click it |
+| ChatGPT | Settings → enable developer mode → add a custom connector of type MCP server with the endpoint and no authentication |
+| Cursor, Visual Studio Code | Use the buttons above |
+| Windsurf, Cline, Zed, and other clients | Add the following JSON to the client's MCP configuration |
 
 \`\`\`json
 ${l.json}
 \`\`\`
 
-Prefer to run it on your own machine? It needs Node.js 20 or later:
+To run the server locally instead (requires Node.js 20 or later):
 
 \`\`\`json
 ${l.stdio}
