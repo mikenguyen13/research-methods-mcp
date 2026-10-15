@@ -14,10 +14,17 @@ const cff = read('CITATION.cff');
 const versions = {
   'package.json': pkg.version,
   'server.json': server.version,
-  'server.json packages[0]': server.packages?.[0]?.version,
+  ...(server.packages ? { 'server.json packages[0]': server.packages[0]?.version } : {}),
   'manifest.json': manifest.version,
   'CITATION.cff': /^version:\s*(\S+)/m.exec(cff)?.[1],
 };
+const npmPublished = pkg.config?.npmPublished === true;
+if (Boolean(server.packages?.length) !== npmPublished) {
+  errors.push(`server.json packages must ${npmPublished ? '' : 'not '}be listed while config.npmPublished is ${npmPublished}; run npm run set-endpoint`);
+}
+if (!npmPublished && read('README.md').includes('"npx"')) {
+  errors.push('README.md offers npx installation but config.npmPublished is false; run npm run set-endpoint');
+}
 if (new Set(Object.values(versions)).size !== 1) errors.push(`versions disagree: ${JSON.stringify(versions)}`);
 if (server.name !== pkg.mcpName) errors.push(`server.json name ${server.name} != package.json mcpName ${pkg.mcpName}`);
 if (server.description.length > 100) errors.push(`server.json description is ${server.description.length} chars (max 100)`);

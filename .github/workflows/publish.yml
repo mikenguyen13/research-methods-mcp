@@ -1,15 +1,20 @@
-# Publishes to npm and the official MCP Registry when a GitHub release is published.
-# Needs an NPM_TOKEN repository secret; the registry login uses GitHub OIDC.
+# Publishes to npm and the official MCP Registry when a GitHub release is
+# published, or on demand from the Actions tab (workflow_dispatch).
+# The npm step runs only when the NPM_TOKEN repository secret is set; the
+# registry login uses GitHub OIDC, so it needs no secret.
 name: Publish
 on:
   release:
     types: [published]
+  workflow_dispatch:
 permissions:
   contents: read
   id-token: write
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,11 +22,14 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - run: npm publish --provenance --access public
+      - run: npm run build && npm test && npm run check-release
+      - name: Publish to npm
+        if: env.NPM_TOKEN != ''
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish to the MCP Registry
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish

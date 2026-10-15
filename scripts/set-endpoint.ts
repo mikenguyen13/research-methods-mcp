@@ -5,9 +5,11 @@
 // Rewrites server.json's remote, regenerates the install block in README.md
 // (between the install:start/install:end markers), and replaces the old origin
 // in docs/LISTING.md. The current endpoint is kept in package.json "config".
+// The npm package entry and the local-install instructions are included only
+// when package.json config.npmPublished is true.
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { installLinks } from '../src/pages.ts';
+import { installLinks, NPM_PUBLISHED } from '../src/pages.ts';
 
 const endpoint = process.argv[2];
 if (!endpoint || !/^https:\/\/[^/]+\/mcp$/.test(endpoint)) {
@@ -21,10 +23,18 @@ const oldOrigin = new URL(previous.replace('YOUR-HOST', 'your-host.invalid')).or
 const newOrigin = new URL(endpoint).origin;
 
 const server = JSON.parse(await readFile('server.json', 'utf8'));
+delete server.packages;
+delete server.remotes;
+if (NPM_PUBLISHED) {
+  server.packages = [{ registryType: 'npm', identifier: pkg.name, version: pkg.version, transport: { type: 'stdio' } }];
+}
 server.remotes = [{ type: 'streamable-http', url: endpoint }];
 await writeFile('server.json', JSON.stringify(server, null, 2) + '\n');
 
 const l = installLinks(endpoint);
+const local = NPM_PUBLISHED
+  ? `\nTo run the server locally instead (requires Node.js 20 or later):\n\n\`\`\`json\n${l.stdio}\n\`\`\`\n`
+  : '';
 const block = `<!-- install:start -->
 **Endpoint:** \`${endpoint}\`. Access is free and requires no account or API key.
 
@@ -42,13 +52,7 @@ const block = `<!-- install:start -->
 \`\`\`json
 ${l.json}
 \`\`\`
-
-To run the server locally instead (requires Node.js 20 or later):
-
-\`\`\`json
-${l.stdio}
-\`\`\`
-<!-- install:end -->`;
+${local}<!-- install:end -->`;
 
 let readme = await readFile('README.md', 'utf8');
 readme = readme.replace(/<!-- install:start -->[\s\S]*?<!-- install:end -->/, block).replaceAll(oldOrigin, newOrigin);

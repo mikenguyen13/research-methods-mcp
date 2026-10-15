@@ -34,18 +34,22 @@ behind a reverse proxy.
 
 ## 2. Packages (once per release)
 
-1. **maintainer** `npm login`, then `npm publish` (runs the build, tests, and release check first).
-2. **maintainer** Publish to the official MCP Registry, from which most other directories read:
-   ```bash
-   # install: https://github.com/modelcontextprotocol/registry/releases (mcp-publisher)
-   mcp-publisher login github
-   mcp-publisher publish
-   ```
+1. **maintainer** npm (pending): publishing requires two-factor authentication
+   on the npm account. After `npm login` and `npm publish` (which runs the build,
+   tests, and release check first), set `config.npmPublished` to `true` in
+   `package.json` and run `npm run set-endpoint -- <endpoint>`. This restores the
+   local-installation instructions on the landing page and in the README, and
+   adds the npm package to `server.json`.
+2. Official MCP Registry, from which most other directories read: run the
+   **Publish** workflow from the repository's Actions tab. It authenticates with
+   GitHub OIDC and skips npm when no `NPM_TOKEN` secret is set. Registry versions
+   are immutable, so each publication needs a new version number.
 3. Claude Desktop extension: `npx -y @anthropic-ai/mcpb pack . research-methods-mcp.mcpb`,
    attached to a GitHub release. (Anthropic's directory no longer lists `.mcpb`
    files; users install them by opening the file.)
-4. Subsequent releases: bump the version in `package.json`, `server.json` (two
-   places), `manifest.json`, and `CITATION.cff`, then publish a GitHub release.
+4. Subsequent releases: bump the version in `package.json`, `server.json` (and
+   its npm package entry, when present), `manifest.json`, and `CITATION.cff`,
+   then publish a GitHub release.
    The `publish.yml` workflow publishes to npm (requires an `NPM_TOKEN` secret)
    and to the MCP Registry (GitHub OIDC).
 

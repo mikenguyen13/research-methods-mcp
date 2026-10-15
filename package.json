@@ -75,6 +75,7 @@
     "zod": "^4.6.7"
   },
   "config": {
-    "endpoint": "https://mcp.research-methods.deno.net/mcp"
+    "endpoint": "https://mcp.research-methods.deno.net/mcp",
+    "npmPublished": false
   }
 }

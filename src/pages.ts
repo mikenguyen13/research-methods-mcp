@@ -1,8 +1,12 @@
 // HTML pages served next to the MCP endpoint: install instructions, privacy, terms.
 // Directory listings (Anthropic, OpenAI) require public privacy and terms URLs.
 
+import pkg from '../package.json' with { type: 'json' };
 import type { Library } from './library.ts';
 import { HOMEPAGE, SERVER_NAME, SERVER_TITLE } from './server.ts';
+
+/** Local (npx) installation is offered only once the package is on npm; see package.json config. */
+export const NPM_PUBLISHED: boolean = pkg.config.npmPublished;
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
@@ -64,7 +68,7 @@ export function landingPage(lib: Library, origin: string): string {
 <dt>Claude Code</dt><dd><pre><code>${esc(links.claudeCode)}</code></pre></dd>
 <dt>ChatGPT</dt><dd>Enable developer mode in Settings, add a custom connector of type MCP server with the endpoint URL above, and select no authentication.</dd>
 <dt>Cursor, Visual Studio Code, Windsurf, Cline, Zed, and other MCP clients</dt><dd>Use the buttons above, or add the following to the client's MCP configuration:<pre><code>${esc(links.json)}</code></pre></dd>
-<dt>Local installation (requires Node.js 20 or later)</dt><dd><pre><code>${esc(links.stdio)}</code></pre></dd>
+${NPM_PUBLISHED ? `<dt>Local installation (requires Node.js 20 or later)</dt><dd><pre><code>${esc(links.stdio)}</code></pre></dd>` : ''}
 </dl>
 
 <h2>Example queries</h2>

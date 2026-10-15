@@ -7,9 +7,8 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 </p>
 
 <p align="center">
-<a href="https://www.npmjs.com/package/research-methods-mcp"><img src="https://img.shields.io/npm/v/research-methods-mcp?label=npm" alt="npm"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
-<img src="https://img.shields.io/badge/MCP-remote%20%7C%20stdio-5b3fd1" alt="MCP">
+<img src="https://img.shields.io/badge/MCP-streamable%20HTTP-5b3fd1" alt="MCP: streamable HTTP">
 </p>
 
 The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 13,000 sections from four textbooks and one R package (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
@@ -37,22 +36,6 @@ The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other
   "mcpServers": {
     "research-methods": {
       "url": "https://mcp.research-methods.deno.net/mcp"
-    }
-  }
-}
-```
-
-To run the server locally instead (requires Node.js 20 or later):
-
-```json
-{
-  "mcpServers": {
-    "research-methods": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "research-methods-mcp"
-      ]
     }
   }
 }
