@@ -143,6 +143,11 @@ for (const p of ['/', '/privacy', '/terms', '/health']) {
   check(res.ok, `GET ${p}`);
   if (p === '/') check((await res.text()).includes(`${base}/mcp`), 'landing page shows the endpoint');
 }
+for (const p of ['/favicon.ico', '/icon.png']) {
+  const res = await fetch(base + p);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  check(res.ok && res.headers.get('content-type') === 'image/png' && bytes[1] === 0x50 && bytes.length > 1000, `GET ${p} serves the PNG icon`);
+}
 
 // --- stdio binary ----------------------------------------------------------------
 if (existsSync('dist/stdio.js')) {

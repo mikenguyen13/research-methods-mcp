@@ -30,7 +30,7 @@ dl{margin:0}dt{font-weight:600;margin-top:14px}dd{margin:4px 0 0}footer{margin-t
 
 function page(title: string, body: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)}</title><meta name="description" content="Research methods for AI assistants: R and Python code with citations.">
+<title>${esc(title)}</title><link rel="icon" type="image/png" href="/icon.png"><link rel="apple-touch-icon" href="/icon.png"><meta name="description" content="Research methods for AI assistants: R and Python code with citations.">
 <style>${STYLE}</style></head><body><main>${body}
 <footer><a href="/">Home</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="${HOMEPAGE}">Source on GitHub</a> · <a href="${HOMEPAGE}/issues">Support</a></footer>
 </main></body></html>`;

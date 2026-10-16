@@ -2,6 +2,7 @@
 // Node (node-http.ts), Deno Deploy (deno.ts), Docker, or any fetch-style runtime.
 
 import { createMcpHandler } from '@modelcontextprotocol/server';
+import { ICON_PNG_BASE64 } from './icon.ts';
 import type { Library } from './library.ts';
 import { landingPage, privacyPage, termsPage } from './pages.ts';
 import { createServer, SERVER_NAME, VERSION } from './server.ts';
@@ -20,6 +21,13 @@ function withCors(res: Response): Response {
 }
 
 const html = (body: string) => new Response(body, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
+
+// Clients and directories show the server's favicon next to its name.
+const ICON = Uint8Array.from(atob(ICON_PNG_BASE64), (c) => c.charCodeAt(0));
+const icon = () =>
+  new Response(ICON, {
+    headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=86400', 'access-control-allow-origin': '*' },
+  });
 
 export interface AppOptions {
   /** Domain verification for directory submissions: serve `verifyToken` as plain text at `verifyPath`. */
@@ -54,6 +62,10 @@ export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) =
         return Response.json({ ok: true, name: SERVER_NAME, version: VERSION, sections: lib.index.records.length, built: lib.index.built });
       case '/robots.txt':
         return new Response('User-agent: *\nAllow: /\n', { headers: { 'content-type': 'text/plain' } });
+      case '/favicon.ico':
+      case '/icon.png':
+      case '/apple-touch-icon.png':
+        return icon();
       default:
         return new Response('Not found', { status: 404 });
     }
