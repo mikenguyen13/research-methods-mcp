@@ -130,16 +130,16 @@ export function createServer(lib: Library): McpServer {
   server.registerTool(
     'get_code',
     {
-      title: 'Get runnable R or Python code',
+      title: 'Get runnable R, Python, or Julia code',
       description:
-        'Get runnable code from the library for a statistical, econometric, causal inference, or machine learning task, in R, Python, or Julia. Returns code blocks with the section they come from, the packages they use, a link, and a citation.',
+        'Get runnable code from the library for a specific statistical, econometric, causal inference, or machine learning task, in R, Python, or Julia. Suited to requests for code that carries out a named estimator, test, or modeling step; it returns code with brief context, not an explanation of the method. Results can be restricted to one language or one work. Returns code blocks with the section they come from, the packages they use, a link, and a citation.',
       inputSchema: z.object({
         topic: z.string().min(2).describe('The task, e.g. "Callaway and Sant\'Anna group-time ATT", "rdrobust bandwidth", "WoE binning scorecard".'),
         language: Language.optional(),
         source: Source.optional(),
         limit: z.number().int().min(1).max(10).optional().describe('Number of sections to return code from (default 4).'),
       }),
-      annotations: { title: 'Get runnable R or Python code', ...READ_ONLY },
+      annotations: { title: 'Get runnable R, Python, or Julia code', ...READ_ONLY },
     },
     async ({ topic, language, source, limit }) => {
       const { note, results } = lib.code(topic, { language, source, limit });
@@ -203,10 +203,11 @@ export function createServer(lib: Library): McpServer {
   server.registerTool(
     'list_sources',
     {
-      title: 'List the books and packages',
-      description: 'List the books and packages in the library with their topics, code languages, licenses, links, and how to cite each one.',
+      title: 'List the works in the library',
+      description:
+        'List the works in the library (textbooks, an R package, and research articles) with their topics, code languages, section counts, licenses, links, and how to cite each one. Suited to questions about what the library covers or which work to consult. Takes no parameters and returns one entry per work.',
       inputSchema: z.object({}),
-      annotations: { title: 'List the books and packages', ...READ_ONLY },
+      annotations: { title: 'List the works in the library', ...READ_ONLY },
     },
     async () => {
       const sources = lib.index.sources.map((s) => ({

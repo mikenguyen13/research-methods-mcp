@@ -65,7 +65,7 @@ Each response links to the specific section consulted and carries the citation o
 | `fetch` | Reads a section in full, with its code, link, and citation. Compatible with ChatGPT deep research. |
 | `get_code` | Runnable R, Python, or Julia code for a task, with the packages it uses. |
 | `cite` | References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted, deduplicated by work. |
-| `list_sources` | The books and packages, with topics, languages, licenses, and links. |
+| `list_sources` | The works in the library (textbooks, an R package, and research articles), with topics, languages, licenses, and links. |
 
 Prompts (slash commands in clients that support them): `plan_analysis`, `write_methods_section`, `explain_method`. Resources: the library catalog and a table of contents for each work.
 

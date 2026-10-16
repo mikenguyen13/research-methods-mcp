@@ -31,7 +31,7 @@
     { "name": "fetch", "description": "Read a section with its code, link, and citation." },
     { "name": "get_code", "description": "Get runnable R, Python, or Julia code for a task." },
     { "name": "cite", "description": "Format references in APA, Chicago, MLA, Harvard, BibTeX, or RIS." },
-    { "name": "list_sources", "description": "List the books and packages in the library." }
+    { "name": "list_sources", "description": "List the works in the library: textbooks, an R package, and research articles." }
   ],
   "keywords": ["research methods", "causal inference", "econometrics", "statistics", "R", "Python", "citations", "data analysis"],
   "license": "MIT",

@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: "Research Methods Library: an MCP server for research methods with citations"
-message: "If you use this server, please cite the books and packages it draws on; the server's cite tool formats them. To cite the server itself, use this entry."
+message: "If you use this server, please cite the works it draws on; the server's cite tool formats them. To cite the server itself, use this entry."
 type: software
 authors:
   - family-names: Nguyen

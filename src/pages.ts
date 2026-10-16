@@ -97,7 +97,7 @@ ${NPM_PUBLISHED ? `<dt>Local installation (requires Node.js 20 or later)</dt><dd
 <dt><code>search</code> and <code>fetch</code></dt><dd>Find and read sections, with code and links. Compatible with ChatGPT deep research.</dd>
 <dt><code>get_code</code></dt><dd>Runnable R, Python, or Julia code for a task.</dd>
 <dt><code>cite</code></dt><dd>References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.</dd>
-<dt><code>list_sources</code></dt><dd>The books and packages in the library.</dd>
+<dt><code>list_sources</code></dt><dd>The works in the library: textbooks, an R package, and research articles.</dd>
 </dl>
 
 <h2>Sources</h2>
