@@ -22,6 +22,8 @@
     "build:index": "tsx scripts/build-index.ts && npm run build:search",
     "build:search": "tsx scripts/build-search.ts",
     "build:icons": "node scripts/build-icons.mjs",
+    "build:publications": "tsx scripts/build-publications.ts",
+    "check-publications": "tsx scripts/check-publications.ts",
     "build": "node scripts/bundle.mjs",
     "start": "node dist/http.js",
     "dev": "tsx src/node-http.ts",

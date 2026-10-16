@@ -1,0 +1,610 @@
+{
+  "orcid": "0000-0002-3432-8595",
+  "fetched": "2026-10-16T19:19:59.487Z",
+  "works": [
+    {
+      "key": "Nguyen2026PHacking",
+      "type": "article",
+      "title": "p-Hacking and Publication Bias in Design-Based Causal Studies in Information Systems",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        },
+        {
+          "family": "Nguyen",
+          "given": "Minh",
+          "orcid": "0000-0001-5940-8877"
+        }
+      ],
+      "year": 2026,
+      "container": "Information Systems Research",
+      "publisher": "Institute for Operations Research and the Management Sciences (INFORMS)",
+      "doi": "10.1287/isre.2024.1365",
+      "url": "https://doi.org/10.1287/isre.2024.1365"
+    },
+    {
+      "key": "Nguyen2026Regression",
+      "type": "book",
+      "title": "Regression Techniques for Data Analysis",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2026,
+      "volume": 2,
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01835-9",
+      "url": "https://doi.org/10.1007/978-3-032-01835-9"
+    },
+    {
+      "key": "Nguyen2026Replication",
+      "type": "software",
+      "title": "Replication package for \"p-Hacking and Publication Bias in Design-Based Causal Studies in Information Systems\"",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        },
+        {
+          "family": "Nguyen",
+          "given": "Minh"
+        }
+      ],
+      "year": 2026,
+      "publisher": "Zenodo",
+      "version": "v1.0.1",
+      "doi": "10.5281/zenodo.21855537",
+      "url": "https://doi.org/10.5281/zenodo.21855537"
+    },
+    {
+      "key": "Nguyen2025Advanced",
+      "type": "book",
+      "title": "Advanced Modeling and Data Challenges",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2"
+    },
+    {
+      "key": "Nguyen2025Analysis",
+      "type": "chapter",
+      "title": "Analysis of Variance",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "pages": "93-168",
+      "container": "Experimental Design",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7_5",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7_5"
+    },
+    {
+      "key": "Nguyen2025Basic",
+      "type": "chapter",
+      "title": "Basic Statistical Inference",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 1,
+      "pages": "153-285",
+      "container": "Foundations of Data Analysis",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01858-8_4",
+      "url": "https://doi.org/10.1007/978-3-032-01858-8_4"
+    },
+    {
+      "key": "Nguyen2025Causal",
+      "type": "chapter",
+      "title": "Causal Inference",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "pages": "7-48",
+      "container": "Experimental Design",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7_2",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7_2"
+    },
+    {
+      "key": "Nguyen2025Data",
+      "type": "chapter",
+      "title": "Data",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "7-90",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_2",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_2"
+    },
+    {
+      "key": "Nguyen2025Descriptive",
+      "type": "chapter",
+      "title": "Descriptive Statistics",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 1,
+      "pages": "93-152",
+      "container": "Foundations of Data Analysis",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01858-8_3",
+      "url": "https://doi.org/10.1007/978-3-032-01858-8_3"
+    },
+    {
+      "key": "Nguyen2025Experimental",
+      "type": "chapter",
+      "title": "Experimental Design",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "pages": "49-80",
+      "container": "Experimental Design",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7_3",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7_3"
+    },
+    {
+      "key": "Nguyen2025Experimental2",
+      "type": "book",
+      "title": "Experimental Design",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7"
+    },
+    {
+      "key": "Nguyen2025Foundations",
+      "type": "book",
+      "title": "Foundations of Data Analysis",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 1,
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01858-8",
+      "url": "https://doi.org/10.1007/978-3-032-01858-8"
+    },
+    {
+      "key": "Nguyen2025Hypothesis",
+      "type": "chapter",
+      "title": "Hypothesis Testing",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "289-328",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_7",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_7"
+    },
+    {
+      "key": "Nguyen2025Imputation",
+      "type": "chapter",
+      "title": "Imputation (Missing Data)",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "119-196",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_4",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_4"
+    },
+    {
+      "key": "Nguyen2025Introduction",
+      "type": "chapter",
+      "title": "Introduction",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 1,
+      "pages": "1-7",
+      "container": "Foundations of Data Analysis",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01858-8_1",
+      "url": "https://doi.org/10.1007/978-3-032-01858-8_1"
+    },
+    {
+      "key": "Nguyen2025Introduction2",
+      "type": "chapter",
+      "title": "Introduction",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "pages": "1-6",
+      "container": "Experimental Design",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7_1",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7_1"
+    },
+    {
+      "key": "Nguyen2025Introduction3",
+      "type": "chapter",
+      "title": "Introduction",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "1-6",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_1",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_1"
+    },
+    {
+      "key": "Nguyen2025Marginal",
+      "type": "chapter",
+      "title": "Marginal Effects",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "329-355",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_8",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_8"
+    },
+    {
+      "key": "Nguyen2025Mediation",
+      "type": "chapter",
+      "title": "Mediation",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "391-425",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_10",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_10"
+    },
+    {
+      "key": "Nguyen2025Model",
+      "type": "chapter",
+      "title": "Model Specification Tests",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "197-244",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_5",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_5"
+    },
+    {
+      "key": "Nguyen2025Moderation",
+      "type": "chapter",
+      "title": "Moderation",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "357-389",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_9",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_9"
+    },
+    {
+      "key": "Nguyen2025Multivariate",
+      "type": "chapter",
+      "title": "Multivariate Methods",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "pages": "169-238",
+      "container": "Experimental Design",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7_6",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7_6"
+    },
+    {
+      "key": "Nguyen2025Prediction",
+      "type": "chapter",
+      "title": "Prediction and Estimation",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "427-444",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_11",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_11"
+    },
+    {
+      "key": "Nguyen2025Prerequisites",
+      "type": "chapter",
+      "title": "Prerequisites",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 1,
+      "pages": "9-92",
+      "container": "Foundations of Data Analysis",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01858-8_2",
+      "url": "https://doi.org/10.1007/978-3-032-01858-8_2"
+    },
+    {
+      "key": "Nguyen2025Sampling",
+      "type": "chapter",
+      "title": "Sampling",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2025,
+      "volume": 4,
+      "pages": "81-91",
+      "container": "Experimental Design",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01839-7_4",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7_4"
+    },
+    {
+      "key": "Nguyen2025Variable",
+      "type": "chapter",
+      "title": "Variable Selection",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "245-287",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_6",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_6"
+    },
+    {
+      "key": "Nguyen2025Variable2",
+      "type": "chapter",
+      "title": "Variable Transformation",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike",
+          "orcid": "0000-0002-3432-8595"
+        }
+      ],
+      "year": 2025,
+      "volume": 3,
+      "pages": "91-117",
+      "container": "Advanced Modeling and Data Challenges",
+      "publisher": "Springer",
+      "place": "Cham",
+      "doi": "10.1007/978-3-032-01719-2_3",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2_3"
+    },
+    {
+      "key": "Nguyen2022Brand",
+      "type": "misc",
+      "genre": "Presentation",
+      "title": "Brand Equity Meta Analysis",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2022,
+      "container": "2022 Mittelstaedt & Gentry Doctoral Symposium",
+      "publisher": "Zenodo",
+      "doi": "10.5281/zenodo.8244732",
+      "url": "https://doi.org/10.5281/zenodo.8244732"
+    }
+  ],
+  "items": [
+    {
+      "key": "Nguyen2026PHacking",
+      "orcidType": "journal-article",
+      "title": "p-Hacking and Publication Bias in Design-Based Causal Studies in Information Systems",
+      "abstract": "Design-based causal methods such as difference in differences, instrumental variables, randomized controlled trials, regression discontinuity, and synthetic control have become the foundation of evidence-based decision making in information systems (IS). Their value, however, depends on the credibility of the published evidence. Analyzing 7,516 hypothesis tests from 558 articles published in seven leading IS journals between 2000 and 2023, we identify systematic clustering of statistical results immediately above the conventional 5% significance threshold, particularly for difference in differences, instrumental variables, and randomized controlled trials. These patterns suggest that publication incentives and researcher degrees of freedom may distort the evidence base used by managers and policymakers. We translate these findings into practical recommendations for researchers, reviewers, and editors. Specifically, we advocate greater transparency in research design and reporting, stronger requirements for data and code availability, broader acceptance of well-executed null findings, routine sensitivity analyses, and method-specific reporting standards for causal studies. We also introduce an IS-calibrated local false discovery rate that helps readers assess the credibility of reported causal estimates. By strengthening evidence quality rather than discouraging causal research, these recommendations aim to improve the reliability, reproducibility, and policy relevance of empirical findings that increasingly guide organizational investment, digital transformation, platform governance, and public policy decisions.",
+      "doi": "10.1287/isre.2024.1365",
+      "url": "https://doi.org/10.1287/isre.2024.1365",
+      "container": "Information Systems Research",
+      "year": 2026
+    },
+    {
+      "key": "Nguyen2026Regression",
+      "orcidType": "book",
+      "title": "Regression Techniques for Data Analysis",
+      "doi": "10.1007/978-3-032-01835-9",
+      "url": "https://doi.org/10.1007/978-3-032-01835-9",
+      "year": 2026
+    },
+    {
+      "key": "Nguyen2026Replication",
+      "orcidType": "software",
+      "title": "Replication package for \"p-Hacking and Publication Bias in Design-Based Causal Studies in Information Systems\"",
+      "abstract": "Data and code that reproduce every table and figure in \"p-Hacking and Publication Bias in Design-Based Causal Studies in Information Systems\" (Information Systems Research, 2026). The package contains 7,516 hand-coded statistical tests from 558 articles published 2000-2023 in seven leading information systems journals, covering difference-in-differences, instrumental variables, randomized controlled trials, regression discontinuity and synthetic control designs, plus the R code for the z-curve, randomization, caliper, local false discovery rate and weak-instrument analyses.",
+      "doi": "10.5281/zenodo.21855537",
+      "url": "https://doi.org/10.5281/zenodo.21855537",
+      "year": 2026
+    },
+    {
+      "key": "Nguyen2025Advanced",
+      "orcidType": "book",
+      "title": "Advanced Modeling and Data Challenges",
+      "doi": "10.1007/978-3-032-01719-2",
+      "url": "https://doi.org/10.1007/978-3-032-01719-2",
+      "year": 2025
+    },
+    {
+      "key": "Nguyen2025Experimental2",
+      "orcidType": "book",
+      "title": "Experimental Design",
+      "doi": "10.1007/978-3-032-01839-7",
+      "url": "https://doi.org/10.1007/978-3-032-01839-7",
+      "year": 2025
+    },
+    {
+      "key": "Nguyen2025Foundations",
+      "orcidType": "book",
+      "title": "Foundations of Data Analysis",
+      "doi": "10.1007/978-3-032-01858-8",
+      "url": "https://doi.org/10.1007/978-3-032-01858-8",
+      "year": 2025
+    },
+    {
+      "key": "Nguyen2022Brand",
+      "orcidType": "journal-article",
+      "title": "Brand Equity Meta Analysis",
+      "abstract": "The 2022 Mittelstaedt & Gentry Doctoral Symposium was held March 31 – April 2, 2022.",
+      "doi": "10.5281/zenodo.8244732",
+      "url": "https://doi.org/10.5281/zenodo.8244732",
+      "container": "2022 Mittelstaedt & Gentry Doctoral Symposium",
+      "year": 2022
+    }
+  ]
+}

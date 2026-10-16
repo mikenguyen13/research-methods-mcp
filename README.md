@@ -75,7 +75,7 @@ All tools are read-only. The server makes no calls to language models and stores
 
 | Work | Code | Served | License |
 | --- | --- | --- | --- |
-| [A Guide on Data Analysis](https://bookdown.org/mike/data_analysis/) | R | Full text | CC BY-NC-SA 4.0 |
+| [A Guide on Data Analysis](https://mike-data-analysis.share.connect.posit.cloud/) | R | Full text | CC BY-NC-SA 4.0 |
 | [causalverse: The All-in-One Causal Inference Toolkit](https://mikenguyen13.github.io/causalverse/) | R | Full text and function reference | GPL-3 |
 | [Credit Scoring: Theory, Methods, and Practice](https://mikenguyen13.github.io/credit_score/) | Python | Full text | CC BY 4.0 text, MIT code |
 | [Marketing Research: A Technical and Academic Treatment](https://mike-marketing-research.share.connect.posit.cloud/) | R | Excerpts and code; full text on the website | All rights reserved text, MIT code |

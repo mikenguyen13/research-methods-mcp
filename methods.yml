@@ -115,7 +115,7 @@ methods:
     family: Quasi-experimental
     use_when: Treatment changes at a known cutoff of a running variable, such as a score, age, date, vote share, or distance.
     assumptions: [Continuity of potential outcomes at the cutoff, No precise manipulation of the running variable, Local estimand at the cutoff]
-    keywords: [regression discontinuity, rdd, rd, cutoff, threshold, running variable, forcing variable, bandwidth, sharp, fuzzy, manipulation test, mccrary, density test]
+    keywords: [regression discontinuity, rdd, rd, cutoff, cut off, threshold, scoring above, score above, above a score, below a score, eligibility rule, eligibility threshold, test score cutoff, passing score, age cutoff, running variable, forcing variable, bandwidth, sharp, fuzzy, manipulation test, mccrary, density test]
     sections: [data_analysis:sec-regression-discontinuity, data_analysis:sec-regression-discontinuity#sec-sharp-regression-discontinuity-design, data_analysis:sec-regression-discontinuity#sec-fuzzy-regression-discontinuity-design, data_analysis:sec-regression-discontinuity#sec-sorting-bunching-and-manipulation, causalverse:articles/e_rd]
     packages: { r: [rdrobust, rddensity, rdlocrand, rdmulti], python: [rdrobust, rddensity] }
 

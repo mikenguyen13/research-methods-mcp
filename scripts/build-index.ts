@@ -30,8 +30,16 @@ interface SourceConfig {
   license: { text: string; code: string };
   exclude?: string[];
   citation: Omit<Work, 'url'> & { url: string };
-  volume_citations?: { files: string[]; citation: Work }[];
+  /**
+   * Chapter files that appear in a print volume, cited as that volume. `chapters` maps a
+   * file to the DOI of its published chapter (from data/publications.json), which is
+   * cited first.
+   */
+  volume_citations?: { files: string[]; citation: Work; chapters?: Record<string, string> }[];
 }
+
+/** Chapter works from data/publications.json, by DOI (lowercase); filled in main(). */
+const chapterByDoi = new Map<string, Work>();
 
 const CODE_LANGS = new Set(['r', 'python', 'julia', 'stan', 'sql', 'bash', 'cpp']);
 const LANG_ALIASES: Record<string, string> = {
@@ -512,6 +520,15 @@ function cleanTitle(title: string): string {
 }
 
 /** Fetches each page once: its element ids, `null` if it 404s, `undefined` if unreachable. */
+/** Same page, ignoring a trailing slash and a default index.html. */
+const samePage = (a: string, b: string) => {
+  const norm = (u: string) => u.replace(/#.*$/, '').replace(/index\.html$/, '').replace(/\/+$/, '');
+  return norm(a) === norm(b);
+};
+
+/** Pages that redirected while building: the site has moved and `site` in sources.yml must change. */
+const redirected: string[] = [];
+
 async function livePages(urls: string[]): Promise<Map<string, Set<string> | null | undefined>> {
   const out = new Map<string, Set<string> | null | undefined>();
   const queue = [...urls];
@@ -521,6 +538,7 @@ async function livePages(urls: string[]): Promise<Map<string, Set<string> | null
       for (let attempt = 0; attempt < 2 && result === undefined; attempt++) {
         try {
           const res = await fetch(url, { redirect: 'follow', headers: { 'user-agent': 'research-methods-mcp index builder' } });
+          if (res.redirected && !samePage(res.url, url)) redirected.push(`${url} -> ${res.url}`);
           if (res.status === 404 || res.status === 410) result = null;
           else if (res.ok) result = new Set([...(await res.text()).matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
         } catch {
@@ -546,11 +564,19 @@ async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: 
 
   const works: Work[] = [src.citation as Work];
   const volumeOf = new Map<string, string>();
+  const chapterOf = new Map<string, string>();
   for (const v of src.volume_citations ?? []) {
     works.push(v.citation);
     for (const f of v.files) {
       if (!existsSync(path.join(dir, f))) warn(`${src.id}: volume file not found: ${f}`);
       volumeOf.set(f, v.citation.key);
+    }
+    for (const [file, doi] of Object.entries(v.chapters ?? {})) {
+      const chapter = chapterByDoi.get(doi.toLowerCase());
+      if (!chapter) throw new Error(`${src.id}: chapter DOI ${doi} for ${file} is not in data/publications.json; run npm run build:publications`);
+      if (!v.files.includes(file)) throw new Error(`${src.id}: chapter file ${file} is not listed in its volume's files`);
+      if (!works.some((w) => w.key === chapter.key)) works.push(chapter);
+      chapterOf.set(file, chapter.key);
     }
   }
 
@@ -612,6 +638,7 @@ async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: 
     const recLangs = [...new Set(code.map((c) => c.lang))];
     recLangs.forEach((l) => langs.add(l));
     const volume = volumeOf.get(path.basename(d.file));
+    const chapter = chapterOf.get(path.basename(d.file));
     const fnPkgs = src.format === 'r-package' && d.page.startsWith('reference/')
       ? [src.id, `${src.id}::${d.title.split('(')[0]}`.toLowerCase()]
       : [];
@@ -623,7 +650,7 @@ async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: 
       level: d.level,
       url: urlOf(d),
       file: d.file,
-      cite: volume ? [volume, src.citation.key] : [src.citation.key],
+      cite: [chapter, volume, src.citation.key].filter((k): k is string => Boolean(k)),
       md,
       pkgs: [...new Set([...fnPkgs, ...packagesOf(code)])],
       langs: recLangs,
@@ -672,6 +699,15 @@ async function main() {
   const sources: SourceMeta[] = [];
   const works: Work[] = [];
   const records: SectionRecord[] = [];
+
+  // The author's publications (scripts/build-publications.ts): chapter works for
+  // chapter-level citations, and searchable records for articles, books, and data.
+  const pubFile = path.join(repoRoot, 'data', 'publications.json');
+  const publications = existsSync(pubFile)
+    ? (JSON.parse(await readFile(pubFile, 'utf8')) as { orcid: string; works: Work[]; items: { key: string; title: string; abstract?: string; doi: string; url: string; container?: string; year: number }[] })
+    : null;
+  for (const w of publications?.works ?? []) if (w.type === 'chapter' && w.doi) chapterByDoi.set(w.doi.toLowerCase(), w);
+
   for (const src of cfg.sources) {
     if (only.length && !only.includes(src.id)) continue;
     const t0 = Date.now();
@@ -685,6 +721,61 @@ async function main() {
       `${String(built.meta.code_blocks).padStart(5)} code blocks  [${built.meta.languages.join(', ')}]  ` +
       `${(chars / 1e6).toFixed(1)} MB text  ${Date.now() - t0} ms`,
     );
+  }
+
+  if (verify && redirected.length) {
+    throw new Error(
+      `these pages redirect, so the site has moved; update \`site\` (and citation URLs) in sources.yml to the final host:\n  ${redirected.slice(0, 20).join('\n  ')}`,
+    );
+  }
+
+  if (publications && !only.length) {
+    // A publication already cited by a book source (e.g. a Springer volume) keeps that
+    // source's key, so each work appears once.
+    const keyByDoi = new Map(works.filter((w) => w.doi).map((w) => [w.doi!.toLowerCase(), w.key]));
+    for (const w of publications.works) {
+      if (!w.doi || keyByDoi.has(w.doi.toLowerCase())) continue;
+      works.push(w);
+      keyByDoi.set(w.doi.toLowerCase(), w.key);
+    }
+    const byKey = new Map(works.map((w) => [w.key, w]));
+    const pubRecords: SectionRecord[] = publications.items.map((item) => {
+      const key = keyByDoi.get(item.doi.toLowerCase())!;
+      const w = byKey.get(key)!;
+      const authors = w.authors.map((a) => `${a.given} ${a.family}`).join(', ');
+      const venue = [w.container, w.volume ? `Vol. ${w.volume}` : '', w.publisher].filter(Boolean).join(', ');
+      return {
+        id: `publications:${item.doi.toLowerCase()}`,
+        source: 'publications',
+        title: w.title,
+        crumbs: ['Publications'],
+        level: 1,
+        url: `https://doi.org/${item.doi}`,
+        file: '',
+        cite: [key],
+        md: [`**${w.title}** (${w.year})`, `${authors}. ${venue}.`, item.abstract ?? '', `DOI: [${item.doi}](https://doi.org/${item.doi})`].filter(Boolean).join('\n\n'),
+        pkgs: [],
+        langs: [],
+      };
+    });
+    records.push(...pubRecords);
+    const newest = [...pubRecords].sort((a, b) => (byKey.get(b.cite[0])!.year - byKey.get(a.cite[0])!.year))[0];
+    sources.push({
+      id: 'publications',
+      title: 'Research Articles and Publications',
+      summary:
+        'Peer-reviewed articles, Springer books, replication packages, and presentations by the author, from the ORCID record, with abstracts and DOIs.',
+      format: 'publications',
+      site: `https://orcid.org/${publications.orcid}`,
+      github: '',
+      text_access: 'full',
+      license: { text: 'Abstracts as published; full texts at the DOI links', code: 'See each replication package' },
+      citation: newest?.cite[0] ?? '',
+      languages: [],
+      sections: pubRecords.length,
+      code_blocks: 0,
+    });
+    console.log(`publications         ${String(pubRecords.length).padStart(5)} records from ORCID ${publications.orcid}`);
   }
 
   let methods: MethodEntry[] = [];

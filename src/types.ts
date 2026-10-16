@@ -8,15 +8,23 @@ export interface Person {
   orcid?: string;
 }
 
-/** A citable work: a book, a print volume, or a software package. */
+/** A citable work: a book, a print volume, a chapter, a journal article, a dataset, or a software package. */
 export interface Work {
   key: string;
-  type: 'book' | 'software';
+  type: 'book' | 'software' | 'article' | 'chapter' | 'dataset' | 'misc';
+  /** Kind of item for `misc` works, printed in brackets in APA, e.g. "Presentation". */
+  genre?: string;
   title: string;
   subtitle?: string;
   authors: Person[];
   year: number;
-  volume?: number;
+  volume?: number | string;
+  /** Journal issue (articles). */
+  issue?: string;
+  /** Page range, e.g. "45-78" (articles and chapters). */
+  pages?: string;
+  /** Journal name (articles) or book title (chapters). */
+  container?: string;
   edition?: string;
   version?: string;
   publisher?: string;
@@ -31,7 +39,7 @@ export interface SourceMeta {
   id: string;
   title: string;
   summary: string;
-  format: 'bookdown' | 'quarto' | 'r-package';
+  format: 'bookdown' | 'quarto' | 'r-package' | 'publications';
   site: string;
   github: string;
   text_access: TextAccess;

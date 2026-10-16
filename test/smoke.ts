@@ -125,12 +125,25 @@ check(pyBlocks.length > 0 && pyBlocks.every((b: any) => b.language === 'python')
 
 // cite
 const bib = await call('cite', { ids: [hits[0].id, 'causalverse'], style: 'bibtex' });
-check(/@book\{/.test(bib.content[0].text!) && /@manual\{Nguyen2026causalverse/.test(bib.content[0].text!), 'cite bibtex for a section and a source');
-const vol = lib.index.records.find((r) => r.cite[0] === 'Nguyen2025Vol1')!;
-const apa = await call('cite', { ids: [vol.id] });
-check(apa.content[0].text!.includes('Nguyen, M. (2025). *Foundations of data analysis* (Vol. 1). Springer Cham. https://doi.org/10.1007/978-3-032-01858-8'), 'volume chapters cite the Springer volume in APA');
+check(/@(book|incollection|misc)\{/.test(bib.content[0].text!) && /@manual\{Nguyen2026causalverse/.test(bib.content[0].text!), 'cite bibtex for a section and a source');
+// Sections of chapters published in the Springer volumes cite the chapter (with its DOI) first.
+const chapterSec = lib.index.records.find((r) => r.file.endsWith('21-causality.Rmd'));
+check(chapterSec?.cite.length === 3 && chapterSec.cite[1] === 'Nguyen2025Vol4' && chapterSec.cite[2] === 'Nguyen2020Guide', `chapter sections cite chapter, volume, online book: ${chapterSec?.cite}`);
+const apa = await call('cite', { ids: [chapterSec!.id] });
+check(apa.content[0].text!.includes('Nguyen, M. (2025). Causal inference. In *Experimental design* (Vol. 4, pp. 7–48). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7_2'), `chapter sections cite the Springer chapter in APA: ${apa.content[0].text!.split('\n')[0]}`);
+const vol2 = lib.index.records.find((r) => r.file.endsWith('05-linear-regression.Rmd'))!;
+const apa2 = await call('cite', { ids: [vol2.id] });
+check(apa2.content[0].text!.includes('Nguyen, M. (2026). *Regression techniques for data analysis* (Vol. 2). Springer Cham. https://doi.org/10.1007/978-3-032-01835-9'), 'volume 2 sections cite the volume by DOI');
 const all = await call('cite', {});
 check((all.structuredContent?.references ?? []).length === lib.index.sources.length, 'cite with no ids lists every work');
+check(!JSON.stringify(lib.index).includes('bookdown.org/mike'), 'no link points at the retired bookdown.org/mike site');
+
+// The author's publications are searchable and citable.
+const pubs = await call('search', { query: 'p-hacking publication bias design-based causal studies information systems' });
+const pub = (pubs.structuredContent?.results ?? []).find((h: any) => h.source === 'publications');
+check(pub && /p-Hacking/.test(pub.title) && pub.url === 'https://doi.org/10.1287/isre.2024.1365', 'search finds the ISR article with its DOI');
+const pubCite = await call('cite', { ids: [pub?.id ?? 'none'], style: 'apa' });
+check(/Information Systems Research\*\. https:\/\/doi\.org\/10\.1287\/isre\.2024\.1365/.test(pubCite.content[0].text!), 'cite formats the ISR article in APA');
 
 const ls = await call('list_sources', {});
 check((ls.structuredContent?.sources ?? []).length === lib.index.sources.length, 'list_sources');

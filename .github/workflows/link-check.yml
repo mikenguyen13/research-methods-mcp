@@ -1,0 +1,27 @@
+# Weekly check of every link the server can return: section pages and anchors,
+# source sites, citation URLs, and DOIs. A page that redirects to another host
+# fails the check, because it means a book has moved and the index must be
+# rebuilt with the new site (npm run build:index). Failure notifies the
+# maintainer through GitHub.
+name: Link check
+on:
+  schedule:
+    - cron: '41 7 * * 1'
+  workflow_dispatch:
+  push:
+    paths: ['data/index.json.gz', 'sources.yml', 'scripts/check-links.ts']
+permissions:
+  contents: read
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check-links
+      - name: New publications on ORCID
+        run: npm run check-publications
