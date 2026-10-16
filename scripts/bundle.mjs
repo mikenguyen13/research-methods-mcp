@@ -18,6 +18,7 @@ const common = {
 
 await build({ ...common, entryPoints: ['src/stdio.ts'], outfile: 'dist/stdio.js' });
 await build({ ...common, entryPoints: ['src/node-http.ts'], outfile: 'dist/http.js' });
+await build({ ...common, entryPoints: ['src/vercel.ts'], outfile: 'dist/vercel.js' });
 await chmod('dist/stdio.js', 0o755);
 await chmod('dist/http.js', 0o755);
-console.log('built dist/stdio.js and dist/http.js');
+console.log('built dist/stdio.js, dist/http.js, and dist/vercel.js');
