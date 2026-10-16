@@ -48,7 +48,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'Search the research methods library',
       description:
-        'Search sections of textbooks and an R package on research methods: causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experimental design, regression, marketing research, credit scoring, machine learning, and AI. Returns matching sections with a link, a snippet, the code languages they contain, and a citation. Read a result in full with fetch.',
+        'Search sections of textbooks and an R package on research methods: causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experimental design, regression, marketing research, credit scoring, machine learning, and AI. Returns matching sections with their ids, a link, a snippet, the code languages they contain, and a citation.',
       inputSchema: z.object({
         query: z.string().min(1).describe('What to look for, in plain words, e.g. "staggered difference-in-differences with never-treated controls".'),
         source: Source.optional(),
@@ -66,7 +66,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'Read a library section',
       description:
-        'Read one section of the library by its id (from search, get_code, or choose_method). Returns the section in Markdown with its code, the section URL, and the citation of the work it comes from. Long sections come in parts; the text names the id of the next part.',
+        'Read one section of the library by its section id. Returns the section in Markdown with its code, the section URL, and the citation of the work it comes from. Long sections come in parts; the text names the id of the next part.',
       inputSchema: z.object({
         id: z.string().min(1).describe('Section id, e.g. "data_analysis:sec-regression-discontinuity".'),
       }),
@@ -150,7 +150,7 @@ export function createServer(lib: Library): McpServer {
       description:
         'Format references for works in the library in APA, Chicago, MLA, Harvard, BibTeX, or RIS. Pass the ids of the sections you used to get a deduplicated reference list plus the section links, or pass source ids to cite whole works. With no ids, returns a reference for every work in the library.',
       inputSchema: z.object({
-        ids: z.array(z.string()).optional().describe(`Section ids from other tools, or source ids: ${sourceIds.join(', ')}.`),
+        ids: z.array(z.string()).optional().describe(`Section ids, or source ids: ${sourceIds.join(', ')}.`),
         style: z.enum(STYLES).optional().describe('Citation style (default apa).'),
       }),
       annotations: { title: 'Format references', ...READ_ONLY },
