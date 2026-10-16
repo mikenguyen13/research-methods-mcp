@@ -73,7 +73,7 @@ behind a reverse proxy.
   > Every result links to the specific section and carries the citation of the work from which it is drawn. All tools are read-only, no account or API key is required, and the service stores no information about its users.
 
 - **Categories / tags:** Research, Education, Data science, Statistics, Developer tools
-- **Icon:** `assets/icon.png` (512×512) and `assets/icon-400.png` (400×400, for Cline). The server also serves the 512×512 icon at https://research-methods-mcp.vercel.app/icon.png and as its favicon; use that URL wherever a directory asks for a custom icon URL. After changing `assets/icon.png`, run `node scripts/embed-icon.mjs`.
+- **Icon:** `assets/icon.png` (512×512) and `assets/icon-400.png` (400×400, for Cline). The server serves the icon at https://research-methods-mcp.vercel.app/icon.png (512×512) and /icon.svg, a multi-size /favicon.ico, Apple touch and manifest icons, and a 1200×630 link-preview image at /og.png; it also advertises the icons in its MCP serverInfo. Use the icon.png URL wherever a directory asks for a custom icon URL. All of these are rendered from `assets/icon.svg` by `npm run build:icons`.
 - **Privacy policy:** https://research-methods-mcp.vercel.app/privacy
 - **Terms of use:** https://research-methods-mcp.vercel.app/terms
 - **Support:** https://github.com/mikenguyen13/research-methods-mcp/issues

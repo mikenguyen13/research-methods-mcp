@@ -49,6 +49,12 @@ const client = new Client({ name: 'smoke', version: '1.0.0' });
 await client.connect(new StreamableHTTPClientTransport(new URL(`${base}/mcp`)));
 const call: Caller = (name, args) => client.callTool({ name, arguments: args }) as Promise<ToolResult>;
 
+// Server identity that clients and directories display.
+const info = client.getServerVersion() as { title?: string; description?: string; websiteUrl?: string; icons?: { src: string; mimeType?: string }[] } | undefined;
+check(info?.title === 'Research Methods Library' && (info.description ?? '').length > 50, 'serverInfo has title and description');
+check((info?.icons ?? []).some((i) => i.mimeType === 'image/svg+xml') && (info?.icons ?? []).every((i) => /^https:\/\/.+\/icon/.test(i.src)), `serverInfo advertises absolute icon URLs: ${JSON.stringify(info?.icons)}`);
+check(/^https:\/\//.test(info?.websiteUrl ?? ''), 'serverInfo has a website URL');
+
 const { tools } = await client.listTools();
 const names = tools.map((t) => t.name).sort();
 check(JSON.stringify(names) === JSON.stringify(['choose_method', 'cite', 'fetch', 'get_code', 'list_sources', 'search']), `tool names: ${names}`);
@@ -155,10 +161,21 @@ for (const p of ['/', '/privacy', '/terms', '/health']) {
   check(res.ok, `GET ${p}`);
   if (p === '/') check((await res.text()).includes(`${base}/mcp`), 'landing page shows the endpoint');
 }
-for (const p of ['/favicon.ico', '/icon.png']) {
+for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favicon-32x32.png', '/favicon-16x16.png', '/og.png']) {
   const res = await fetch(base + p);
   const bytes = new Uint8Array(await res.arrayBuffer());
-  check(res.ok && res.headers.get('content-type') === 'image/png' && bytes[1] === 0x50 && bytes.length > 1000, `GET ${p} serves the PNG icon`);
+  check(res.ok && res.headers.get('content-type') === 'image/png' && bytes[1] === 0x50 && bytes.length > 100, `GET ${p} serves a PNG`);
+}
+{
+  const ico = new Uint8Array(await (await fetch(`${base}/favicon.ico`)).arrayBuffer());
+  const count = ico[4] | (ico[5] << 8);
+  check(ico[0] === 0 && ico[2] === 1 && count === 3, 'GET /favicon.ico serves a real ICO with 3 sizes');
+  const svg = await fetch(`${base}/icon.svg`);
+  check(svg.headers.get('content-type') === 'image/svg+xml' && (await svg.text()).startsWith('<svg'), 'GET /icon.svg serves the SVG icon');
+  const manifest = await (await fetch(`${base}/site.webmanifest`)).json();
+  check(manifest.name === 'Research Methods Library' && manifest.icons.length === 3, 'web manifest lists the icons');
+  const landing = await (await fetch(`${base}/`)).text();
+  check(['og:image', 'twitter:card', 'rel="icon"', 'rel="manifest"', 'rel="canonical"'].every((t) => landing.includes(t)), 'landing page has icon, manifest, canonical, and link-preview tags');
 }
 
 // --- stdio binary ----------------------------------------------------------------

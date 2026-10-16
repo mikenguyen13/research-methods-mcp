@@ -21,6 +21,7 @@
   "scripts": {
     "build:index": "tsx scripts/build-index.ts && npm run build:search",
     "build:search": "tsx scripts/build-search.ts",
+    "build:icons": "node scripts/build-icons.mjs",
     "build": "node scripts/bundle.mjs",
     "start": "node dist/http.js",
     "dev": "tsx src/node-http.ts",
@@ -68,6 +69,7 @@
     "@modelcontextprotocol/node": "^2.1.1",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@modelcontextprotocol/server": "^2.3.1",
+    "@resvg/resvg-js": "2.6.2",
     "@types/node": "^24.19.2",
     "esbuild": "^0.28.2",
     "minisearch": "^7.2.0",

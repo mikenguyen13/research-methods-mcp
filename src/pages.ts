@@ -3,7 +3,7 @@
 
 import pkg from '../package.json' with { type: 'json' };
 import type { Library } from './library.ts';
-import { HOMEPAGE, SERVER_NAME, SERVER_TITLE } from './server.ts';
+import { HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE } from './server.ts';
 
 /** Local (npx) installation is offered only once the package is on npm; see package.json config. */
 export const NPM_PUBLISHED: boolean = pkg.config.npmPublished;
@@ -11,8 +11,9 @@ export const NPM_PUBLISHED: boolean = pkg.config.npmPublished;
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 const STYLE = `
-:root{--bg:#fbfaf7;--fg:#1d1d1b;--muted:#5f5d57;--card:#fff;--line:#e4e1d9;--accent:#2f5d8a;--code:#f3f1ec}
-@media (prefers-color-scheme:dark){:root{--bg:#161615;--fg:#ecebe6;--muted:#a9a69d;--card:#1f1f1d;--line:#34332f;--accent:#8db4dc;--code:#262624}}
+:root{--bg:#f6f7f9;--fg:#18202c;--muted:#586274;--card:#fff;--line:#dde1e8;--accent:#2b5a8f;--code:#eef1f5;--brand:#22385c}
+@media (prefers-color-scheme:dark){:root{--bg:#0f141c;--fg:#e4e9f1;--muted:#9aa6b8;--card:#161d28;--line:#2a3443;--accent:#8db8e8;--code:#1b2431;--brand:#c9d7ec}}
+.brand{display:flex;align-items:center;gap:14px;margin:0 0 8px}.brand img{width:48px;height:48px;flex:none}.brand h1{margin:0;color:var(--brand)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:880px;margin:0 auto;padding:40px 16px 64px}h1{font-size:2rem;line-height:1.2;margin:0 0 8px}
 h2{font-size:1.25rem;margin:40px 0 12px}p.lede{color:var(--muted);font-size:1.1rem;margin:0 0 24px}
@@ -28,9 +29,20 @@ button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(
 dl{margin:0}dt{font-weight:600;margin-top:14px}dd{margin:4px 0 0}footer{margin-top:48px;color:var(--muted);font-size:.9rem}
 `;
 
-function page(title: string, body: string): string {
+function page(title: string, body: string, path = '/'): string {
+  const url = `${PUBLIC_ORIGIN}${path}`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)}</title><link rel="icon" type="image/png" href="/icon.png"><link rel="apple-touch-icon" href="/icon.png"><meta name="description" content="Research methods for AI assistants: R and Python code with citations.">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(SERVER_DESCRIPTION)}">
+<link rel="canonical" href="${esc(url)}">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48"><link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#22385c">
+<meta property="og:type" content="website"><meta property="og:site_name" content="${esc(SERVER_TITLE)}"><meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(SERVER_DESCRIPTION)}"><meta property="og:url" content="${esc(url)}">
+<meta property="og:image" content="${PUBLIC_ORIGIN}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(SERVER_TITLE)}: study designs, assumptions, R and Python code, and citations for AI assistants">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(SERVER_DESCRIPTION)}"><meta name="twitter:image" content="${PUBLIC_ORIGIN}/og.png">
 <style>${STYLE}</style></head><body><main>${body}
 <footer><a href="/">Home</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="${HOMEPAGE}">Source on GitHub</a> · <a href="${HOMEPAGE}/issues">Support</a></footer>
 </main></body></html>`;
@@ -57,7 +69,7 @@ export function landingPage(lib: Library, origin: string): string {
     .join('');
   const total = lib.index.records.length.toLocaleString('en-US');
   return page(SERVER_TITLE, `
-<h1>${SERVER_TITLE}</h1>
+<div class="brand"><img src="/icon.svg" alt="" width="48" height="48"><h1>${SERVER_TITLE}</h1></div>
 <p class="lede">A Model Context Protocol server that grounds AI assistants in ${total} sections of methodological texts on causal inference, econometrics, experimental design, marketing research, credit scoring, and artificial intelligence. Responses include study design recommendations, the assumptions to verify, runnable R and Python code, and a citation for every source. Access is free and requires no account or API key.</p>
 <div class="endpoint"><pre><code id="ep">${esc(endpoint)}</code></pre><button onclick="navigator.clipboard.writeText(document.getElementById('ep').textContent)">Copy URL</button></div>
 <div class="badges"><a href="${esc(links.cursor)}">Add to Cursor</a><a href="${esc(links.vscode)}">Install in VS Code</a></div>
@@ -109,7 +121,7 @@ export function privacyPage(): string {
 <p>The service collects no personal information from anyone, including children.</p>
 <h2>Contact</h2>
 <p>Questions about this policy may be raised by <a href="${HOMEPAGE}/issues">opening an issue on GitHub</a>.</p>
-`);
+`, '/privacy');
 }
 
 export function termsPage(): string {
@@ -124,5 +136,5 @@ export function termsPage(): string {
 <p>The service must not be overloaded or used to reproduce the works wholesale. Access may be rate limited or changed at any time.</p>
 <h2>Contact</h2>
 <p>Questions may be raised by <a href="${HOMEPAGE}/issues">opening an issue on GitHub</a>.</p>
-`);
+`, '/terms');
 }

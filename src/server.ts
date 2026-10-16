@@ -11,8 +11,21 @@ export const SERVER_NAME = 'research-methods-mcp';
 export const SERVER_TITLE = 'Research Methods Library';
 export const VERSION: string = pkg.version;
 export const HOMEPAGE = 'https://github.com/mikenguyen13/research-methods-mcp';
+/** Public origin of the hosted endpoint (package.json config.endpoint), used for absolute icon and page URLs. */
+export const PUBLIC_ORIGIN = new URL(pkg.config.endpoint).origin;
+export const SERVER_DESCRIPTION =
+  'Study design recommendations, identifying assumptions, runnable R and Python code, and citations from methodological texts on causal inference, econometrics, statistics, experimental design, marketing research, credit scoring, and machine learning.';
 
-const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from four textbooks and one R package by Mike Nguyen on data analysis, causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and AI.
+/** Icons advertised in serverInfo; clients show them next to the server's name. */
+export const SERVER_ICONS = [
+  { src: `${PUBLIC_ORIGIN}/icon.svg`, mimeType: 'image/svg+xml', sizes: ['any'] },
+  { src: `${PUBLIC_ORIGIN}/icon.png`, mimeType: 'image/png', sizes: ['512x512'] },
+  { src: `${PUBLIC_ORIGIN}/icon-192.png`, mimeType: 'image/png', sizes: ['192x192'] },
+];
+
+const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from four textbooks and one R package by Mike Nguyen on data analysis, statistics, causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and AI.
+
+The library is relevant whenever a user asks how to analyze data or answer a research question: which statistical test, model, or study design fits their data; how to estimate a causal or treatment effect; how to check assumptions or robustness; how to plan an experiment or compute sample size; how to write analysis code in R or Python; or how to cite a method.
 
 For a study-design question, start with choose_method. To read the material, use search and then fetch. For runnable code, use get_code. For a reference list, use cite with the ids of the sections you used. Every result includes the section URL and the citation of the work it comes from.`;
 
@@ -35,7 +48,7 @@ export function createServer(lib: Library): McpServer {
   const sourceList = lib.index.sources.map((s) => `${s.id} (${s.title})`).join('; ');
 
   const server = new McpServer(
-    { name: SERVER_NAME, title: SERVER_TITLE, version: VERSION, websiteUrl: HOMEPAGE },
+    { name: SERVER_NAME, title: SERVER_TITLE, version: VERSION, description: SERVER_DESCRIPTION, websiteUrl: PUBLIC_ORIGIN, icons: SERVER_ICONS },
     { instructions: INSTRUCTIONS },
   );
 
@@ -48,7 +61,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'Search the research methods library',
       description:
-        'Search sections of textbooks and an R package on research methods: causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experimental design, regression, marketing research, credit scoring, machine learning, and AI. Returns matching sections with their ids, a link, a snippet, the code languages they contain, and a citation.',
+        'Search sections of textbooks and an R package on research methods and data analysis: statistics and hypothesis testing, regression and generalized linear models, causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experimental design, survey methods, marketing research, credit scoring, machine learning, and AI. Returns matching sections with their ids, a link, a snippet, the code languages they contain, and a citation.',
       inputSchema: z.object({
         query: z.string().min(1).describe('What to look for, in plain words, e.g. "staggered difference-in-differences with never-treated controls".'),
         source: Source.optional(),
@@ -84,7 +97,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'Recommend analysis methods',
       description:
-        'Recommend statistical, econometric, causal inference, or machine learning methods for a research question. Describe the question, the data (cross-section, panel, time series, experiment), how the treatment or exposure was assigned, and the outcome. Returns candidate methods with when to use each, key assumptions, R and Python packages, and the library sections that teach them.',
+        'Recommend statistical, econometric, causal inference, or machine learning methods for a research question or data analysis task: which statistical test or model fits the data, how to estimate a causal or treatment effect, how to analyze an A/B test or experiment, how many observations are needed (power and sample size), how to handle panel, time-series, survey, text, or survival data, and how to build predictive or credit-scoring models. Describe the question, the data (cross-section, panel, time series, experiment), how the treatment or exposure was assigned, and the outcome. Returns candidate methods with when each applies, key assumptions, R and Python packages, and the library sections that teach them.',
       inputSchema: z.object({
         question: z.string().min(3).describe('The research question and setting, e.g. "effect of a minimum wage increase that some states adopted in different years on teen employment".'),
         language: Language.optional().describe('Only list packages for this language.'),
