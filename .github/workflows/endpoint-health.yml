@@ -1,22 +1,22 @@
-# Free Hugging Face Spaces sleep after 48 hours without traffic, and a sleeping
-# Space answers MCP clients with a loading page. Ping the health route twice a
-# day so the endpoint stays awake, and fail loudly if it is down.
-name: Keep endpoint warm
+# Daily uptime check of the hosted endpoint. Reads the endpoint from package.json
+# (config.endpoint) and fails, which notifies the maintainer, if /health does not
+# answer within a few retries.
+name: Endpoint health
 on:
   schedule:
-    - cron: '17 */12 * * *'
+    - cron: '17 6 * * *'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  ping:
+  health:
     runs-on: ubuntu-latest
     steps:
       - name: Health check
         run: |
           endpoint=$(curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/main/package.json | jq -r .config.endpoint)
           health="${endpoint%/mcp}/health"
-          for i in 1 2 3 4 5 6; do
+          for i in 1 2 3 4 5; do
             if curl -fsS --max-time 30 "$health"; then exit 0; fi
             sleep 30
           done

@@ -1,6 +1,6 @@
 {
   "name": "research-methods-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Research methods library for AI assistants: study design guidance for causal inference, econometrics, experimental design, marketing research, credit scoring, and AI, with runnable R and Python code and a citation for every source.",
   "mcpName": "io.github.mikenguyen13/research-methods-mcp",
   "type": "module",
@@ -77,7 +77,7 @@
     "zod": "^4.6.7"
   },
   "config": {
-    "endpoint": "https://mcp.research-methods.deno.net/mcp",
+    "endpoint": "https://research-methods-mcp.vercel.app/mcp",
     "npmPublished": false
   }
 }

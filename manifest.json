@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "research-methods-mcp",
   "display_name": "Research Methods Library",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Research methods for AI assistants: study design guidance, R and Python code, and citations.",
   "long_description": "Grounds Claude in methodological texts on causal inference, econometrics, experimental design, marketing research, credit scoring, and artificial intelligence. The server recommends designs for a research question, retrieves the relevant sections, returns runnable R and Python code, and formats references in APA, Chicago, MLA, Harvard, BibTeX, or RIS. It runs locally and requires no account or API key.",
   "author": {

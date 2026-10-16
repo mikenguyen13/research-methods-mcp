@@ -7,16 +7,22 @@ change frequently, so review each linked page before submitting.
 
 ## 1. Hosted endpoint
 
-The public endpoint runs on **Deno Deploy** (organization `research-methods`,
-app `mcp`) at `https://mcp.research-methods.deno.net/mcp`. Deno Deploy runs the same web-standard
-handler as the Node server, has sufficient memory for the 24 MB index, and its
-free tier carries no non-commercial clause (Vercel Hobby does, which matters
-because several works are linked to Springer volumes). The free tier of
-Cloudflare Workers allows only 10 ms of CPU time per request, which is
-insufficient.
+The public endpoint runs on **Vercel** (Hobby plan, project `research-methods-mcp`)
+at `https://research-methods-mcp.vercel.app/mcp`. `vercel.json` builds the bundle, rewrites
+every path to the single function in `api/index.mjs` (entry point `src/vercel.ts`),
+and ships the index and the prebuilt search index with it. Each push to `main` is
+built and deployed automatically; the Vercel GitHub app can access this
+repository only. The Hobby plan is limited to non-commercial use, which this free
+academic service is, and requires no payment method.
 
-App configuration: install command `npm ci`, no build command, entrypoint
-`src/deno.ts`. Each push to `main` is built and deployed automatically.
+Hosts considered and rejected (October 2026): Deno Deploy (`src/deno.ts` still
+works) suspends unverified organizations at 1% of the free limits, and
+verification requires a payment method; Hugging Face Docker Spaces require a
+paid plan; Cloudflare Workers allow only 10 ms of CPU per request on the free
+plan. The prebuilt search index keeps instance startup near 0.5 s on any host.
+
+The **Endpoint health** workflow checks `/health` daily and fails if the
+endpoint does not answer.
 
 When the endpoint changes, point every file at it, rebuild, and commit:
 
@@ -67,9 +73,9 @@ behind a reverse proxy.
   > Every result links to the specific section and carries the citation of the work from which it is drawn. All tools are read-only, no account or API key is required, and the service stores no information about its users.
 
 - **Categories / tags:** Research, Education, Data science, Statistics, Developer tools
-- **Icon:** `assets/icon.png` (512×512) and `assets/icon-400.png` (400×400, for Cline). The server also serves the 512×512 icon at https://mcp.research-methods.deno.net/icon.png and as its favicon; use that URL wherever a directory asks for a custom icon URL. After changing `assets/icon.png`, run `node scripts/embed-icon.mjs`.
-- **Privacy policy:** https://mcp.research-methods.deno.net/privacy
-- **Terms of use:** https://mcp.research-methods.deno.net/terms
+- **Icon:** `assets/icon.png` (512×512) and `assets/icon-400.png` (400×400, for Cline). The server also serves the 512×512 icon at https://research-methods-mcp.vercel.app/icon.png and as its favicon; use that URL wherever a directory asks for a custom icon URL. After changing `assets/icon.png`, run `node scripts/embed-icon.mjs`.
+- **Privacy policy:** https://research-methods-mcp.vercel.app/privacy
+- **Terms of use:** https://research-methods-mcp.vercel.app/terms
 - **Support:** https://github.com/mikenguyen13/research-methods-mcp/issues
 - **Documentation:** https://github.com/mikenguyen13/research-methods-mcp#readme
 - **Authentication:** none (public, read-only content)
@@ -116,4 +122,4 @@ Free listings first, in approximate order of reach.
 - [ ] Publish `llms.txt` on each book site (credit_score already has one) pointing at the endpoint.
 - [ ] Add the endpoint to the causalverse README and pkgdown home page.
 - [ ] Announce with a short screen recording of one query proceeding from `choose_method` to code to a BibTeX reference list.
-- [ ] Monitor usage in the Deno Deploy dashboard (request counts) and citations in Google Scholar.
+- [ ] Monitor usage in the Vercel dashboard (requests and function usage against the Hobby limits) and citations in Google Scholar.

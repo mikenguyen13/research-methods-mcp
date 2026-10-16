@@ -18,15 +18,15 @@ The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other
 ## Installation
 
 <!-- install:start -->
-**Endpoint:** `https://mcp.research-methods.deno.net/mcp`. Access is free and requires no account or API key.
+**Endpoint:** `https://research-methods-mcp.vercel.app/mcp`. Access is free and requires no account or API key.
 
-[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=research-methods&config=eyJ1cmwiOiJodHRwczovL21jcC5yZXNlYXJjaC1tZXRob2RzLmRlbm8ubmV0L21jcCJ9)
-[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_server-0098FF?logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=research-methods&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.research-methods.deno.net%2Fmcp%22%7D)
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=research-methods&config=eyJ1cmwiOiJodHRwczovL3Jlc2VhcmNoLW1ldGhvZHMtbWNwLnZlcmNlbC5hcHAvbWNwIn0%3D)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_server-0098FF?logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=research-methods&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fresearch-methods-mcp.vercel.app%2Fmcp%22%7D)
 
 | Client | Configuration |
 | --- | --- |
 | Claude (web, desktop, and mobile) | Settings → Connectors → **Add custom connector**; enter the endpoint |
-| Claude Code | `claude mcp add --transport http research-methods https://mcp.research-methods.deno.net/mcp` |
+| Claude Code | `claude mcp add --transport http research-methods https://research-methods-mcp.vercel.app/mcp` |
 | ChatGPT | Settings → enable developer mode → add a custom connector of type MCP server with the endpoint and no authentication |
 | Cursor, Visual Studio Code | Use the buttons above |
 | Windsurf, Cline, Zed, and other clients | Add the following JSON to the client's MCP configuration |
@@ -35,7 +35,7 @@ The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other
 {
   "mcpServers": {
     "research-methods": {
-      "url": "https://mcp.research-methods.deno.net/mcp"
+      "url": "https://research-methods-mcp.vercel.app/mcp"
     }
   }
 }
@@ -69,7 +69,7 @@ Each response links to the specific section consulted and carries the citation o
 
 Prompts (slash commands in clients that support them): `plan_analysis`, `write_methods_section`, `explain_method`. Resources: the library catalog and a table of contents for each work.
 
-All tools are read-only. The server makes no calls to language models and stores no information about its users; see the [privacy policy](https://mcp.research-methods.deno.net/privacy).
+All tools are read-only. The server makes no calls to language models and stores no information about its users; see the [privacy policy](https://research-methods-mcp.vercel.app/privacy).
 
 ## Sources
 
@@ -94,7 +94,7 @@ docker build -t research-methods-mcp .
 docker run -p 8080:8080 research-methods-mcp     # http://localhost:8080/mcp
 ```
 
-Or with Node.js: `npm ci && npm run build && npm start` (listens on `127.0.0.1:8787`; set `HOST` and `PORT` to change). The same handler runs on Deno Deploy through `src/deno.ts`.
+Or with Node.js: `npm ci && npm run build && npm start` (listens on `127.0.0.1:8787`; set `HOST` and `PORT` to change). The same handler runs on Vercel through `api/index.mjs` and `vercel.json` (the hosted endpoint) and on Deno Deploy through `src/deno.ts`.
 
 ## Development
 

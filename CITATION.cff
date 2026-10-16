@@ -6,7 +6,7 @@ authors:
   - family-names: Nguyen
     given-names: Mike
     orcid: "https://orcid.org/0000-0002-3432-8595"
-version: 0.1.0
+version: 0.1.1
 license: MIT
 repository-code: "https://github.com/mikenguyen13/research-methods-mcp"
 keywords:

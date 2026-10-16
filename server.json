@@ -3,7 +3,7 @@
   "name": "io.github.mikenguyen13/research-methods-mcp",
   "title": "Research Methods Library",
   "description": "Research methods for AI assistants: study design guidance, R and Python code, and citations",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "websiteUrl": "https://github.com/mikenguyen13/research-methods-mcp",
   "repository": {
     "url": "https://github.com/mikenguyen13/research-methods-mcp",
@@ -21,7 +21,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.research-methods.deno.net/mcp"
+      "url": "https://research-methods-mcp.vercel.app/mcp"
     }
   ]
 }
