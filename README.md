@@ -11,7 +11,7 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 <img src="https://img.shields.io/badge/MCP-streamable%20HTTP-5b3fd1" alt="MCP: streamable HTTP">
 </p>
 
-The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 17,000 sections from 9 books, an R package, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
+The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 17,000 sections from 8 books, an R package, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
 
 The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
 
@@ -85,7 +85,6 @@ All tools are read-only. The server makes no calls to language models and stores
 | [Applying Tidy Finance with Python to Vietnam](https://mikenguyen13.github.io/tidy_finance_vn/) | Python | 1,334 | Excerpts and code; full text on the website | All rights reserved |
 | [Tài Chính Ứng Dụng với Python](https://mikenguyen13.github.io/tidy_finance_vn_vi/) | Python | 1,309 | Excerpts and code; full text on the website | All rights reserved |
 | [Machine Learning in Python](https://mikenguyen13.github.io/mlpy/) | Python | 361 | Full text | CC BY-SA 4.0 |
-| [Communication Theory](https://bookdown.org/mike/comm_theory/) | — | 47 | Excerpts; full text on the website | All rights reserved |
 | [Research Articles and Publications](https://orcid.org/0000-0002-3432-8595) | — | 7 | Abstracts, DOIs, and citations | Publishers' terms |
 
 Sections of *A Guide on Data Analysis* that appear in the Springer print volumes are cited as their published chapter, then the volume. For example, a section on causal inference is cited as Nguyen, M. (2025). Causal inference. In *Experimental design* (Vol. 4, pp. 7–48). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7_2, in Nguyen, M. (2025). *Experimental design* (Vol. 4). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7

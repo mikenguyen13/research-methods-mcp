@@ -298,23 +298,3 @@ sources:
       year: 2021
       url: https://mikenguyen13.github.io/mlpy/
 
-  - id: comm_theory
-    title: Communication Theory
-    summary: >-
-      Handbook of communication theories, interpersonal and organizational,
-      with the constructs and propositions that empirical studies test.
-    repo: comm_theory
-    format: bookdown
-    site: https://bookdown.org/mike/comm_theory/
-    github: https://github.com/mikenguyen13/comm_theory
-    text_access: teaser
-    license: { text: All-Rights-Reserved, code: unspecified }
-    exclude:
-      - Communication Theory.Rmd
-    citation:
-      key: Nguyen2021CommTheory
-      type: book
-      title: Communication Theory
-      authors: *mike
-      year: 2021
-      url: https://bookdown.org/mike/comm_theory/

@@ -50,7 +50,6 @@ const S: Scenario[] = [
   { persona: 'ML engineer', tool: 'get_code', args: { topic: 'approximate nearest neighbors', language: 'python', source: 'mlpy' }, expect: /```python/i },
   { persona: 'R user', tool: 'get_code', args: { topic: 'gradient boosting xgboost tuning', language: 'r', source: 'advanced_data_analysis' }, expect: /```r/i },
   { persona: 'data scientist', tool: 'search', args: { query: 'prediction versus estimation', source: 'advanced_data_analysis' }, expect: /predict/i },
-  { persona: 'communication scholar', tool: 'search', args: { query: 'uncertainty reduction theory', source: 'comm_theory' }, expect: /uncertainty/i },
   { persona: 'IS researcher', tool: 'cite', args: { ids: ['publications:10.1287/isre.2024.1365'], style: 'apa' }, expect: /Information Systems Research/ },
   // Citations
   { persona: 'author writing a paper', tool: 'cite', args: { style: 'apa' }, expect: /Nguyen, M\./ },
