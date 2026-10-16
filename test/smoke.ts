@@ -136,7 +136,10 @@ const apa2 = await call('cite', { ids: [vol2.id] });
 check(apa2.content[0].text!.includes('Nguyen, M. (2026). *Regression techniques for data analysis* (Vol. 2). Springer Cham. https://doi.org/10.1007/978-3-032-01835-9'), 'volume 2 sections cite the volume by DOI');
 const all = await call('cite', {});
 check((all.structuredContent?.references ?? []).length === lib.index.sources.length, 'cite with no ids lists every work');
-check(!JSON.stringify(lib.index).includes('bookdown.org/mike'), 'no link points at the retired bookdown.org/mike site');
+{
+  const all = JSON.stringify(lib.index);
+  check(!all.includes('bookdown.org/mike/data_analysis') && !all.includes('bookdown.org/mike/marketing_research'), 'no link points at a retired bookdown.org/mike site');
+}
 
 // The author's publications are searchable and citable.
 const pubs = await call('search', { query: 'p-hacking publication bias design-based causal studies information systems' });

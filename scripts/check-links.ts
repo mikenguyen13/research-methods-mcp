@@ -81,6 +81,29 @@ await pool([...pages.entries()], async ([url, { source, anchors }]) => {
   }
 });
 
+// --- links inside the text that point at the author's own sites -----------------
+// Books link to each other (and to themselves); those links must not redirect either.
+const own = stat("links to the author's sites");
+const prefixes = [...index.sources.filter((s) => s.site && !s.site.includes('orcid.org')).map((s) => s.site), 'https://bookdown.org/mike/'];
+const inText = new Set<string>();
+for (const r of index.records) {
+  if (only.length && !only.includes(r.source)) continue;
+  for (const m of r.md.matchAll(/https?:\/\/[^\s)\]"'<>`{}]+/g)) {
+    const url = m[0].replace(/[.,;:]+$/, '').split('#')[0];
+    if (prefixes.some((p) => url.startsWith(p)) && !pages.has(url)) inText.add(url);
+  }
+}
+await pool([...inText], async (url) => {
+  own.pages++;
+  try {
+    const res = await get(url);
+    if (res.redirected && !samePage(res.url, url)) own.bad.push(`MOVED ${url} -> ${res.url}`);
+    else if (!res.ok) own.bad.push(`${res.status} ${url}`);
+  } catch (e) {
+    own.bad.push(`ERR ${url} ${(e as Error).message}`);
+  }
+});
+
 // --- source sites, citation URLs, and DOIs ------------------------------------
 const meta = stat('sites and citations');
 const urls = new Set<string>();

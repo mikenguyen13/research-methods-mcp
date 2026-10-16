@@ -19,7 +19,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build:index": "tsx scripts/build-index.ts && npm run build:search",
+    "build:index": "tsx scripts/build-index.ts && npm run build:search && npm run update-docs",
+    "update-docs": "tsx scripts/update-docs.ts",
     "build:search": "tsx scripts/build-search.ts",
     "build:icons": "node scripts/build-icons.mjs",
     "build:publications": "tsx scripts/build-publications.ts",

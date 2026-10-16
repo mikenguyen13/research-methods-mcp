@@ -19,6 +19,15 @@ authors: &mike
     given: Mike
     orcid: 0000-0002-3432-8595
 
+
+# Sites that moved. Links in the books' text to an old address are rewritten to
+# the new one when the index is built, so the server never hands out a redirect.
+moved:
+  - from: https://bookdown.org/mike/data_analysis/
+    to: https://mike-data-analysis.share.connect.posit.cloud/
+  - from: https://bookdown.org/mike/marketing_research/
+    to: https://mike-marketing-research.share.connect.posit.cloud/
+
 sources:
   - id: data_analysis
     title: A Guide on Data Analysis
@@ -203,3 +212,109 @@ sources:
       authors: *mike
       year: 2025
       url: https://mikenguyen13.github.io/ai_in_action/
+
+  - id: advanced_data_analysis
+    title: Advanced Data Analysis
+    summary: >-
+      Prediction-focused companion to A Guide on Data Analysis, in R: machine
+      learning, tree ensembles, regularization, deep learning, reinforcement
+      learning, model evaluation and interpretation, MLOps, and applications of
+      large language models.
+    repo: advanced_data_analysis
+    format: quarto
+    site: https://advanced-data-analysis.netlify.app/
+    github: https://github.com/mikenguyen13/advanced_data_analysis
+    text_access: full
+    license: { text: CC-BY-4.0, code: CC-BY-4.0 }
+    citation:
+      key: Nguyen2026Advanced
+      type: book
+      title: Advanced Data Analysis
+      authors: *mike
+      year: 2026
+      publisher: Zenodo
+      # Concept DOI: always resolves to the newest version.
+      doi: 10.5281/zenodo.20764814
+      url: https://doi.org/10.5281/zenodo.20764814
+
+  - id: tidy_finance_vn
+    title: Applying Tidy Finance with Python to Vietnam
+    summary: >-
+      Empirical finance and asset pricing with Python on Vietnamese market data:
+      data access and cleaning, returns, CAPM and factor models, portfolio sorts,
+      Fama-MacBeth regressions, and fixed income.
+    repo: tidy_finance_vn
+    format: quarto
+    site: https://mikenguyen13.github.io/tidy_finance_vn/
+    github: https://github.com/mikenguyen13/tidy_finance_vn
+    # No license file; the site footer says all rights reserved.
+    text_access: teaser
+    license: { text: All-Rights-Reserved, code: unspecified }
+    citation:
+      key: Nguyen2026TidyFinanceVN
+      type: book
+      title: Applying Tidy Finance with Python to Vietnam
+      authors: *mike
+      year: 2026
+      url: https://mikenguyen13.github.io/tidy_finance_vn/
+
+  - id: tidy_finance_vn_vi
+    title: "Tài Chính Ứng Dụng với Python"
+    summary: >-
+      Vietnamese edition of Applying Tidy Finance with Python to Vietnam:
+      empirical finance and asset pricing with Python on Vietnamese market data.
+    repo: tidy_finance_vn_vi
+    format: quarto
+    site: https://mikenguyen13.github.io/tidy_finance_vn_vi/
+    github: https://github.com/mikenguyen13/tidy_finance_vn_vi
+    text_access: teaser
+    license: { text: All-Rights-Reserved, code: unspecified }
+    citation:
+      key: Nguyen2026TaiChinh
+      type: book
+      title: "Tài Chính Ứng Dụng với Python"
+      authors: *mike
+      year: 2026
+      url: https://mikenguyen13.github.io/tidy_finance_vn_vi/
+
+  - id: mlpy
+    title: Machine Learning in Python
+    summary: >-
+      Machine learning theory and industry applications in Python: supervised
+      learning, regularization, optimization, matrix factorization, credit
+      scoring and approval, fraud detection, text similarity, approximate
+      nearest neighbors, multi-armed bandits, and two-sided matching.
+    repo: mlpy
+    format: jupyter-book
+    site: https://mikenguyen13.github.io/mlpy/
+    github: https://github.com/mikenguyen13/mlpy
+    text_access: full
+    license: { text: CC-BY-SA-4.0, code: unspecified }
+    citation:
+      key: Nguyen2021MLPy
+      type: book
+      title: Machine Learning in Python
+      authors: *mike
+      year: 2021
+      url: https://mikenguyen13.github.io/mlpy/
+
+  - id: comm_theory
+    title: Communication Theory
+    summary: >-
+      Handbook of communication theories, interpersonal and organizational,
+      with the constructs and propositions that empirical studies test.
+    repo: comm_theory
+    format: bookdown
+    site: https://bookdown.org/mike/comm_theory/
+    github: https://github.com/mikenguyen13/comm_theory
+    text_access: teaser
+    license: { text: All-Rights-Reserved, code: unspecified }
+    exclude:
+      - Communication Theory.Rmd
+    citation:
+      key: Nguyen2021CommTheory
+      type: book
+      title: Communication Theory
+      authors: *mike
+      year: 2021
+      url: https://bookdown.org/mike/comm_theory/

@@ -23,7 +23,7 @@ export const SERVER_ICONS = [
   { src: `${PUBLIC_ORIGIN}/icon-192.png`, mimeType: 'image/png', sizes: ['192x192'] },
 ];
 
-const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from four textbooks and one R package by Mike Nguyen on data analysis, statistics, causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and AI.
+const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from books, an R package, and research articles by Mike Nguyen on data analysis, statistics, causal inference, econometrics, experimental design, marketing research, empirical finance, credit scoring, machine learning, and AI.
 
 The library is relevant whenever a user asks how to analyze data or answer a research question: which statistical test, model, or study design fits their data; how to estimate a causal or treatment effect; how to check assumptions or robustness; how to plan an experiment or compute sample size; how to write analysis code in R or Python; or how to cite a method.
 

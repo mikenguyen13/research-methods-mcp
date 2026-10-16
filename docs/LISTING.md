@@ -66,7 +66,7 @@ behind a reverse proxy.
 - **Short description (200 characters maximum):** Recommends study designs for a research question, states the assumptions to verify, and returns runnable R and Python code with a citation for every source. Causal inference, econometrics, and more.
 - **Description (2,000 characters maximum):**
 
-  > The Research Methods Library is a Model Context Protocol server that grounds AI assistants in approximately 13,000 sections of methodological texts: A Guide on Data Analysis; causalverse, an R package for causal inference; Credit Scoring: Theory, Methods, and Practice; Marketing Research: A Technical and Academic Treatment; and AI in Action.
+  > The Research Methods Library is a Model Context Protocol server that grounds AI assistants in approximately 17,000 sections of methodological texts by Mike Nguyen: A Guide on Data Analysis and its Springer volumes; Advanced Data Analysis; causalverse, an R package for causal inference; Credit Scoring: Theory, Methods, and Practice; Marketing Research: A Technical and Academic Treatment; Applying Tidy Finance with Python to Vietnam; Machine Learning in Python; AI in Action; and peer-reviewed research articles.
   >
   > Given a research question, choose_method recommends candidate designs (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning, and 56 others), stating when each applies, the identifying assumptions to verify, and the R and Python packages that implement it. search and fetch retrieve the underlying sections; get_code returns runnable R, Python, or Julia code; cite formats references in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.
   >

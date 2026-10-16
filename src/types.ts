@@ -39,7 +39,7 @@ export interface SourceMeta {
   id: string;
   title: string;
   summary: string;
-  format: 'bookdown' | 'quarto' | 'r-package' | 'publications';
+  format: 'bookdown' | 'quarto' | 'r-package' | 'jupyter-book' | 'publications';
   site: string;
   github: string;
   text_access: TextAccess;

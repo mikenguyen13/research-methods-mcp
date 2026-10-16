@@ -41,6 +41,10 @@ interface SourceConfig {
 /** Chapter works from data/publications.json, by DOI (lowercase); filled in main(). */
 const chapterByDoi = new Map<string, Work>();
 
+/** Old and new prefixes of sites that moved (sources.yml `moved`); filled in main(). */
+let movedSites: { from: string; to: string }[] = [];
+const unmove = (text: string) => movedSites.reduce((t, m) => t.split(m.from).join(m.to).split(m.from.replace(/\/$/, ')')).join(m.to.replace(/\/$/, ')')), text);
+
 const CODE_LANGS = new Set(['r', 'python', 'julia', 'stan', 'sql', 'bash', 'cpp']);
 const LANG_ALIASES: Record<string, string> = {
   py: 'python', python3: 'python', rscript: 'r', rcpp: 'cpp', 'c++': 'cpp',
@@ -77,7 +81,21 @@ export function pandocId(title: string, style: IdStyle = 'pandoc'): string {
   return s || 'section';
 }
 
-type IdStyle = 'pandoc' | 'pkgdown';
+type IdStyle = 'pandoc' | 'pkgdown' | 'sphinx';
+
+/** Docutils `make_id`, which Sphinx and Jupyter Book use for section anchors. */
+export function sphinxId(title: string): string {
+  const s = title
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/<[^>]+>/g, '')
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^[-0-9]+|-+$/g, '');
+  return s || 'section';
+}
 
 class IdRegistry {
   private used = new Set<string>();
@@ -87,7 +105,7 @@ class IdRegistry {
       this.used.add(explicit);
       return explicit;
     }
-    const base = pandocId(title, this.style);
+    const base = this.style === 'sphinx' ? sphinxId(title) : pandocId(title, this.style);
     let id = base;
     for (let i = 1; this.used.has(id); i++) id = `${base}-${i}`;
     this.used.add(id);
@@ -332,7 +350,7 @@ function pageDrafts(
   src: SourceConfig, file: string, page: string, text: string, crumbs: string[], fallbackTitle: string,
 ): Draft[] {
   const { yaml, tokens } = tokenize(text, file);
-  const ids = new IdRegistry(src.format === 'r-package' ? 'pkgdown' : 'pandoc');
+  const ids = new IdRegistry(src.format === 'r-package' ? 'pkgdown' : src.format === 'jupyter-book' ? 'sphinx' : 'pandoc');
   let title = typeof yaml.title === 'string' ? yaml.title : '';
   let rest = tokens;
   if (!title) {
@@ -384,6 +402,57 @@ async function quartoDrafts(src: SourceConfig, dir: string): Promise<Draft[]> {
     }
     const page = rel.replace(/\\/g, '/').replace(/\.(qmd|md|Rmd)$/i, '');
     drafts.push(...pageDrafts(src, rel, page, await readFile(full, 'utf8'), [], path.basename(page)));
+  }
+  return drafts;
+}
+
+// --- Jupyter Book: _toc.yml pages, MyST markdown and notebooks --------------
+
+/** Page files in _toc.yml order (root first); entries may omit the extension. */
+function jupyterBookFiles(toc: any): string[] {
+  const out: string[] = [];
+  const walk = (items: unknown[]) => {
+    for (const item of items ?? []) {
+      const o = item as { file?: string; chapters?: unknown[]; sections?: unknown[]; parts?: unknown[] };
+      if (o?.file) out.push(o.file);
+      if (o?.chapters) walk(o.chapters);
+      if (o?.sections) walk(o.sections);
+      if (o?.parts) walk(o.parts);
+    }
+  };
+  if (toc?.root) out.push(toc.root);
+  walk(toc?.parts ?? []);
+  walk(toc?.chapters ?? []);
+  return out;
+}
+
+/** A notebook as markdown: markdown cells as written, code cells as fenced code. */
+function notebookToMarkdown(nb: any): string {
+  const lang = String(nb?.metadata?.kernelspec?.language ?? nb?.metadata?.language_info?.name ?? 'python').toLowerCase();
+  const text = (src: unknown) => (Array.isArray(src) ? src.join('') : String(src ?? ''));
+  return (nb?.cells ?? [])
+    .map((c: any) => (c.cell_type === 'markdown' ? text(c.source) : c.cell_type === 'code' && text(c.source).trim() ? '```' + lang + '\n' + text(c.source).replace(/\n+$/, '') + '\n```' : ''))
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+/** MyST code cells (```{code-cell} python) as ordinary fenced code. */
+const mystToMarkdown = (md: string) => md.replace(/^```\{code-cell\}\s*(\w+)?.*$/gm, (_m, lang) => '```' + (lang ?? 'python'));
+
+async function jupyterBookDrafts(src: SourceConfig, dir: string): Promise<Draft[]> {
+  const toc = YAML.parse(await readFile(path.join(dir, '_toc.yml'), 'utf8'));
+  const drafts: Draft[] = [];
+  for (const entry of jupyterBookFiles(toc)) {
+    const rel = [entry, `${entry}.md`, `${entry}.ipynb`].find((f) => /\.(md|ipynb)$/i.test(f) && existsSync(path.join(dir, f)));
+    if (!rel) {
+      warn(`${src.id}: page listed in _toc.yml not found: ${entry}`);
+      continue;
+    }
+    if ((src.exclude ?? []).includes(rel)) continue;
+    const raw = await readFile(path.join(dir, rel), 'utf8');
+    const text = rel.endsWith('.ipynb') ? notebookToMarkdown(JSON.parse(raw)) : mystToMarkdown(raw);
+    const page = rel.replace(/\\/g, '/').replace(/\.(md|ipynb)$/i, '');
+    drafts.push(...pageDrafts(src, rel, page, text, [], path.basename(page)));
   }
   return drafts;
 }
@@ -560,6 +629,7 @@ async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: 
   const drafts =
     src.format === 'bookdown' ? await bookdownDrafts(src, dir)
     : src.format === 'quarto' ? await quartoDrafts(src, dir)
+    : src.format === 'jupyter-book' ? await jupyterBookDrafts(src, dir)
     : await rPackageDrafts(src, dir);
 
   const works: Work[] = [src.citation as Work];
@@ -629,6 +699,7 @@ async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: 
         .filter(Boolean)
         .join('\n\n');
     }
+    md = unmove(md);
     const id = idOf(d);
     if (seen.has(id)) {
       warn(`${src.id}: duplicate id ${id}`);
@@ -692,7 +763,8 @@ async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: 
 }
 
 async function main() {
-  const cfg = YAML.parse(await readFile(path.join(repoRoot, 'sources.yml'), 'utf8')) as { sources: SourceConfig[] };
+  const cfg = YAML.parse(await readFile(path.join(repoRoot, 'sources.yml'), 'utf8')) as { sources: SourceConfig[]; moved?: { from: string; to: string }[] };
+  movedSites = cfg.moved ?? [];
   const args = process.argv.slice(2);
   const verify = !args.includes("--no-verify");
   const only = args.filter((a) => !a.startsWith("--"));
@@ -776,6 +848,79 @@ async function main() {
       code_blocks: 0,
     });
     console.log(`publications         ${String(pubRecords.length).padStart(5)} records from ORCID ${publications.orcid}`);
+  }
+
+  // Links in the text that point at one of the indexed sites must lead to a page that
+  // exists. A link to a missing page is redirected to the page or section with that
+  // name (books rename pages, e.g. "linear-mixed-models" became "sec-linear-mixed-models"),
+  // and a link with no match is removed, keeping its text. Each repair is reported so the
+  // book itself can be fixed.
+  {
+    const sites = sources.filter((s) => s.format !== 'publications').map((s) => (s.site.endsWith('/') ? s.site : s.site + '/'));
+    const pageUrls = new Set(records.map((r) => r.url.split('#')[0]));
+    const recordUrls = new Set(records.map((r) => r.url));
+    const byName = new Map<string, string>(); // page or anchor name -> URL, per site
+    for (const r of records) {
+      const site = sites.find((s) => r.url.startsWith(s));
+      if (!site) continue;
+      const [page, anchor] = r.url.slice(site.length).split('#');
+      const pageName = page.replace(/\.html$/, '').split('/').pop()!;
+      for (const name of [pageName, pageName.replace(/^sec-/, ''), anchor, anchor?.replace(/^sec-/, '')]) {
+        if (name && !byName.has(`${site}|${name}`)) byName.set(`${site}|${name}`, r.url);
+      }
+    }
+    const repairs = new Map<string, string>();
+    const pageOf = (url: string) => url.split('#')[0].split('?')[0];
+    const indexed = (page: string) => pageUrls.has(page) || pageUrls.has(page.replace(/\/$/, '/index.html'));
+    // Pages on an indexed site that are not sections themselves (e.g. a pkgdown
+    // article index) are kept when they answer live at their own URL.
+    const candidates = new Set<string>();
+    for (const r of records) {
+      for (const m of r.md.matchAll(/https?:\/\/[^\s)>\]"'`]+/g)) {
+        const page = pageOf(m[0].replace(/[.,;:]+$/, ''));
+        if (sites.some((s) => page.startsWith(s) && page !== s) && !indexed(page)) candidates.add(page);
+      }
+    }
+    const liveOk = new Set<string>();
+    if (verify) {
+      await Promise.all([...candidates].map(async (page) => {
+        try {
+          const res = await fetch(page, { redirect: 'follow', headers: { 'user-agent': 'research-methods-mcp index builder' } });
+          if (res.ok && !(res.redirected && !samePage(res.url, page))) liveOk.add(page);
+        } catch {
+          // unreachable: treated as missing
+        }
+      }));
+    }
+    const resolve = (url: string): string | null => {
+      const page = pageOf(url);
+      if (indexed(page) || liveOk.has(page)) return url;
+      const site = sites.find((s) => page.startsWith(s));
+      if (!site || page === site) return url;
+      const name = page.slice(site.length).replace(/\.html$/, '').split('/').pop()!;
+      const target = byName.get(`${site}|${name}`) ?? byName.get(`${site}|${name.replace(/^sec-/, '')}`) ?? null;
+      // Keep the original section anchor when the moved page has it.
+      const anchor = url.split('#')[1];
+      const withAnchor = target && anchor ? `${pageOf(target)}#${anchor}` : null;
+      return withAnchor && recordUrls.has(withAnchor) ? withAnchor : target;
+    };
+    for (const r of records) {
+      r.md = r.md
+        .replace(/\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g, (all, label: string, url: string) => {
+          const fixed = resolve(url);
+          if (fixed === url) return all;
+          repairs.set(url, fixed ?? '(link removed: page not published)');
+          return fixed ? `[${label}](${fixed})` : label;
+        })
+        .replace(/(^|[\s(<])(https?:\/\/[^\s)>\]"'`]+)/g, (all, pre: string, url: string) => {
+          const clean = url.replace(/[.,;:]+$/, '');
+          const fixed = resolve(clean);
+          if (fixed === clean || !fixed) return all;
+          repairs.set(clean, fixed);
+          return pre + url.replace(clean, fixed);
+        });
+    }
+    for (const [from, to] of repairs) warn(`fixed a link in the text: ${from} -> ${to} (fix it in the book too)`);
   }
 
   let methods: MethodEntry[] = [];

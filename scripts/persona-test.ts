@@ -43,6 +43,15 @@ const S: Scenario[] = [
   { persona: 'grad student', tool: 'search', args: { query: 'weak instruments test' }, expect: /instrument/i },
   { persona: 'analyst', tool: 'search', args: { query: 'heteroskedasticity robust standard errors' }, expect: /robust|heteroskedastic/i },
   { persona: 'reviewer', tool: 'search', args: { query: 'parallel trends assumption pre-trends test' }, expect: /parallel trends|pre-trend/i },
+  // Newer books
+  { persona: 'finance researcher (Vietnam)', tool: 'search', args: { query: 'Fama-French factors Vietnamese stock market portfolio sorts' }, expect: /Tidy Finance|Vietnam/i },
+  { persona: 'Vietnamese student', tool: 'search', args: { query: 'tài chính danh mục đầu tư lợi nhuận', source: 'tidy_finance_vn_vi' }, expect: /./ },
+  { persona: 'ML engineer', tool: 'search', args: { query: 'multi-armed bandit simulation', source: 'mlpy' }, expect: /bandit/i },
+  { persona: 'ML engineer', tool: 'get_code', args: { topic: 'approximate nearest neighbors', language: 'python', source: 'mlpy' }, expect: /```python/i },
+  { persona: 'R user', tool: 'get_code', args: { topic: 'gradient boosting xgboost tuning', language: 'r', source: 'advanced_data_analysis' }, expect: /```r/i },
+  { persona: 'data scientist', tool: 'search', args: { query: 'prediction versus estimation', source: 'advanced_data_analysis' }, expect: /predict/i },
+  { persona: 'communication scholar', tool: 'search', args: { query: 'uncertainty reduction theory', source: 'comm_theory' }, expect: /uncertainty/i },
+  { persona: 'IS researcher', tool: 'cite', args: { ids: ['publications:10.1287/isre.2024.1365'], style: 'apa' }, expect: /Information Systems Research/ },
   // Citations
   { persona: 'author writing a paper', tool: 'cite', args: { style: 'apa' }, expect: /Nguyen, M\./ },
   { persona: 'author writing a paper', tool: 'cite', args: { style: 'bibtex' }, expect: /@(book|manual|article)\{/ },
@@ -94,7 +103,7 @@ for (const s of S) {
   const linkProblems = (await Promise.all(urls.map(async (u) => [u, await checkLink(u)] as const))).filter(([, p]) => p);
   linksChecked += urls.length;
   for (const [u, p] of linkProblems) problems.push(`link ${u}: ${p}`);
-  if (/bookdown\.org/.test(text)) problems.push('answer still links to bookdown.org');
+  if (/bookdown\.org\/mike\/(data_analysis|marketing_research)/.test(text)) problems.push('answer links to a retired bookdown.org address');
   failures += problems.length ? 1 : 0;
   console.log(`${problems.length ? 'FAIL' : 'PASS'} [${s.persona}] ${s.tool} ${JSON.stringify(s.args).slice(0, 90)}  (${ms} ms, ${urls.length} links)`);
   for (const p of problems.slice(0, 6)) console.log(`       ${p}`);
