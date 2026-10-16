@@ -5,7 +5,56 @@ import { createMcpHandler } from '@modelcontextprotocol/server';
 import { FAVICON_ICO_BASE64, ICON_PNG_BASE64, ICON_SVG, OG_PNG_BASE64 } from './icon.ts';
 import type { Library } from './library.ts';
 import { landingPage, privacyPage, termsPage } from './pages.ts';
-import { createServer, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE, VERSION } from './server.ts';
+import { createServer, HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE, VERSION } from './server.ts';
+
+/** Pages for search engines; lastmod is the index build date. */
+function sitemap(lib: Library): string {
+  const lastmod = lib.index.built.slice(0, 10);
+  const urls = ['/', '/llms.txt', '/privacy', '/terms'].map(
+    (p) => `  <url><loc>${PUBLIC_ORIGIN}${p}</loc><lastmod>${lastmod}</lastmod></url>`,
+  );
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+}
+
+/** llms.txt (https://llmstxt.org): what the server offers, how to connect, and what it draws on. */
+function llmsTxt(lib: Library): string {
+  const endpoint = `${PUBLIC_ORIGIN}/mcp`;
+  const sources = lib.index.sources.map((s) => `- [${s.title}](${s.site}): ${s.summary}`);
+  return [
+    `# ${SERVER_TITLE}`,
+    '',
+    `> ${SERVER_DESCRIPTION} A Model Context Protocol (MCP) server; free, read-only, and requires no account or API key.`,
+    '',
+    `MCP endpoint (Streamable HTTP, no authentication): ${endpoint}`,
+    '',
+    '## Connect',
+    '',
+    `- Claude (web, desktop, and mobile): Settings > Connectors > Add custom connector, with the endpoint above.`,
+    `- Claude Code: \`claude mcp add --transport http research-methods ${endpoint}\``,
+    '- ChatGPT: enable developer mode, then add a custom connector of type MCP server with the endpoint above and no authentication.',
+    `- Cursor, Visual Studio Code, Windsurf, Cline, Zed, and other MCP clients: {"mcpServers": {"research-methods": {"url": "${endpoint}"}}}`,
+    '',
+    '## Tools',
+    '',
+    '- choose_method: recommends study designs and methods for a research question, with assumptions, R and Python packages, and readings.',
+    '- search and fetch: find and read sections, with code, links, and citations.',
+    '- get_code: runnable R, Python, or Julia code for an analysis task.',
+    '- cite: references in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.',
+    '- list_sources: the works in the library, with licenses and citations.',
+    '',
+    `## Sources (${lib.index.records.length.toLocaleString('en-US')} sections)`,
+    '',
+    ...sources,
+    '',
+    '## Optional',
+    '',
+    `- [Installation and examples](${PUBLIC_ORIGIN}/)`,
+    `- [Source code and documentation](${HOMEPAGE})`,
+    `- [Privacy policy](${PUBLIC_ORIGIN}/privacy)`,
+    `- [Terms of use](${PUBLIC_ORIGIN}/terms)`,
+    '',
+  ].join('\n');
+}
 
 const CORS: Record<string, string> = {
   'access-control-allow-origin': '*',
@@ -86,7 +135,11 @@ export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) =
       case '/health':
         return Response.json({ ok: true, name: SERVER_NAME, version: VERSION, sections: lib.index.records.length, built: lib.index.built });
       case '/robots.txt':
-        return new Response('User-agent: *\nAllow: /\n', { headers: { 'content-type': 'text/plain' } });
+        return new Response(`User-agent: *\nAllow: /\n\nSitemap: ${PUBLIC_ORIGIN}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain' } });
+      case '/sitemap.xml':
+        return new Response(sitemap(lib), { headers: { 'content-type': 'application/xml', 'cache-control': 'public, max-age=86400' } });
+      case '/llms.txt':
+        return new Response(llmsTxt(lib), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
       default:
         return ASSETS[path]?.() ?? new Response('Not found', { status: 404 });
     }

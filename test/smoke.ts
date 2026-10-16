@@ -188,6 +188,11 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(ico[0] === 0 && ico[2] === 1 && count === 3, 'GET /favicon.ico serves a real ICO with 3 sizes');
   const svg = await fetch(`${base}/icon.svg`);
   check(svg.headers.get('content-type') === 'image/svg+xml' && (await svg.text()).startsWith('<svg'), 'GET /icon.svg serves the SVG icon');
+  const sitemapXml = await (await fetch(`${base}/sitemap.xml`)).text();
+  check(sitemapXml.includes('<urlset') && sitemapXml.includes('/llms.txt</loc>'), 'sitemap.xml lists the pages');
+  const llms = await (await fetch(`${base}/llms.txt`)).text();
+  check(llms.startsWith('# Research Methods Library') && llms.includes('/mcp') && llms.includes('A Guide on Data Analysis'), 'llms.txt describes the server, endpoint, and sources');
+  check((await (await fetch(`${base}/robots.txt`)).text()).includes('Sitemap:'), 'robots.txt points at the sitemap');
   const manifest = await (await fetch(`${base}/site.webmanifest`)).json();
   check(manifest.name === 'Research Methods Library' && manifest.icons.length === 3, 'web manifest lists the icons');
   const landing = await (await fetch(`${base}/`)).text();
