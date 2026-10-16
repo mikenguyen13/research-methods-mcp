@@ -12,7 +12,7 @@ export const SERVER_TITLE = 'Research Methods Library';
 export const VERSION: string = pkg.version;
 export const HOMEPAGE = 'https://github.com/mikenguyen13/research-methods-mcp';
 
-const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and ready-made citations from Mike Nguyen's open books and R package on data analysis, causal inference, econometrics, experiments, marketing research, credit scoring, machine learning, and AI.
+const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from four textbooks and one R package by Mike Nguyen on data analysis, causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and AI.
 
 For a study-design question, start with choose_method. To read the material, use search and then fetch. For runnable code, use get_code. For a reference list, use cite with the ids of the sections you used. Every result includes the section URL and the citation of the work it comes from.`;
 
@@ -48,7 +48,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'Search the research methods library',
       description:
-        'Search sections of open books and an R package on research methods: causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experiments, regression, marketing research, credit scoring, machine learning, and AI. Returns matching sections with a link, a snippet, the code languages they contain, and a citation. Read a result in full with fetch.',
+        'Search sections of textbooks and an R package on research methods: causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experimental design, regression, marketing research, credit scoring, machine learning, and AI. Returns matching sections with a link, a snippet, the code languages they contain, and a citation. Read a result in full with fetch.',
       inputSchema: z.object({
         query: z.string().min(1).describe('What to look for, in plain words, e.g. "staggered difference-in-differences with never-treated controls".'),
         source: Source.optional(),
