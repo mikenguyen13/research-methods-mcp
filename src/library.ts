@@ -59,39 +59,65 @@ export interface SearchHit {
   cite_as: string;
 }
 
+/** Options for the section search index. Building and loading a serialized index must use the same options. */
+const SECTION_SEARCH_OPTIONS: ConstructorParameters<typeof MiniSearch<SectionRecord>>[0] = {
+  fields: ['title', 'crumbs', 'pkgs', 'prose'],
+  extractField: (doc, field) => {
+    if (field === 'id') return doc.id;
+    if (field === 'crumbs') return doc.crumbs.join(' ');
+    if (field === 'pkgs') return doc.pkgs.join(' ').replace(/::/g, ' ');
+    if (field === 'prose') return proseOf(doc.md).slice(0, 6000);
+    return (doc as unknown as Record<string, string>)[field];
+  },
+  tokenize,
+  processTerm,
+  searchOptions: {
+    boost: { title: 5, crumbs: 1.5, pkgs: 2.5, prose: 1 },
+    prefix: (term) => term.length > 4,
+    fuzzy: (term) => (term.length > 6 ? 0.15 : false),
+    combineWith: 'OR',
+  },
+};
+
+/** Builds the section search index from scratch (about 2 s of CPU for the full library). */
+export function buildSectionSearch(records: SectionRecord[]): MiniSearch<SectionRecord> {
+  const search = new MiniSearch<SectionRecord>(SECTION_SEARCH_OPTIONS);
+  search.addAll(records);
+  return search;
+}
+
+/**
+ * The contents of data/search.json.gz: a JSON header line naming the index build it belongs to,
+ * then the serialized search index.
+ */
+export function serializeSectionSearch(index: LibraryIndex): string {
+  const header = JSON.stringify({ built: index.built, records: index.records.length });
+  return `${header}\n${JSON.stringify(buildSectionSearch(index.records))}`;
+}
+
+async function gunzipText(bytes: Uint8Array): Promise<string> {
+  const stream = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(stream).text();
+}
+
 export class Library {
   readonly index: LibraryIndex;
   readonly byId: Map<string, SectionRecord>;
   readonly works: Map<string, Work>;
   readonly sources: Map<string, SourceMeta>;
-  private search_: MiniSearch<SectionRecord>;
+  private sectionSearch?: MiniSearch<SectionRecord>;
   private methodSearch: MiniSearch<MethodEntry>;
 
-  constructor(index: LibraryIndex) {
+  /**
+   * @param searchJson Serialized section search index (data/search.json.gz, unzipped). When given, it is
+   * loaded instead of rebuilt; either way the index is created on first search, not at startup, so
+   * connections that only list tools cost almost no CPU.
+   */
+  constructor(index: LibraryIndex, private searchJson?: string) {
     this.index = index;
     this.byId = new Map(index.records.map((r) => [r.id, r]));
     this.works = new Map(index.works.map((w) => [w.key, w]));
     this.sources = new Map(index.sources.map((s) => [s.id, s]));
-
-    this.search_ = new MiniSearch<SectionRecord>({
-      fields: ['title', 'crumbs', 'pkgs', 'prose'],
-      extractField: (doc, field) => {
-        if (field === 'id') return doc.id;
-        if (field === 'crumbs') return doc.crumbs.join(' ');
-        if (field === 'pkgs') return doc.pkgs.join(' ').replace(/::/g, ' ');
-        if (field === 'prose') return proseOf(doc.md).slice(0, 6000);
-        return (doc as unknown as Record<string, string>)[field];
-      },
-      tokenize,
-      processTerm,
-      searchOptions: {
-        boost: { title: 5, crumbs: 1.5, pkgs: 2.5, prose: 1 },
-        prefix: (term) => term.length > 4,
-        fuzzy: (term) => (term.length > 6 ? 0.15 : false),
-        combineWith: 'OR',
-      },
-    });
-    this.search_.addAll(index.records);
 
     this.methodSearch = new MiniSearch<MethodEntry>({
       fields: ['name', 'keywords', 'use_when', 'family'],
@@ -113,11 +139,34 @@ export class Library {
 
   private methodPhrases: { id: string; phrases: string[][] }[];
 
-  /** Builds a library from the gzipped index bytes, in any runtime with DecompressionStream. */
-  static async fromGzip(bytes: Uint8Array): Promise<Library> {
-    const stream = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip'));
-    const text = await new Response(stream).text();
-    return new Library(JSON.parse(text) as LibraryIndex);
+  /** The section search index, loaded or built on first use. */
+  private get search_(): MiniSearch<SectionRecord> {
+    if (!this.sectionSearch) {
+      const json = this.searchJson;
+      this.searchJson = undefined;
+      this.sectionSearch = json
+        ? MiniSearch.loadJSON<SectionRecord>(json, SECTION_SEARCH_OPTIONS)
+        : buildSectionSearch(this.index.records);
+    }
+    return this.sectionSearch;
+  }
+
+  /**
+   * Builds a library from the gzipped index bytes, and optionally the gzipped search index file
+   * (see `serializeSectionSearch`), in any runtime with DecompressionStream. A search index built
+   * from a different index is ignored, and the search index is then rebuilt on first use.
+   */
+  static async fromGzip(bytes: Uint8Array, searchBytes?: Uint8Array): Promise<Library> {
+    const index = JSON.parse(await gunzipText(bytes)) as LibraryIndex;
+    let searchJson: string | undefined;
+    if (searchBytes) {
+      const text = await gunzipText(searchBytes);
+      const newline = text.indexOf('\n');
+      const header = JSON.parse(text.slice(0, newline)) as { built?: string };
+      if (header.built === index.built) searchJson = text.slice(newline + 1);
+      else console.error(`search index is for ${header.built}, not ${index.built}; rebuilding on first search`);
+    }
+    return new Library(index, searchJson);
   }
 
   // -------------------------------------------------------------------------

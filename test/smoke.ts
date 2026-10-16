@@ -13,6 +13,7 @@ import { toNodeHandler } from '@modelcontextprotocol/node';
 import { Client as V1Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport as V1HttpTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { createApp } from '../src/http.ts';
+import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
 const failures: string[] = [];
@@ -28,6 +29,17 @@ type Caller = (name: string, args: Record<string, unknown>) => Promise<ToolResul
 const t0 = Date.now();
 const lib = await loadLibrary();
 const loadMs = Date.now() - t0;
+
+// The prebuilt search index (data/search.json.gz) must rank exactly like a freshly built one.
+{
+  check(typeof (lib as any).searchJson === 'string' && !(lib as any).sectionSearch, 'prebuilt search index is present and not built at startup');
+  const fresh = new Library(lib.index);
+  for (const q of ['staggered difference-in-differences', 'weak instruments', 'probability of default gradient boosting']) {
+    const a = lib.search(q, { limit: 10 }).map((h) => h.id).join('|');
+    const b = fresh.search(q, { limit: 10 }).map((h) => h.id).join('|');
+    check(a === b && a.length > 0, `prebuilt search index matches a fresh build for "${q}"`);
+  }
+}
 const http = createHttpServer(toNodeHandler({ fetch: createApp(lib) }));
 await new Promise<void>((r) => http.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${(http.address() as AddressInfo).port}`;

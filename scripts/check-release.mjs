@@ -38,6 +38,15 @@ else {
   const days = (Date.now() - Date.parse(index.built)) / 864e5;
   if (days > 60) console.warn(`warning: the index was built ${Math.round(days)} days ago`);
   console.log(`index: ${index.records.length} sections, ${index.methods.length} methods, built ${index.built}`);
+  // The prebuilt search index must match this index build, or hosts rebuild it at runtime (slow, costly).
+  if (!existsSync('data/search.json.gz')) errors.push('data/search.json.gz missing; run npm run build:search');
+  else {
+    const text = gunzipSync(readFileSync('data/search.json.gz')).toString();
+    const header = JSON.parse(text.slice(0, text.indexOf('\n')));
+    if (header.built !== index.built || header.records !== index.records.length) {
+      errors.push(`data/search.json.gz is for index ${header.built}, not ${index.built}; run npm run build:search`);
+    }
+  }
 }
 for (const f of ['dist/stdio.js', 'dist/http.js']) {
   if (!existsSync(f)) errors.push(`${f} missing; run npm run build`);

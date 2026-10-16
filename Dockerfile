@@ -13,7 +13,7 @@ RUN node scripts/bundle.mjs
 FROM node:24-alpine
 WORKDIR /app
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/data/index.json.gz ./data/index.json.gz
+COPY --from=build /app/data/index.json.gz /app/data/search.json.gz ./data/
 ENV HOST=0.0.0.0 PORT=8080 NODE_ENV=production
 EXPOSE 8080
 USER node

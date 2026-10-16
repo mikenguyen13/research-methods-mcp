@@ -11,6 +11,7 @@
     "dist/stdio.js",
     "dist/http.js",
     "data/index.json.gz",
+    "data/search.json.gz",
     "README.md",
     "LICENSE"
   ],
@@ -18,7 +19,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build:index": "tsx scripts/build-index.ts",
+    "build:index": "tsx scripts/build-index.ts && npm run build:search",
+    "build:search": "tsx scripts/build-search.ts",
     "build": "node scripts/bundle.mjs",
     "start": "node dist/http.js",
     "dev": "tsx src/node-http.ts",
