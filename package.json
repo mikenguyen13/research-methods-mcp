@@ -35,7 +35,8 @@
     "prepublishOnly": "npm run build && npm test && npm run check-release",
     "set-endpoint": "tsx scripts/set-endpoint.ts",
     "check-release": "node scripts/check-release.mjs",
-    "pack:mcpb": "npx -y @anthropic-ai/mcpb pack . research-methods-mcp.mcpb"
+    "pack:mcpb": "npx -y @anthropic-ai/mcpb pack . research-methods-mcp.mcpb",
+    "pack:openai": "node scripts/pack-openai-plugin.mjs"
   },
   "keywords": [
     "mcp",
@@ -74,6 +75,8 @@
     "@modelcontextprotocol/server": "^2.3.1",
     "@resvg/resvg-js": "2.6.2",
     "@types/node": "^24.19.2",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "esbuild": "^0.28.2",
     "minisearch": "^7.2.0",
     "tsx": "^4.23.15",

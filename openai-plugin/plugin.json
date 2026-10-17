@@ -1,0 +1,99 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "research-methods-library",
+  "version": "0.1.1",
+  "description": "Study design recommendations, runnable R and Python code, and citations from methodological textbooks and research articles.",
+  "author": {
+    "name": "Mike Nguyen",
+    "url": "https://github.com/mikenguyen13"
+  },
+  "homepage": "https://research-methods-mcp.vercel.app",
+  "repository": "https://github.com/mikenguyen13/research-methods-mcp",
+  "license": "MIT",
+  "keywords": ["research methods", "causal inference", "econometrics", "statistics", "R", "Python", "citations"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Research Methods Library",
+        "shortDescription": "Study designs, code, citations",
+        "longDescription": "The Research Methods Library grounds answers in approximately 17,000 sections of methodological texts by Mike Nguyen: A Guide on Data Analysis and its Springer volumes; Advanced Data Analysis; causalverse, an R package for causal inference; Credit Scoring: Theory, Methods, and Practice; Marketing Research: A Technical and Academic Treatment; Applying Tidy Finance with Python to Vietnam; Machine Learning in Python; AI in Action; and peer-reviewed research articles.\n\nGiven a research question, it recommends candidate designs (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning, and 56 others), stating when each applies, the identifying assumptions to verify, and the R and Python packages that implement it. It retrieves the underlying sections, returns runnable R, Python, or Julia code, and formats references in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.\n\nEvery result links to the specific section and carries the citation of the work from which it is drawn. All tools are read-only, no account or API key is required, and the service stores no information about its users.",
+        "developerName": "Mike Nguyen",
+        "category": "Education",
+        "capabilities": [
+          "Recommend study designs and their assumptions",
+          "Search and read methods textbook sections",
+          "Return runnable R, Python, and Julia code",
+          "Format citations in APA, Chicago, MLA, Harvard, BibTeX, or RIS"
+        ],
+        "websiteURL": "https://research-methods-mcp.vercel.app",
+        "supportURL": "https://github.com/mikenguyen13/research-methods-mcp/issues",
+        "privacyPolicyURL": "https://research-methods-mcp.vercel.app/privacy",
+        "termsOfServiceURL": "https://research-methods-mcp.vercel.app/terms",
+        "defaultPrompt": [
+          "States raised the minimum wage in different years. How should I estimate the effect on teen employment?",
+          "Show me R code for a sharp regression discontinuity with rdrobust.",
+          "Give me BibTeX for the sources you used."
+        ],
+        "brandColor": "#22385C",
+        "brandColorDark": "#8FD3C7",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Recommend a design for staggered policy adoption",
+              "prompt": "States raised the minimum wage in different years. How should I estimate the effect on teen employment?",
+              "tools_triggered": "choose_method",
+              "expected_behavior": "Recommends staggered difference-in-differences first, states its identifying assumptions, lists R and Python packages, and links the library sections it draws on."
+            },
+            {
+              "description": "Return runnable R code",
+              "prompt": "Show me R code for a sharp regression discontinuity with rdrobust.",
+              "tools_triggered": "get_code",
+              "expected_behavior": "Returns runnable rdrobust code with the link and citation of the section it comes from."
+            },
+            {
+              "description": "Explain a concept from the library",
+              "prompt": "What is the weak instruments problem and how do I test for it?",
+              "tools_triggered": "search, fetch",
+              "expected_behavior": "Explains weak instruments and the first-stage tests from the library section, links the section, and cites A Guide on Data Analysis."
+            },
+            {
+              "description": "Format references",
+              "prompt": "Give me BibTeX for the sources you used.",
+              "tools_triggered": "cite",
+              "expected_behavior": "Returns a BibTeX entry for each work consulted, together with the links of the sections cited."
+            },
+            {
+              "description": "Recommend packages for a credit scorecard",
+              "prompt": "Which Python packages fit a probability-of-default scorecard?",
+              "tools_triggered": "choose_method",
+              "expected_behavior": "Recommends a credit scorecard approach with optbinning and scikit-learn and links the relevant Credit Scoring chapter."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Weather request outside the library's scope",
+              "prompt": "What's the weather in Paris tomorrow?"
+            },
+            {
+              "description": "Creative writing unrelated to research methods",
+              "prompt": "Write a birthday poem for my sister."
+            },
+            {
+              "description": "Booking request the library cannot perform",
+              "prompt": "Book me a table for two tonight."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "This plugin does not sell products or process payments."
+      },
+      "publication": {
+        "release_notes": "Initial release: study design recommendations, section search and retrieval, runnable R, Python, and Julia code, and formatted citations drawn from methodological textbooks, an R package, and research articles."
+      }
+    }
+  }
+}

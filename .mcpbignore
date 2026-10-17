@@ -26,3 +26,4 @@ vercel.json
 .vercel/
 .claude/
 .vscode/
+openai-plugin/

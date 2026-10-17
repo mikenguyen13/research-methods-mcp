@@ -4,3 +4,4 @@ data/index.json
 *.mcpb
 .env
 .claude/
+research-methods-openai-plugin.zip

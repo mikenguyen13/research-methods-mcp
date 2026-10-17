@@ -4,6 +4,8 @@
 //   - PNGs at 16, 32, 180 (Apple touch), 192, and 512 px, plus the SVG itself
 //   - assets/icon.png (512) and assets/icon-400.png (400, for the Cline marketplace)
 //   - a 1200x630 social preview image (assets/og.png) for link previews
+//   - assets/icon-square.png (512, edge-to-edge navy, for avatars and directories
+//     that crop to a circle or round the corners themselves)
 //   node scripts/build-icons.mjs
 
 import { readFile, writeFile } from 'node:fs/promises';
@@ -51,8 +53,14 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" vi
 </svg>`;
 const ogPng = new Resvg(og, { font: { loadSystemFonts: true, defaultFontFamily: 'Arial' } }).render().asPng();
 
+// Square variant: the navy fills the canvas and the artwork (bounding box 92..420 x
+// 112..420) is scaled to 0.8 about its centre, so a circular crop keeps a margin.
+const glyph = iconBody.replace(/<rect x="15"[^>]*\/>/, '');
+const square = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#22385c"/><g transform="translate(256 256) scale(0.8) translate(-256 -266)">${glyph}</g></svg>`;
+
 await writeFile('assets/icon.png', sizes[512]);
 await writeFile('assets/icon-400.png', sizes[400]);
+await writeFile('assets/icon-square.png', png(square, 512));
 await writeFile('assets/og.png', ogPng);
 
 const b64 = (b) => Buffer.from(b).toString('base64');

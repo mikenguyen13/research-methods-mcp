@@ -10,6 +10,7 @@ const pkg = JSON.parse(read('package.json'));
 const server = JSON.parse(read('server.json'));
 const manifest = JSON.parse(read('manifest.json'));
 const cff = read('CITATION.cff');
+const plugin = JSON.parse(read('openai-plugin/plugin.json'));
 
 const versions = {
   'package.json': pkg.version,
@@ -17,7 +18,22 @@ const versions = {
   ...(server.packages ? { 'server.json packages[0]': server.packages[0]?.version } : {}),
   'manifest.json': manifest.version,
   'CITATION.cff': /^version:\s*(\S+)/m.exec(cff)?.[1],
+  'openai-plugin/plugin.json': plugin.version,
 };
+
+// ChatGPT plugin directory limits (developers.openai.com/plugins/deploy/submission).
+const ui = plugin.extensions?.['com.openai']?.interface ?? {};
+const tests = plugin.extensions?.['com.openai']?.review?.test_cases ?? {};
+for (const [field, max] of [['displayName', 30], ['shortDescription', 30], ['longDescription', 4000]]) {
+  if (!ui[field] || ui[field].length > max) errors.push(`openai-plugin ${field} is ${ui[field]?.length ?? 0} chars (1..${max})`);
+}
+if (plugin.name.length > 64) errors.push(`openai-plugin name is ${plugin.name.length} chars (max 64)`);
+if ((ui.capabilities ?? []).length > 20 || (ui.capabilities ?? []).some((c) => c.length > 120)) errors.push('openai-plugin capabilities: at most 20, each at most 120 chars');
+for (const u of ['websiteURL', 'supportURL', 'privacyPolicyURL', 'termsOfServiceURL']) if (!ui[u]) errors.push(`openai-plugin ${u} is required for MCP review`);
+if ((tests.positive ?? []).length < 5 || (tests.negative ?? []).length < 3) errors.push('openai-plugin needs five positive and three negative test cases');
+const pluginMcp = JSON.parse(read('openai-plugin/mcp.json'));
+const pluginUrl = Object.values(pluginMcp.mcpServers ?? {})[0]?.url;
+if (pluginUrl !== pkg.config?.endpoint) errors.push(`openai-plugin/mcp.json url ${pluginUrl} != package.json config.endpoint ${pkg.config?.endpoint}`);
 const npmPublished = pkg.config?.npmPublished === true;
 if (Boolean(server.packages?.length) !== npmPublished) {
   errors.push(`server.json packages must ${npmPublished ? '' : 'not '}be listed while config.npmPublished is ${npmPublished}; run npm run set-endpoint`);
