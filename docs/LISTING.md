@@ -50,9 +50,10 @@ behind a reverse proxy.
    **Publish** workflow from the repository's Actions tab. It authenticates with
    GitHub OIDC and skips npm when no `NPM_TOKEN` secret is set. Registry versions
    are immutable, so each publication needs a new version number.
-3. Claude Desktop extension: `npx -y @anthropic-ai/mcpb pack . research-methods-mcp.mcpb`,
-   attached to a GitHub release. (Anthropic's directory no longer lists `.mcpb`
-   files; users install them by opening the file.)
+3. Claude Desktop extension: publishing a GitHub release runs the **Publish**
+   workflow, which builds `research-methods-mcp.mcpb` and attaches it to the
+   release (locally: `npm run pack:mcpb`). Anthropic's directory no longer lists
+   `.mcpb` files; users install them by opening the file.
 4. Subsequent releases: bump the version in `package.json`, `server.json` (and
    its npm package entry, when present), `manifest.json`, and `CITATION.cff`,
    then publish a GitHub release.
@@ -98,22 +99,22 @@ Negative (the assistant should not use the tools):
 
 ## 4. Directories
 
-Free listings first, in approximate order of reach.
+Free listings first, in approximate order of reach. Status as of 2026-10-17.
 
-- [ ] **Official MCP Registry**: section 2 above. Feeds PulseMCP, the GitHub MCP Registry, and others. https://registry.modelcontextprotocol.io
+- [x] **Official MCP Registry**: section 2 above; `io.github.mikenguyen13/research-methods-mcp` 0.1.1. Feeds PulseMCP, the GitHub MCP Registry, and others. https://registry.modelcontextprotocol.io
 - [ ] **GitHub MCP Registry** (VS Code, Copilot): after the official registry, request onboarding at partnerships@github.com; later versions sync automatically.
-- [ ] **Anthropic Connectors Directory** (Claude): https://claude.ai/directory/manage → Submit new → MCP connector. Requires a paid Claude plan, the copy above, the privacy and support URLs, the icon, and test instructions (use the test cases). Tool titles and annotations are already set.
-- [ ] **OpenAI ChatGPT Directory**: https://platform.openai.com/plugins. Requires individual or business verification, the URLs above, a demonstration video, release notes, the eight test cases, and domain verification: set `VERIFY_PATH` and `VERIFY_TOKEN` in the deployment's environment to the path and token OpenAI provides.
-- [ ] **Smithery**: https://smithery.ai/new, with the endpoint.
-- [ ] **Glama**: https://glama.ai/mcp/servers → Add Server with the repository URL. On its Dockerfile page, Deploy and then Make Release so the server receives a quality score. `glama.json` claims ownership.
-- [ ] **Docker MCP Catalog**: fork https://github.com/docker/mcp-registry, run `task remote-wizard` (remote, streamable-http, the endpoint, icon URL `https://raw.githubusercontent.com/mikenguyen13/research-methods-mcp/main/assets/icon.png`), and open a pull request. Listed about 24 hours after merge.
-- [ ] **Cline MCP Marketplace**: open an issue at https://github.com/cline/mcp-marketplace with the repository URL, `assets/icon-400.png`, and a one-sentence rationale (grounded research-methods answers and code).
-- [ ] **awesome-mcp-servers**: pull request to https://github.com/punkpeye/awesome-mcp-servers adding, in alphabetical order under Research (or Education):
+- [ ] **maintainer** **Anthropic Connectors Directory** (Claude): https://claude.ai/directory/manage → Submit new → MCP connector. Requires a paid Claude plan, the copy above, the privacy and support URLs, the icon, and test instructions (use the test cases). Tool titles and annotations are already set. The form is completed; the policy attestations and the final submission remain.
+- [ ] **maintainer** **OpenAI ChatGPT Directory**: https://platform.openai.com/plugins. Requires individual or business verification, the URLs above, a demonstration video, release notes, the eight test cases, and domain verification: set `VERIFY_PATH` and `VERIFY_TOKEN` in the deployment's environment to the path and token OpenAI provides.
+- [x] **Smithery**: https://smithery.ai/servers/research-methods/library (namespace `research-methods`; display name, description, homepage, repository, and icon set under Settings).
+- [x] **Glama**: server https://glama.ai/mcp/servers/mikenguyen13/research-methods-mcp (claimed through `glama.json`; Admin → Repository → Sync Server refreshes the README) and connector https://glama.ai/mcp/connectors/io.github.mikenguyen13/research-methods-mcp (claimed with GitHub; thumbnail set under Admin → Listing). The server page shows the GitHub account's avatar.
+- [x] **Docker MCP Catalog**: pull request https://github.com/docker/mcp-registry/pull/5776 (`servers/research-methods`, remote). Listed about 24 hours after merge.
+- [ ] **maintainer** **Cline MCP Marketplace**: open an issue at https://github.com/cline/mcp-marketplace with the repository URL, `assets/icon-400.png`, and a one-sentence rationale (grounded research-methods answers and code). Cline asks the submitter to confirm a test installation in Cline.
+- [x] **awesome-mcp-servers**: pull request https://github.com/punkpeye/awesome-mcp-servers/pull/16594, with the Glama score badge:
   `- [mikenguyen13/research-methods-mcp](https://github.com/mikenguyen13/research-methods-mcp) 📇 ☁️ 🏠 - Research methods library: recommends causal inference and econometric designs, returns runnable R and Python code, and cites the sources.`
-- [ ] **awesome-remote-mcp-servers**: the same entry, for the hosted endpoint.
-- [ ] **MCP Market**: https://mcpmarket.com/submit (the free queue takes four to six weeks; a paid fast track exists).
-- [ ] **mcp.so**: https://mcp.so/submit (confirm whether a free path exists before paying).
-- [ ] **cursor.directory**: submit through the site.
+- [x] **awesome-remote-mcp-servers**: pull request https://github.com/punkpeye/awesome-remote-mcp-servers/pull/2023, with the Glama connector badge.
+- [x] **MCP Market**: submitted to the free queue at https://mcpmarket.com/submit (four to six weeks; a paid fast track exists).
+- [x] **mcp.so**: the web form is paid only; free submissions are issues on https://github.com/chatmcp/mcpso (submitted as https://github.com/chatmcp/mcpso/issues/5570).
+- [x] **cursor.directory**: submitted as a plugin with one MCP server component (Manual tab; the Auto tab needs Open Plugins files in the repository). https://cursor.directory/plugins/research-methods-library appears once the site's security scan finishes.
 - [ ] **PulseMCP**: not accepting submissions; it indexes servers from the official registry.
 
 ## 5. Adoption
