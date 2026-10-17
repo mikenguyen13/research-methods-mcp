@@ -19,3 +19,10 @@ methods.yml
 server.json
 glama.json
 CITATION.cff
+dist/vercel.js
+api/
+public/
+vercel.json
+.vercel/
+.claude/
+.vscode/
