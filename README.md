@@ -13,7 +13,7 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 
 The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 17,000 sections from 8 books, an R package, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
 
-The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
+The server works with Claude, ChatGPT, Amazon Bedrock AgentCore, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
 
 ## Installation
 
@@ -28,6 +28,7 @@ The server works with Claude, ChatGPT, Cursor, Visual Studio Code, and any other
 | Claude (web, desktop, and mobile) | Settings → Connectors → **Add custom connector**; enter the endpoint |
 | Claude Code | `claude mcp add --transport http research-methods https://research-methods-mcp.vercel.app/mcp` |
 | ChatGPT | Settings → enable developer mode → add a custom connector of type MCP server with the endpoint and no authentication |
+| Amazon Bedrock AgentCore | Add the endpoint as an MCP server target of an AgentCore Gateway, with no outbound authorization: `agentcore add gateway-target --name research-methods --type mcp-server --endpoint https://research-methods-mcp.vercel.app/mcp --gateway <gateway>`, then `agentcore deploy` |
 | Cursor, Visual Studio Code | Use the buttons above |
 | Windsurf, Cline, Zed, and other clients | Add the following JSON to the client's MCP configuration |
 

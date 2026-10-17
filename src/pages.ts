@@ -79,6 +79,8 @@ export function landingPage(lib: Library, origin: string): string {
 <dt>Claude (web, desktop, and mobile)</dt><dd>Settings → Connectors → Add custom connector; enter the endpoint URL above.</dd>
 <dt>Claude Code</dt><dd><pre><code>${esc(links.claudeCode)}</code></pre></dd>
 <dt>ChatGPT</dt><dd>Enable developer mode in Settings, add a custom connector of type MCP server with the endpoint URL above, and select no authentication.</dd>
+<dt>Amazon Bedrock AgentCore</dt><dd>Add the endpoint as an MCP server target of an AgentCore Gateway, with no outbound authorization:<pre><code>agentcore add gateway-target --name research-methods --type mcp-server --endpoint ${esc(endpoint)} --gateway &lt;gateway&gt;
+agentcore deploy</code></pre></dd>
 <dt>Cursor, Visual Studio Code, Windsurf, Cline, Zed, and other MCP clients</dt><dd>Use the buttons above, or add the following to the client's MCP configuration:<pre><code>${esc(links.json)}</code></pre></dd>
 ${NPM_PUBLISHED ? `<dt>Local installation (requires Node.js 20 or later)</dt><dd><pre><code>${esc(links.stdio)}</code></pre></dd>` : ''}
 </dl>

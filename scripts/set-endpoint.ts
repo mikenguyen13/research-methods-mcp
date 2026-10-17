@@ -46,6 +46,7 @@ const block = `<!-- install:start -->
 | Claude (web, desktop, and mobile) | Settings → Connectors → **Add custom connector**; enter the endpoint |
 | Claude Code | \`${l.claudeCode}\` |
 | ChatGPT | Settings → enable developer mode → add a custom connector of type MCP server with the endpoint and no authentication |
+| Amazon Bedrock AgentCore | Add the endpoint as an MCP server target of an AgentCore Gateway, with no outbound authorization: \`agentcore add gateway-target --name research-methods --type mcp-server --endpoint ${endpoint} --gateway <gateway>\`, then \`agentcore deploy\` |
 | Cursor, Visual Studio Code | Use the buttons above |
 | Windsurf, Cline, Zed, and other clients | Add the following JSON to the client's MCP configuration |
 

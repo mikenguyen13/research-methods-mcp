@@ -32,6 +32,7 @@ function llmsTxt(lib: Library): string {
     `- Claude (web, desktop, and mobile): Settings > Connectors > Add custom connector, with the endpoint above.`,
     `- Claude Code: \`claude mcp add --transport http research-methods ${endpoint}\``,
     '- ChatGPT: enable developer mode, then add a custom connector of type MCP server with the endpoint above and no authentication.',
+    `- Amazon Bedrock AgentCore: add the endpoint as an MCP server target of an AgentCore Gateway with no outbound authorization (\`agentcore add gateway-target --name research-methods --type mcp-server --endpoint ${endpoint} --gateway <gateway>\`, then \`agentcore deploy\`).`,
     `- Cursor, Visual Studio Code, Windsurf, Cline, Zed, and other MCP clients: {"mcpServers": {"research-methods": {"url": "${endpoint}"}}}`,
     '',
     '## Tools',
