@@ -1,7 +1,9 @@
 # Publishes to npm and the official MCP Registry when a GitHub release is
-# published, or on demand from the Actions tab (workflow_dispatch).
+# published, or on demand from the Actions tab (workflow_dispatch), and
+# attaches the Claude Desktop extension (.mcpb) to the release.
 # The npm step runs only when the NPM_TOKEN repository secret is set; the
-# registry login uses GitHub OIDC, so it needs no secret.
+# registry login uses GitHub OIDC, so it needs no secret. Registry versions are
+# immutable, so a version already in the registry is skipped rather than failed.
 name: Publish
 on:
   release:
@@ -30,6 +32,33 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish to the MCP Registry
         run: |
+          name=$(jq -r .name server.json)
+          version=$(jq -r .version server.json)
+          if curl -fsS "https://registry.modelcontextprotocol.io/v0/servers?search=$name" \
+            | jq -e --arg n "$name" --arg v "$version" '.servers[] | select(.server.name == $n and .server.version == $v)' > /dev/null; then
+            echo "$name $version is already in the MCP Registry; skipping."
+            exit 0
+          fi
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
+
+  extension:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run build
+      - name: Attach the Claude Desktop extension to the release
+        run: |
+          npx -y @anthropic-ai/mcpb@2.1.2 pack . research-methods-mcp.mcpb
+          gh release upload "$TAG" research-methods-mcp.mcpb --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
