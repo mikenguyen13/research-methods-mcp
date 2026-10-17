@@ -116,6 +116,8 @@ Free listings first, in approximate order of reach. Status as of 2026-10-17.
 - [x] **mcp.so**: the web form is paid only; free submissions are issues on https://github.com/chatmcp/mcpso (submitted as https://github.com/chatmcp/mcpso/issues/5570).
 - [x] **cursor.directory**: submitted as a plugin with one MCP server component (Manual tab; the Auto tab needs Open Plugins files in the repository). https://cursor.directory/plugins/research-methods-library appears once the site's security scan finishes.
 - [ ] **PulseMCP**: not accepting submissions; it indexes servers from the official registry.
+- [x] **Amazon Bedrock AgentCore**: no listing needed. AgentCore Gateway accepts MCP server targets with no outbound authorization, so Bedrock users add the endpoint with `agentcore add gateway-target --type mcp-server --endpoint <endpoint>`; the README, landing page, and `llms.txt` give the commands.
+- [ ] **AWS Marketplace** (AI Agents and Tools, "API-based AI agents & tools", tool type MCP Server): deferred. Listing requires a seller account in AWS Partner Central (**maintainer**), the AWS Marketplace SaaS integration for the chosen pricing model (a free product sets every pricing dimension to $0), and an authorization method of API keys or OAuth; the form offers no unauthenticated option. Listing would therefore mean issuing API keys to Marketplace subscribers in addition to the open endpoint. AgentCore Gateway integration through the Marketplace requires two-legged OAuth. See https://docs.aws.amazon.com/marketplace/latest/userguide/listing-saas-ai-agents.html.
 
 ## 5. Adoption
 
