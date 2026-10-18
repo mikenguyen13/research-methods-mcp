@@ -49,6 +49,8 @@ The server works with Claude, ChatGPT, Amazon Bedrock AgentCore, Cursor, Visual 
 
 For this query the assistant calls `choose_method`, which returns staggered difference-in-differences together with its scope conditions, the reason a conventional two-way fixed-effects regression can be biased when treatment effects are heterogeneous, the assumptions to verify, implementations in R (`did`, `fixest`, `didimputation`, `HonestDiD`) and Python (`csdid`, `pyfixest`, `differences`), and the relevant readings.
 
+![The query above answered in Claude through the connector, followed by a request for BibTeX references](docs/demo/research-methods-library-demo.gif)
+
 > Give me Python code for a probability-of-default model with gradient boosting.
 
 > Only California passed the law and I have 30 years of state data. What can I do?
