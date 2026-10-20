@@ -43,7 +43,15 @@ behind a reverse proxy.
 ## 2. Packages (once per release)
 
 1. **maintainer** npm (pending): publishing requires two-factor authentication
-   on the npm account. After `npm login` and `npm publish` (which runs the build,
+   on the npm account. The account uses a security key, so `npm publish` prints
+   an approval link and waits only about five minutes for it to be approved;
+   four attempts on 2026-10-17 and 18 expired before approval. Either run
+   `npm publish --access public --ignore-scripts` (immediately after a passing
+   `npm run build && npm test && npm run check-release`) in one sitting, pressing
+   Enter and approving in the browser at once, or add a granular `NPM_TOKEN`
+   repository secret and run the **Publish** workflow. After the first
+   publication, npm trusted publishing from the workflow can replace the token.
+   After `npm login` and `npm publish` (which runs the build,
    tests, and release check first), set `config.npmPublished` to `true` in
    `package.json` and run `npm run set-endpoint -- <endpoint>`. This restores the
    local-installation instructions on the landing page and in the README, and
