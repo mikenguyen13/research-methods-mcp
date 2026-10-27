@@ -326,4 +326,6 @@ sources:
       title: "Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business"
       authors: *mike
       year: 2026
+      publisher: Zenodo
+      doi: 10.5281/zenodo.23708720
       url: https://mikenguyen13.github.io/social-theory/
