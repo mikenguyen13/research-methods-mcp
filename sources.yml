@@ -298,3 +298,32 @@ sources:
       year: 2021
       url: https://mikenguyen13.github.io/mlpy/
 
+  - id: social_theory
+    title: "Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business"
+    summary: >-
+      150+ social science theories and 200+ entries in all across management,
+      strategy, marketing, finance, economics, psychology, and sociology: theory
+      cards, mechanisms, evidence and critiques, business cases, and sample
+      research hypotheses (signaling, agency, RBV, prospect theory, social
+      identity, diffusion of innovations, and more).
+    repo: social-theory
+    format: bookdown
+    site: https://mikenguyen13.github.io/social-theory/
+    github: https://github.com/mikenguyen13/social-theory
+    text_access: full
+    license: { text: CC-BY-4.0, code: MIT }
+    exclude:
+      - part-1-foundations.Rmd
+      - part-2-organizations.Rmd
+      - part-3-markets.Rmd
+      - part-4-individuals.Rmd
+      - part-5-consumers.Rmd
+      - part-6-effects.Rmd
+      - 33-references.Rmd
+    citation:
+      key: Nguyen2026SocialTheory
+      type: book
+      title: "Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business"
+      authors: *mike
+      year: 2026
+      url: https://mikenguyen13.github.io/social-theory/
