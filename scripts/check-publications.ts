@@ -1,9 +1,11 @@
 // Fails when the ORCID record lists a DOI that data/publications.json does not, so a
 // newly published paper is noticed and added (npm run build:publications, then
-// npm run build:index).
+// npm run build:index). Release DOIs of books already indexed as sources (Zenodo
+// versions of a cited concept DOI) are skipped: they are the same work.
 //   npm run check-publications
 
 import { readFile } from 'node:fs/promises';
+import { sourceVersionOf } from './source-versions.ts';
 
 const pub = JSON.parse(await readFile('data/publications.json', 'utf8')) as { orcid: string; works: { doi?: string }[] };
 const res = await fetch(`https://pub.orcid.org/v3.0/${pub.orcid}/works`, { headers: { accept: 'application/json' } });
@@ -14,7 +16,10 @@ const missing: string[] = [];
 for (const g of record.group) {
   const s = g['work-summary'][0];
   const doi = (s['external-ids']?.['external-id'] ?? []).find((e: any) => e['external-id-type'] === 'doi')?.['external-id-value']?.toLowerCase();
-  if (doi && !known.has(doi)) missing.push(`${doi}  ${s.title?.title?.value ?? ''}`);
+  if (!doi || known.has(doi)) continue;
+  const source = await sourceVersionOf(doi);
+  if (source) console.log(`release of indexed source ${source}: ${doi}`);
+  else missing.push(`${doi}  ${s.title?.title?.value ?? ''}`);
 }
 if (missing.length) {
   console.error(`ORCID lists ${missing.length} work(s) not in data/publications.json; run npm run build:publications and npm run build:index:\n  ${missing.join('\n  ')}`);

@@ -7,6 +7,7 @@
 
 import { writeFile } from 'node:fs/promises';
 import type { Person, Work } from '../src/types.ts';
+import { sourceVersionOf } from './source-versions.ts';
 
 const ORCID = '0000-0002-3432-8595';
 const UA = 'research-methods-mcp/build (https://github.com/mikenguyen13/research-methods-mcp)';
@@ -100,6 +101,11 @@ for (const group of record.group) {
   }
   if (!(await doiResolves(doi))) {
     problems.push(`DOI does not resolve: ${doi} (${orcidTitle})`);
+    continue;
+  }
+  const source = await sourceVersionOf(doi);
+  if (source) {
+    problems.push(`release of indexed source ${source}: ${doi} (${orcidTitle})`);
     continue;
   }
   const csl = await json(`https://doi.org/${encodeURIComponent(doi)}`, 'application/vnd.citationstyles.csl+json');

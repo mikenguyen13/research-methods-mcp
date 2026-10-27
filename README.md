@@ -89,7 +89,7 @@ All tools are read-only. The server makes no calls to language models and stores
 | [Tài Chính Ứng Dụng với Python](https://mikenguyen13.github.io/tidy_finance_vn_vi/) | Python | 1,309 | Excerpts and code; full text on the website | All rights reserved |
 | [Machine Learning in Python](https://mikenguyen13.github.io/mlpy/) | Python | 361 | Full text | CC BY-SA 4.0 |
 | [Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business](https://mikenguyen13.github.io/social-theory/) | R | 1,118 | Full text | CC BY 4.0 text, MIT code |
-| [Research Articles and Publications](https://orcid.org/0000-0002-3432-8595) | — | 8 | Abstracts, DOIs, and citations | Publishers' terms |
+| [Research Articles and Publications](https://orcid.org/0000-0002-3432-8595) | — | 7 | Abstracts, DOIs, and citations | Publishers' terms |
 
 Sections of *A Guide on Data Analysis* that appear in the Springer print volumes are cited as their published chapter, then the volume. For example, a section on causal inference is cited as Nguyen, M. (2025). Causal inference. In *Experimental design* (Vol. 4, pp. 7–48). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7_2, in Nguyen, M. (2025). *Experimental design* (Vol. 4). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7
 <!-- sources:end -->
