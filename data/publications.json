@@ -1,6 +1,6 @@
 {
   "orcid": "0000-0002-3432-8595",
-  "fetched": "2026-10-16T19:19:59.487Z",
+  "fetched": "2026-10-27T22:53:52.411Z",
   "works": [
     {
       "key": "Nguyen2026PHacking",
@@ -61,6 +61,22 @@
       "version": "v1.0.1",
       "doi": "10.5281/zenodo.21855537",
       "url": "https://doi.org/10.5281/zenodo.21855537"
+    },
+    {
+      "key": "Nguyen2026Social",
+      "type": "book",
+      "title": "Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business",
+      "authors": [
+        {
+          "family": "Nguyen",
+          "given": "Mike"
+        }
+      ],
+      "year": 2026,
+      "publisher": "Zenodo",
+      "version": "v1.0.0",
+      "doi": "10.5281/zenodo.23708721",
+      "url": "https://doi.org/10.5281/zenodo.23708721"
     },
     {
       "key": "Nguyen2025Advanced",
@@ -570,6 +586,15 @@
       "abstract": "Data and code that reproduce every table and figure in \"p-Hacking and Publication Bias in Design-Based Causal Studies in Information Systems\" (Information Systems Research, 2026). The package contains 7,516 hand-coded statistical tests from 558 articles published 2000-2023 in seven leading information systems journals, covering difference-in-differences, instrumental variables, randomized controlled trials, regression discontinuity and synthetic control designs, plus the R code for the z-curve, randomization, caliper, local false discovery rate and weak-instrument analyses.",
       "doi": "10.5281/zenodo.21855537",
       "url": "https://doi.org/10.5281/zenodo.21855537",
+      "year": 2026
+    },
+    {
+      "key": "Nguyen2026Social",
+      "orcidType": "book",
+      "title": "Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business",
+      "abstract": "An open-access field guide to more than 150 social science theories (200+ entries in all) used in management, strategy, marketing, finance, economics, psychology, and sociology. Each entry gives the core claim, mechanism, key sources, evidence and critiques, business applications, and sample research hypotheses, with figures, tables, and reproducible R code. Read online at https://mikenguyen13.github.io/social-theory/.",
+      "doi": "10.5281/zenodo.23708721",
+      "url": "https://doi.org/10.5281/zenodo.23708721",
       "year": 2026
     },
     {
