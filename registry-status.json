@@ -1,0 +1,6 @@
+{
+  "0.1.0": {
+    "status": "deprecated",
+    "message": "This version pointed at a retired endpoint. Use the latest version, served at https://research-methods-mcp.vercel.app/mcp."
+  }
+}

@@ -1,23 +1,14 @@
-# Changes the status of a version in the official MCP Registry, for example to
-# deprecate a version whose remote endpoint no longer exists. Run it from the
-# Actions tab; it authenticates with GitHub OIDC, like the Publish workflow.
+# Applies registry-status.json to the official MCP Registry: each entry sets the
+# status (active, deprecated, or deleted) and message of one published version,
+# for example to deprecate a version whose remote endpoint no longer exists.
+# Runs when the file changes on main, or from the Actions tab; authenticates
+# with GitHub OIDC, like the Publish workflow. Re-applying a status is harmless.
 name: Registry status
 on:
+  push:
+    branches: [main]
+    paths: ['registry-status.json']
   workflow_dispatch:
-    inputs:
-      version:
-        description: Server version to update (for example 0.1.0)
-        required: true
-      status:
-        description: New status
-        required: true
-        type: choice
-        options: [deprecated, active, deleted]
-        default: deprecated
-      message:
-        description: Message shown with the status
-        required: false
-        default: 'This version pointed at a retired endpoint. Use the latest version, served at https://research-methods-mcp.vercel.app/mcp.'
 permissions:
   contents: read
   id-token: write
@@ -26,13 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update the version's status
-        env:
-          VERSION: ${{ inputs.version }}
-          STATUS: ${{ inputs.status }}
-          MESSAGE: ${{ inputs.message }}
+      - name: Apply registry-status.json
         run: |
           name=$(jq -r .name server.json)
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
           ./mcp-publisher login github-oidc
-          ./mcp-publisher status --status "$STATUS" --message "$MESSAGE" "$name" "$VERSION"
+          jq -r 'to_entries[] | [.key, .value.status, (.value.message // "")] | @tsv' registry-status.json |
+            while IFS=$'\t' read -r version status message; do
+              echo "Setting $name $version to $status"
+              ./mcp-publisher status --status "$status" --message "$message" "$name" "$version"
+            done

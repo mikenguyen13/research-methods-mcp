@@ -28,3 +28,4 @@ vercel.json
 .vscode/
 openai-plugin/
 docs/demo/
+registry-status.json
