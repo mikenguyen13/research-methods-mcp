@@ -59,7 +59,10 @@ behind a reverse proxy.
 2. Official MCP Registry, from which most other directories read: run the
    **Publish** workflow from the repository's Actions tab. It authenticates with
    GitHub OIDC and skips npm when no `NPM_TOKEN` secret is set. Registry versions
-   are immutable, so each publication needs a new version number.
+   are immutable, so each publication needs a new version number. To deprecate or
+   restore a published version, edit `registry-status.json`; the **Registry status**
+   workflow applies it when the file changes on `main`. Version 0.1.0 is deprecated
+   (2026-11-09) because its remote was the retired Deno Deploy endpoint.
 3. Claude Desktop extension: publishing a GitHub release runs the **Publish**
    workflow, which builds `research-methods-mcp.mcpb` and attaches it to the
    release (locally: `npm run pack:mcpb`). Anthropic's directory no longer lists
