@@ -1,0 +1,38 @@
+# Changes the status of a version in the official MCP Registry, for example to
+# deprecate a version whose remote endpoint no longer exists. Run it from the
+# Actions tab; it authenticates with GitHub OIDC, like the Publish workflow.
+name: Registry status
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Server version to update (for example 0.1.0)
+        required: true
+      status:
+        description: New status
+        required: true
+        type: choice
+        options: [deprecated, active, deleted]
+        default: deprecated
+      message:
+        description: Message shown with the status
+        required: false
+        default: 'This version pointed at a retired endpoint. Use the latest version, served at https://research-methods-mcp.vercel.app/mcp.'
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update the version's status
+        env:
+          VERSION: ${{ inputs.version }}
+          STATUS: ${{ inputs.status }}
+          MESSAGE: ${{ inputs.message }}
+        run: |
+          name=$(jq -r .name server.json)
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher status --status "$STATUS" --message "$MESSAGE" "$name" "$VERSION"
