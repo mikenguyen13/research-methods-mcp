@@ -26,14 +26,25 @@ const samePage = (a: string, b: string) => {
   return norm(a) === norm(b);
 };
 
-async function get(url: string): Promise<Response> {
+// Rate limiting (429) and server errors (5xx) are transient: hosts such as GitHub Pages
+// throttle CI runners in bursts. Retry them, and network errors, with backoff before a
+// link counts as broken; honour Retry-After when the server sends one.
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const transient = (status: number) => status === 429 || status >= 500;
+async function get(url: string, init: RequestInit = { redirect: 'follow' }): Promise<Response> {
+  const attempts = 5;
   let last: unknown;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const backoff = 2000 * 2 ** attempt;
     try {
-      return await fetch(url, { redirect: 'follow', headers: UA });
+      const res = await fetch(url, { ...init, headers: UA });
+      if (!transient(res.status) || attempt === attempts - 1) return res;
+      await res.body?.cancel();
+      const after = Number(res.headers.get('retry-after'));
+      await sleep(after > 0 ? Math.min(after, 60) * 1000 : backoff);
     } catch (e) {
       last = e;
-      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      if (attempt < attempts - 1) await sleep(backoff);
     }
   }
   throw last;
@@ -129,7 +140,7 @@ await pool([...urls], async (url) => {
 await pool([...dois], async (doi) => {
   meta.pages++;
   try {
-    const res = await fetch(`https://doi.org/${encodeURIComponent(doi)}`, { method: 'HEAD', redirect: 'manual', headers: UA });
+    const res = await get(`https://doi.org/${encodeURIComponent(doi)}`, { method: 'HEAD', redirect: 'manual' });
     if (!(res.status >= 300 && res.status < 400 && res.headers.get('location'))) meta.bad.push(`DOI not registered (${res.status}): ${doi}`);
   } catch (e) {
     meta.bad.push(`ERR doi ${doi} ${(e as Error).message}`);
@@ -147,5 +158,12 @@ for (const [source, s] of stats) {
   );
   for (const p of s.bad.slice(0, 10)) console.log(`     ${p}`);
   for (const a of s.badAnchors.slice(0, 10)) console.log(`     anchor ${a}`);
+  // In GitHub Actions, also report failures as annotations: they appear on the run page,
+  // in the failure email, and through the public API, unlike the log, which needs a sign-in.
+  if (process.env.GITHUB_ACTIONS && !ok) {
+    for (const p of [...s.bad, ...s.badAnchors.map((a) => `anchor ${a}`)].slice(0, 10)) {
+      console.log(`::error title=Link check (${source})::${p.replace(/\r?\n/g, ' ')}`);
+    }
+  }
 }
 process.exit(failed ? 1 : 0);
