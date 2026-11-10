@@ -6,7 +6,7 @@ import { FAVICON_ICO_BASE64, ICON_PNG_BASE64, ICON_SVG, OG_PNG_BASE64 } from './
 import type { Library } from './library.ts';
 import { configureWebAnalytics, landingPage, privacyPage, statsPage, termsPage, type WebAnalytics } from './pages.ts';
 import { createServer, HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE, VERSION } from './server.ts';
-import { usageFields, type UsageStore } from './usage.ts';
+import { describeCall, usageFields, type UsageStore } from './usage.ts';
 
 /** Pages for search engines; lastmod is the index build date. */
 function sitemap(lib: Library): string {
@@ -128,15 +128,37 @@ export function analyticsFromEnv(env: Record<string, string | undefined>): Pick<
 }
 
 /** Counts the tool, prompt, and client named in a POST to /mcp, without delaying the response. */
-function recordUsage(req: Request, opts: AppOptions): void {
+function recordUsage(body: Promise<unknown>, opts: AppOptions): void {
   const { usage } = opts;
-  if (!usage || req.method !== 'POST') return;
-  const pending = req
-    .clone()
-    .json()
-    .then((body) => usage.record(usageFields(body)))
+  if (!usage) return;
+  const pending = body
+    .then((b) => usage.record(usageFields(b)))
     .catch((err: Error) => console.error('[usage]', err.message));
   opts.waitUntil?.(pending);
+}
+
+/** How long an /mcp response may stay open before it is logged as slow. */
+const SLOW_MS = 10_000;
+
+/**
+ * Logs MCP responses that stay open longer than SLOW_MS, naming the method, tool, and
+ * argument sizes (see describeCall) so a hang can be traced without logging any query.
+ */
+function watchSlow(res: Response, body: Promise<unknown>): Response {
+  if (!res.body) return res;
+  const started = Date.now();
+  const describe = () => body.then(describeCall, () => 'unparsed');
+  const timer = setTimeout(() => {
+    void describe().then((d) => console.warn(`[mcp] response still open after ${SLOW_MS / 1000} s: ${d}`));
+  }, SLOW_MS);
+  (timer as { unref?: () => void }).unref?.();
+  const done = () => {
+    clearTimeout(timer);
+    const ms = Date.now() - started;
+    if (ms >= SLOW_MS) void describe().then((d) => console.warn(`[mcp] response finished after ${ms} ms: ${d}`));
+  };
+  const watched = res.body.pipeThrough(new TransformStream({ flush: done }));
+  return new Response(watched, { status: res.status, statusText: res.statusText, headers: res.headers });
 }
 
 async function stats(url: URL, opts: AppOptions): Promise<Response> {
@@ -159,8 +181,10 @@ export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) =
     const path = url.pathname.replace(/\/+$/, '') || '/';
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     if (path === '/mcp') {
-      recordUsage(req, opts);
-      return withCors(await mcp.fetch(req));
+      if (req.method !== 'POST') return withCors(await mcp.fetch(req));
+      const body: Promise<unknown> = req.clone().json().catch(() => undefined);
+      recordUsage(body, opts);
+      return withCors(watchSlow(await mcp.fetch(req), body));
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return new Response('Method not allowed', { status: 405 });
     if (opts.verifyPath && opts.verifyToken && url.pathname === opts.verifyPath) {

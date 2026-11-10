@@ -46,6 +46,33 @@ export function usageFields(body: unknown): string[] {
   return fields;
 }
 
+/** The shape of a value for diagnostics: its type and size, never its content. */
+function shape(v: unknown): string {
+  if (typeof v === 'string') return `${v.length} chars`;
+  if (Array.isArray(v)) return `${v.length} items`;
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  return v === null ? 'null' : typeof v;
+}
+
+/**
+ * A one-line description of a JSON-RPC body for slow-request logs: each message's method,
+ * the tool or prompt name, and the argument names with their sizes. Argument text is never
+ * included, so the log holds no queries.
+ */
+export function describeCall(body: unknown): string {
+  return (Array.isArray(body) ? body : [body])
+    .map((msg) => {
+      if (!msg || typeof msg !== 'object') return 'unparsed';
+      const { method, params } = msg as { method?: unknown; params?: any };
+      if (typeof method !== 'string') return 'response';
+      const name = method === 'initialize' ? clientLabel(params?.clientInfo?.name) : typeof params?.name === 'string' ? params.name.slice(0, 40) : '';
+      const args = params?.arguments && typeof params.arguments === 'object' ? params.arguments : {};
+      const sizes = Object.entries(args).map(([k, v]) => `${k.slice(0, 30)}=${shape(v)}`);
+      return [method.slice(0, 40), name, sizes.length ? `(${sizes.join(', ')})` : ''].filter(Boolean).join(' ');
+    })
+    .join('; ');
+}
+
 export interface DayCounts {
   date: string;
   counts: Record<string, number>;

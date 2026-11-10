@@ -14,7 +14,7 @@ import { Client as V1Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport as V1HttpTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { createApp } from '../src/http.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
-import { clientLabel, usageFields, type UsageStore } from '../src/usage.ts';
+import { clientLabel, describeCall, usageFields, type UsageStore } from '../src/usage.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -210,6 +210,15 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(
     JSON.stringify(usageFields([{ method: 'tools/call', params: { name: 'made_up' } }, { method: 'tools/list' }, null])) === '["calls","tool:other"]',
     'unknown tool names count as other; listings and junk are ignored',
+  );
+  const described = describeCall([
+    { method: 'tools/call', params: { name: 'search', arguments: { query: 'secret question text', limit: 5, ids: ['a', 'b'] } } },
+    { method: 'initialize', params: { clientInfo: { name: 'Claude AI' } } },
+    { id: 1, result: {} },
+  ]);
+  check(
+    described === 'tools/call search (query=20 chars, limit=5, ids=2 items); initialize claude-ai; response' && !described.includes('secret'),
+    `slow-request descriptions give sizes, never argument text: ${described}`,
   );
   check(clientLabel('Claude AI <script>') === 'claude-ai-script' && clientLabel(42) === 'unknown' && clientLabel('x'.repeat(99)).length === 40, 'client names are reduced to short safe labels');
 
