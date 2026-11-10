@@ -49,7 +49,19 @@ export function createServer(lib: Library): McpServer {
 
   const server = new McpServer(
     { name: SERVER_NAME, title: SERVER_TITLE, version: VERSION, description: SERVER_DESCRIPTION, websiteUrl: PUBLIC_ORIGIN, icons: SERVER_ICONS },
-    { instructions: INSTRUCTIONS },
+    {
+      instructions: INSTRUCTIONS,
+      // The tools, prompts, and resources never change while the server runs, so it
+      // offers no change notifications. Advertising them (the SDK default) makes
+      // 2026-07-28 clients open a subscriptions/listen stream that never ends, which
+      // on Vercel runs each function to its 60-second limit; with nothing to offer,
+      // the SDK acknowledges a listen request with an empty set and closes it.
+      capabilities: {
+        tools: { listChanged: false },
+        prompts: { listChanged: false },
+        resources: { listChanged: false, subscribe: false },
+      },
+    },
   );
 
   const Language = z.enum(LANGUAGES).describe('Programming language of the code: r, python, or julia.');

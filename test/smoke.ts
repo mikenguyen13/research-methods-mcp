@@ -278,6 +278,41 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(configureWebAnalytics({ googleId: "G-X');alert(1)//" }) === undefined && !(await (await plain(new Request('http://x/'))).text()).includes('alert'), 'malformed measurement IDs are ignored');
 }
 
+// --- subscriptions/listen (2026-07-28) -------------------------------------------
+// The server offers no change notifications, so a listen stream must be acknowledged
+// with nothing and closed at once; an open one runs a Vercel function to its time limit.
+{
+  const V = '2026-07-28';
+  const res = await createApp(lib)(
+    new Request('http://x/mcp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': V, 'mcp-method': 'subscriptions/listen' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'listen-1',
+        method: 'subscriptions/listen',
+        params: {
+          notifications: { toolsListChanged: true, promptsListChanged: true, resourcesListChanged: true },
+          _meta: { 'io.modelcontextprotocol/protocolVersion': V, 'io.modelcontextprotocol/clientCapabilities': {} },
+        },
+      }),
+    }),
+  );
+  const text = await Promise.race([res.text(), new Promise<string>((r) => setTimeout(() => r('STILL OPEN'), 3000))]);
+  check(text !== 'STILL OPEN', 'subscriptions/listen closes instead of staying open');
+  check(text.includes('"notifications":{}') && text.includes('"resultType":"complete"'), `subscriptions/listen is acknowledged with no notifications: ${text.slice(0, 160)}`);
+  const init = await createApp(lib)(
+    new Request('http://x/mcp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'smoke', version: '1' } } }),
+    }),
+  );
+  const initText = await init.text();
+  const caps = JSON.parse(initText.slice(initText.indexOf('{'))).result?.capabilities ?? {};
+  check(caps.tools?.listChanged === false && caps.prompts?.listChanged === false && caps.resources?.listChanged === false, `capabilities advertise no list changes: ${JSON.stringify(caps)}`);
+}
+
 // --- stdio binary ----------------------------------------------------------------
 if (existsSync('dist/stdio.js')) {
   const stdio = new Client({ name: 'smoke-stdio', version: '1.0.0' });
