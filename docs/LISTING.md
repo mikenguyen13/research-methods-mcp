@@ -18,8 +18,9 @@ academic service is, and requires no payment method.
 Hosts considered and rejected (October 2026): Deno Deploy (`src/deno.ts` still
 works) suspends unverified organizations at 1% of the free limits, and
 verification requires a payment method (the former Deno organization was
-suspended on 2026-10-16 after exhausting its outbound-traffic allowance and is
-no longer used); Hugging Face Docker Spaces require a
+suspended on 2026-10-16 after exhausting its outbound-traffic allowance; its app,
+mcp.research-methods.deno.net, was deleted on 2026-11-09 after registry version
+0.1.0 kept sending traffic to it); Hugging Face Docker Spaces require a
 paid plan; Cloudflare Workers allow only 10 ms of CPU per request on the free
 plan. The prebuilt search index keeps instance startup near 0.5 s on any host.
 
