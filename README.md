@@ -72,7 +72,7 @@ Each response links to the specific section consulted and carries the citation o
 
 Prompts (slash commands in clients that support them): `plan_analysis`, `write_methods_section`, `explain_method`. Resources: the library catalog and a table of contents for each work.
 
-All tools are read-only. The server makes no calls to language models and stores no information about its users; see the [privacy policy](https://research-methods-mcp.vercel.app/privacy).
+All tools are read-only. The server makes no calls to language models and stores no information about its users, only anonymous daily totals of tool calls and client applications; see the [privacy policy](https://research-methods-mcp.vercel.app/privacy).
 
 ## Sources
 
@@ -106,6 +106,19 @@ docker run -p 8080:8080 research-methods-mcp     # http://localhost:8080/mcp
 ```
 
 Or with Node.js: `npm ci && npm run build && npm start` (listens on `127.0.0.1:8787`; set `HOST` and `PORT` to change). The same handler runs on Vercel through `api/index.mjs` and `vercel.json` (the hosted endpoint) and on Deno Deploy through `src/deno.ts`.
+
+### Usage analytics
+
+Usage analytics are off by default. They are controlled by these environment variables:
+
+| Variable | Effect |
+| --- | --- |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_URL`, `KV_REST_API_TOKEN`, as set by Vercel's Upstash integration) | Counts, per UTC day, connections by client application (the name the client reports, such as `claude-ai` or `cursor`), calls to each tool, and prompt and resource requests, in an [Upstash Redis](https://upstash.com) hash `usage:YYYY-MM-DD` kept for about 13 months. Tool arguments, IP addresses, and session identifiers are never read or stored. |
+| `STATS_KEY` | Serves a private usage report at `/stats?key=<STATS_KEY>` (add `&days=90` for a longer period, `&format=json` for raw counts). Requires the Redis variables. |
+| `WEB_ANALYTICS_VERCEL=1` | Adds [Vercel Web Analytics](https://vercel.com/docs/analytics) (cookieless page views) to the HTML pages. Enable Web Analytics in the Vercel project first. |
+| `GA_MEASUREMENT_ID` | Adds Google Analytics 4 (`G-…`) to the HTML pages. It sets cookies. |
+
+The web analytics measure visits to the landing, privacy, and terms pages only; MCP traffic comes from AI providers' servers rather than browsers, so only the Redis counts measure it. The privacy page describes whichever of these are enabled.
 
 ## Development
 

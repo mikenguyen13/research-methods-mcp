@@ -13,6 +13,8 @@ import { toNodeHandler } from '@modelcontextprotocol/node';
 import { Client as V1Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport as V1HttpTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { createApp } from '../src/http.ts';
+import { configureWebAnalytics } from '../src/pages.ts';
+import { clientLabel, usageFields, type UsageStore } from '../src/usage.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -197,6 +199,74 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(manifest.name === 'Research Methods Library' && manifest.icons.length === 3, 'web manifest lists the icons');
   const landing = await (await fetch(`${base}/`)).text();
   check(['og:image', 'twitter:card', 'rel="icon"', 'rel="manifest"', 'rel="canonical"'].every((t) => landing.includes(t)), 'landing page has icon, manifest, canonical, and link-preview tags');
+}
+
+// --- usage counts and analytics ------------------------------------------------
+{
+  check(
+    JSON.stringify(usageFields({ method: 'tools/call', params: { name: 'search', arguments: { query: 'secret' } } })) === '["calls","tool:search"]',
+    'usage fields name the tool, never its arguments',
+  );
+  check(
+    JSON.stringify(usageFields([{ method: 'tools/call', params: { name: 'made_up' } }, { method: 'tools/list' }, null])) === '["calls","tool:other"]',
+    'unknown tool names count as other; listings and junk are ignored',
+  );
+  check(clientLabel('Claude AI <script>') === 'claude-ai-script' && clientLabel(42) === 'unknown' && clientLabel('x'.repeat(99)).length === 40, 'client names are reduced to short safe labels');
+
+  const recorded: string[] = [];
+  const memory: UsageStore = {
+    async record(fields) {
+      recorded.push(...fields);
+    },
+    async recent(days) {
+      const counts: Record<string, number> = {};
+      for (const f of recorded) counts[f] = (counts[f] ?? 0) + 1;
+      return Array.from({ length: days }, (_, i) => ({ date: `2026-11-${String(9 - i).padStart(2, '0')}`, counts: i === 0 ? counts : {} }));
+    },
+  };
+  const pending: Promise<unknown>[] = [];
+  const app = createApp(lib, {
+    usage: memory,
+    waitUntil: (p) => pending.push(p),
+    statsKey: 'k3y',
+    webAnalytics: { vercel: true, googleId: 'G-TEST123' },
+  });
+  const srv = createHttpServer(toNodeHandler({ fetch: app }));
+  await new Promise<void>((r) => srv.listen(0, '127.0.0.1', r));
+  const ubase = `http://127.0.0.1:${(srv.address() as AddressInfo).port}`;
+  const uc = new Client({ name: 'Usage-Test', version: '1.0.0' });
+  await uc.connect(new StreamableHTTPClientTransport(new URL(`${ubase}/mcp`)));
+  await uc.callTool({ name: 'search', arguments: { query: 'weak instruments', limit: 1 } });
+  await uc.callTool({ name: 'cite', arguments: { ids: [] } }).catch(() => undefined);
+  await uc.close();
+  await Promise.all(pending);
+  check(recorded.includes('connect') && recorded.includes('client:usage-test'), `usage records the connecting client: ${recorded}`);
+  check(recorded.filter((f) => f === 'calls').length === 2 && recorded.includes('tool:search') && recorded.includes('tool:cite'), 'usage counts each tool call');
+  check(!recorded.some((f) => f.includes('weak')), 'usage never records tool arguments');
+
+  check((await fetch(`${ubase}/stats`)).status === 404 && (await fetch(`${ubase}/stats?key=wrong`)).status === 404, '/stats is hidden without the key');
+  const statsRes = await fetch(`${ubase}/stats?key=k3y&days=7`);
+  const statsHtml = await statsRes.text();
+  check(statsRes.status === 200 && statsHtml.includes('usage-test') && statsHtml.includes('search') && statsRes.headers.get('x-robots-tag') === 'noindex', '/stats shows tool and client totals');
+  check(!statsHtml.includes('googletagmanager') && !statsHtml.includes('/_vercel/insights'), '/stats loads no analytics (its URL holds the key)');
+  const statsJson = await (await fetch(`${ubase}/stats?key=k3y&days=3&format=json`)).json();
+  check(Array.isArray(statsJson) && statsJson.length === 3 && statsJson[0].counts['tool:search'] === 1, '/stats returns JSON on request');
+
+  const landing = await (await fetch(`${ubase}/`)).text();
+  check(landing.includes('/_vercel/insights/script.js') && landing.includes('gtag/js?id=G-TEST123'), 'landing page loads the configured web analytics');
+  const privacy = await (await fetch(`${ubase}/privacy`)).text();
+  check(privacy.includes('anonymous daily totals') && privacy.includes('Vercel Web Analytics') && privacy.includes('Google Analytics'), 'privacy page discloses usage totals and web analytics');
+  srv.close();
+
+  // Defaults (as in the earlier checks): no store, no analytics, nothing disclosed or loaded.
+  configureWebAnalytics({});
+  const plain = createApp(lib);
+  const plainPrivacy = await (await plain(new Request('http://x/privacy'))).text();
+  const plainLanding = await (await plain(new Request('http://x/'))).text();
+  check(!plainPrivacy.includes('anonymous daily totals') && !plainPrivacy.includes('Website analytics'), 'privacy page omits analytics that are not configured');
+  check(!plainLanding.includes('googletagmanager') && !plainLanding.includes('/_vercel/insights'), 'landing page loads no analytics by default');
+  check((await plain(new Request('http://x/stats?key=k3y'))).status === 404, '/stats does not exist without a usage store');
+  check(configureWebAnalytics({ googleId: "G-X');alert(1)//" }) === undefined && !(await (await plain(new Request('http://x/'))).text()).includes('alert'), 'malformed measurement IDs are ignored');
 }
 
 // --- stdio binary ----------------------------------------------------------------

@@ -4,8 +4,9 @@
 import { createMcpHandler } from '@modelcontextprotocol/server';
 import { FAVICON_ICO_BASE64, ICON_PNG_BASE64, ICON_SVG, OG_PNG_BASE64 } from './icon.ts';
 import type { Library } from './library.ts';
-import { landingPage, privacyPage, termsPage } from './pages.ts';
+import { configureWebAnalytics, landingPage, privacyPage, statsPage, termsPage, type WebAnalytics } from './pages.ts';
 import { createServer, HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE, VERSION } from './server.ts';
+import { usageFields, type UsageStore } from './usage.ts';
 
 /** Pages for search engines; lastmod is the index build date. */
 function sitemap(lib: Library): string {
@@ -108,17 +109,59 @@ export interface AppOptions {
   /** Domain verification for directory submissions: serve `verifyToken` as plain text at `verifyPath`. */
   verifyPath?: string;
   verifyToken?: string;
+  /** Where anonymous usage counts are kept; nothing is recorded without one. */
+  usage?: UsageStore;
+  /** Keeps a serverless function alive until the usage write finishes. */
+  waitUntil?: (promise: Promise<unknown>) => void;
+  /** Secret for the /stats page (passed as ?key=); the page does not exist without it. */
+  statsKey?: string;
+  /** Page-view analytics for the HTML pages. */
+  webAnalytics?: WebAnalytics;
+}
+
+/** The analytics settings every host reads from its environment. */
+export function analyticsFromEnv(env: Record<string, string | undefined>): Pick<AppOptions, 'statsKey' | 'webAnalytics'> {
+  return {
+    statsKey: env.STATS_KEY || undefined,
+    webAnalytics: { vercel: env.WEB_ANALYTICS_VERCEL === '1', googleId: env.GA_MEASUREMENT_ID },
+  };
+}
+
+/** Counts the tool, prompt, and client named in a POST to /mcp, without delaying the response. */
+function recordUsage(req: Request, opts: AppOptions): void {
+  const { usage } = opts;
+  if (!usage || req.method !== 'POST') return;
+  const pending = req
+    .clone()
+    .json()
+    .then((body) => usage.record(usageFields(body)))
+    .catch((err: Error) => console.error('[usage]', err.message));
+  opts.waitUntil?.(pending);
+}
+
+async function stats(url: URL, opts: AppOptions): Promise<Response> {
+  if (!opts.usage || !opts.statsKey || url.searchParams.get('key') !== opts.statsKey) {
+    return new Response('Not found', { status: 404 });
+  }
+  const days = await opts.usage.recent(Math.min(400, Math.max(1, Number(url.searchParams.get('days')) || 30)));
+  const headers = { 'cache-control': 'no-store', 'x-robots-tag': 'noindex' };
+  if (url.searchParams.get('format') === 'json') return Response.json(days, { headers });
+  return new Response(statsPage(days), { headers: { ...headers, 'content-type': 'text/html; charset=utf-8' } });
 }
 
 export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) => Promise<Response> {
   const mcp = createMcpHandler(() => createServer(lib), {
     onerror: (err) => console.error('[mcp]', err.message),
   });
+  configureWebAnalytics(opts.webAnalytics ?? {});
   return async (req: Request) => {
     const url = new URL(req.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
-    if (path === '/mcp') return withCors(await mcp.fetch(req));
+    if (path === '/mcp') {
+      recordUsage(req, opts);
+      return withCors(await mcp.fetch(req));
+    }
     if (req.method !== 'GET' && req.method !== 'HEAD') return new Response('Method not allowed', { status: 405 });
     if (opts.verifyPath && opts.verifyToken && url.pathname === opts.verifyPath) {
       return new Response(opts.verifyToken, { headers: { 'content-type': 'text/plain' } });
@@ -130,9 +173,11 @@ export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) =
       case '/':
         return html(landingPage(lib, origin));
       case '/privacy':
-        return html(privacyPage());
+        return html(privacyPage(!!opts.usage));
       case '/terms':
         return html(termsPage());
+      case '/stats':
+        return stats(url, opts);
       case '/health':
         return Response.json({ ok: true, name: SERVER_NAME, version: VERSION, sections: lib.index.records.length, built: lib.index.built });
       case '/robots.txt':

@@ -3,12 +3,40 @@
 
 import pkg from '../package.json' with { type: 'json' };
 import type { Library } from './library.ts';
+import type { DayCounts } from './usage.ts';
 import { HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE } from './server.ts';
 
 /** Local (npx) installation is offered only once the package is on npm; see package.json config. */
 export const NPM_PUBLISHED: boolean = pkg.config.npmPublished;
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/** Page-view analytics for the HTML pages (not the MCP endpoint); both are off unless configured. */
+export interface WebAnalytics {
+  /** Vercel Web Analytics: cookieless; enable it in the Vercel project first. */
+  vercel?: boolean;
+  /** Google Analytics 4 measurement ID (G-XXXXXXX). Sets cookies. */
+  googleId?: string;
+}
+
+let analytics: WebAnalytics = {};
+
+export function configureWebAnalytics(a: WebAnalytics): void {
+  const googleId = a.googleId && /^G-[A-Z0-9]{4,20}$/.test(a.googleId) ? a.googleId : undefined;
+  analytics = { vercel: !!a.vercel, googleId };
+}
+
+function analyticsHead(): string {
+  const parts: string[] = [];
+  if (analytics.vercel) {
+    parts.push(`<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script><script defer src="/_vercel/insights/script.js"></script>`);
+  }
+  if (analytics.googleId) {
+    const id = analytics.googleId;
+    parts.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}')</script>`);
+  }
+  return parts.join('\n');
+}
 
 const STYLE = `
 :root{--bg:#f6f7f9;--fg:#18202c;--muted:#586274;--card:#fff;--line:#dde1e8;--accent:#2b5a8f;--code:#eef1f5;--brand:#22385c}
@@ -29,7 +57,7 @@ button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(
 dl{margin:0}dt{font-weight:600;margin-top:14px}dd{margin:4px 0 0}footer{margin-top:48px;color:var(--muted);font-size:.9rem}
 `;
 
-function page(title: string, body: string, path = '/'): string {
+function page(title: string, body: string, path = '/', track = true): string {
   const url = `${PUBLIC_ORIGIN}${path}`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>
@@ -43,7 +71,7 @@ function page(title: string, body: string, path = '/'): string {
 <meta property="og:image" content="${PUBLIC_ORIGIN}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${esc(SERVER_TITLE)}: study designs, assumptions, R and Python code, and citations for AI assistants">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(SERVER_DESCRIPTION)}"><meta name="twitter:image" content="${PUBLIC_ORIGIN}/og.png">
-<style>${STYLE}</style></head><body><main>${body}
+<style>${STYLE}</style>${track ? analyticsHead() : ''}</head><body><main>${body}
 <footer><a href="/">Home</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="${HOMEPAGE}">Source on GitHub</a> · <a href="${HOMEPAGE}/issues">Support</a></footer>
 </main></body></html>`;
 }
@@ -107,14 +135,27 @@ ${NPM_PUBLISHED ? `<dt>Local installation (requires Node.js 20 or later)</dt><dd
 `);
 }
 
-export function privacyPage(): string {
+export function privacyPage(usageCounts = false): string {
+  const web: string[] = [];
+  if (analytics.vercel) {
+    web.push('Vercel Web Analytics, which counts page views without cookies and without storing IP addresses');
+  }
+  if (analytics.googleId) {
+    web.push('Google Analytics, which sets cookies and processes page-view data under <a href="https://policies.google.com/privacy">Google\'s privacy policy</a>');
+  }
+  const websiteAnalytics = web.length
+    ? `<h2>Website analytics</h2>
+<p>Visits to this website's pages (not the MCP endpoint) are measured with ${web.join(', and with ')}. Tool calls made by AI assistants are not sent to these services.</p>`
+    : '';
   return page(`Privacy · ${SERVER_TITLE}`, `
 <h1>Privacy policy</h1>
-<p class="lede">In brief: the service has no user accounts, performs no tracking, and stores no information about its users.</p>
+<p class="lede">In brief: the service has no user accounts, does not track individuals, and stores no information about its users.</p>
 <h2>What the service receives</h2>
 <p>When an AI assistant calls a tool, the service receives the tool's arguments: a search query, a section identifier, a topic, or a citation style. These are used to look up an answer in a read-only index of published works, and the result is returned.</p>
 <h2>What the service stores</h2>
-<p>Nothing. Tool arguments are processed in memory and are not written to a database or log by this service. There are no user accounts, cookies, analytics, or advertising.</p>
+<p>Tool arguments are processed in memory and are not written to a database or log by this service. There are no user accounts or advertising.</p>
+${usageCounts ? `<p>The service keeps anonymous daily totals: how many times each tool and prompt was called, and the name each AI assistant application reports for itself when it connects (for example, <code>claude-ai</code> or <code>cursor</code>). These totals contain no tool arguments, IP addresses, or identifiers of people or sessions, and are deleted after about 13 months.</p>` : ''}
+${websiteAnalytics}
 <h2>Hosting provider</h2>
 <p>The hosting provider may keep standard request logs (such as IP address, time, and requested path) for security and operations, under its own privacy policy.</p>
 <h2>AI assistant providers</h2>
@@ -124,6 +165,40 @@ export function privacyPage(): string {
 <h2>Contact</h2>
 <p>Questions about this policy may be raised by <a href="${HOMEPAGE}/issues">opening an issue on GitHub</a>.</p>
 `, '/privacy');
+}
+
+/** Private usage report (/stats): totals over the period, then one row per day. */
+export function statsPage(days: DayCounts[]): string {
+  const totals: Record<string, number> = {};
+  for (const d of days) for (const [k, v] of Object.entries(d.counts)) totals[k] = (totals[k] ?? 0) + v;
+  const group = (prefix: string) =>
+    Object.entries(totals)
+      .filter(([k]) => k.startsWith(prefix))
+      .map(([k, v]) => [k.slice(prefix.length), v] as const)
+      .sort((a, b) => b[1] - a[1]);
+  const table = (head: string, rows: (readonly [string, number])[]) =>
+    rows.length
+      ? `<table><thead><tr><th>${head}</th><th>Count</th></tr></thead><tbody>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v.toLocaleString('en-US')}</td></tr>`).join('')}</tbody></table>`
+      : '<p>None yet.</p>';
+  const n = (d: DayCounts, k: string) => (d.counts[k] ?? 0).toLocaleString('en-US');
+  const daily = days
+    .map((d) => `<tr><td>${d.date}</td><td>${n(d, 'connect')}</td><td>${n(d, 'calls')}</td></tr>`)
+    .join('');
+  const range = days.length ? `${days[days.length - 1].date} to ${days[0].date} (UTC)` : '';
+  return page(`Usage · ${SERVER_TITLE}`, `
+<style>table{border-collapse:collapse;width:100%;margin:8px 0}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}td:last-child,th:last-child{text-align:right}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.cards .card b{display:block;font-size:1.6rem}</style>
+<h1>Usage</h1>
+<p class="lede">${range}. Connections are MCP sessions started by a client; one person can start many.</p>
+<div class="cards">
+<div class="card"><b>${(totals.connect ?? 0).toLocaleString('en-US')}</b>connections</div>
+<div class="card"><b>${(totals.calls ?? 0).toLocaleString('en-US')}</b>tool calls</div>
+<div class="card"><b>${group('client:').length}</b>client applications</div>
+</div>
+<h2>Tool calls</h2>${table('Tool', group('tool:'))}
+<h2>Clients</h2>${table('Client', group('client:'))}
+<h2>Prompts</h2>${table('Prompt', group('prompt:'))}
+<h2>By day</h2><table><thead><tr><th>Date</th><th>Connections</th><th>Tool calls</th></tr></thead><tbody>${daily}</tbody></table>
+`, '/stats', false);
 }
 
 export function termsPage(): string {

@@ -5,8 +5,10 @@
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createApp } from './http.ts';
+import { waitUntil } from '@vercel/functions';
+import { analyticsFromEnv, createApp } from './http.ts';
 import { Library } from './library.ts';
+import { usageFromEnv } from './usage.ts';
 
 const dataDir = path.join(process.cwd(), 'data');
 
@@ -15,7 +17,13 @@ const app = (async () => {
   const index = await readFile(path.join(dataDir, 'index.json.gz'));
   const search = await readFile(path.join(dataDir, 'search.json.gz')).catch(() => undefined);
   const lib = await Library.fromGzip(index, search);
-  return createApp(lib, { verifyPath: process.env.VERIFY_PATH, verifyToken: process.env.VERIFY_TOKEN });
+  return createApp(lib, {
+    verifyPath: process.env.VERIFY_PATH,
+    verifyToken: process.env.VERIFY_TOKEN,
+    usage: usageFromEnv(process.env),
+    waitUntil,
+    ...analyticsFromEnv(process.env),
+  });
 })();
 
 function restorePath(req: Request): Request {

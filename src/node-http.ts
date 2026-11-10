@@ -3,8 +3,9 @@
 
 import { createServer as createHttpServer } from 'node:http';
 import { toNodeHandler } from '@modelcontextprotocol/node';
-import { createApp } from './http.ts';
+import { analyticsFromEnv, createApp } from './http.ts';
 import { loadLibrary } from './load.ts';
+import { usageFromEnv } from './usage.ts';
 
 const port = Number(process.env.PORT ?? 8787);
 const host = process.env.HOST ?? '127.0.0.1';
@@ -12,7 +13,12 @@ const host = process.env.HOST ?? '127.0.0.1';
 const t0 = Date.now();
 const lib = await loadLibrary();
 const handler = toNodeHandler({
-  fetch: createApp(lib, { verifyPath: process.env.VERIFY_PATH, verifyToken: process.env.VERIFY_TOKEN }),
+  fetch: createApp(lib, {
+    verifyPath: process.env.VERIFY_PATH,
+    verifyToken: process.env.VERIFY_TOKEN,
+    usage: usageFromEnv(process.env),
+    ...analyticsFromEnv(process.env),
+  }),
 });
 
 createHttpServer((req, res) => {
