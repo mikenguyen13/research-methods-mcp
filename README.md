@@ -119,7 +119,7 @@ Usage analytics are off by default. They are controlled by these environment var
 | `WEB_ANALYTICS_VERCEL=1` | Adds [Vercel Web Analytics](https://vercel.com/docs/analytics) (cookieless page views) to the HTML pages. Enable Web Analytics in the Vercel project first. |
 | `GA_MEASUREMENT_ID` | Adds Google Analytics 4 (`G-…`) to the HTML pages. It sets cookies. |
 
-The web analytics measure visits to the landing, privacy, and terms pages only; MCP traffic comes from AI providers' servers rather than browsers, so only the Redis counts measure it. The privacy page describes whichever of these are enabled.
+The web analytics measure visits to the landing, privacy, and terms pages only; MCP traffic comes from AI providers' servers rather than browsers, so only the Redis counts measure it. The privacy page describes whichever of these are enabled. The maintainer's dashboard, which combines these counts with the book sites' analytics, is described in [docs/DASHBOARD.md](docs/DASHBOARD.md).
 
 ## Development
 

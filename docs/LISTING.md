@@ -141,4 +141,4 @@ Free listings first, in approximate order of reach. Status as of 2026-11-09.
 - [ ] Publish `llms.txt` on each book site (credit_score already has one) pointing at the endpoint.
 - [ ] Add the endpoint to the causalverse README and pkgdown home page.
 - [ ] Announce with a short screen recording of one query proceeding from `choose_method` to code to a BibTeX reference list.
-- [ ] Monitor usage in the Vercel dashboard (requests and function usage against the Hobby limits) and citations in Google Scholar.
+- [ ] Monitor usage in the Vercel dashboard (requests and function usage against the Hobby limits) and citations in Google Scholar. MCP calls, book-site visitors, and GitHub stars are combined on one page by the usage dashboard (`docs/DASHBOARD.md`).

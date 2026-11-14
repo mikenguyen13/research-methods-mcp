@@ -1,0 +1,33 @@
+# Hourly copy of usage numbers (MCP endpoint counters, book-site Google Analytics,
+# GitHub stars) into the private Google Sheet behind the Looker Studio dashboard.
+# Does nothing until the secrets in docs/DASHBOARD.md are set. The script prints
+# no counts, because this repository's Action logs are public.
+name: Usage dashboard
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: stats
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Sync usage numbers to the sheet
+        run: npx tsx scripts/sync-stats.ts
+        env:
+          STATS_SHEET_ID: ${{ secrets.STATS_SHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_READONLY_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_READONLY_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
