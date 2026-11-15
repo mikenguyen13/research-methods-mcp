@@ -23,6 +23,12 @@ const app = (async () => {
     usage: usageFromEnv(process.env),
     waitUntil,
     ...analyticsFromEnv(process.env),
+    // The maintainer's dashboard sync (docs/DASHBOARD.md) reads /stats.json with its
+    // GitHub OIDC token; no other caller can.
+    statsOidc: {
+      repository: process.env.STATS_OIDC_REPOSITORY ?? 'mikenguyen13/research-methods-mcp',
+      workflow: '.github/workflows/stats.yml@refs/heads/main',
+    },
   });
 })();
 

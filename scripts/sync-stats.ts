@@ -16,6 +16,8 @@
 //                                       workflow gets one through Workload Identity
 //                                       Federation, so no key exists
 //   GOOGLE_SERVICE_ACCOUNT_KEY          alternatively, a JSON key (for local runs)
+//   (MCP counts) in GitHub Actions, nothing: the run's OIDC token opens the endpoint's
+//   /stats.json. Elsewhere, Upstash directly:
 //   UPSTASH_REDIS_REST_URL              the Redis REST URL
 //   UPSTASH_REDIS_REST_READONLY_TOKEN   a read-only token (KV_REST_API_READ_ONLY_TOKEN)
 //   GITHUB_TOKEN                        optional, raises the GitHub API rate limit
@@ -173,7 +175,29 @@ export function merge(stored: Row[], fresh: Row[], freshDates: Set<string>): Row
 
 // ---------------------------------------------------------------- MCP usage (Upstash)
 
+/** The hosted endpoint's origin, from package.json (config.endpoint without /mcp). */
+function endpointOrigin(): string {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { config?: { endpoint?: string } };
+  return (env.MCP_ORIGIN ?? pkg.config?.endpoint ?? 'https://research-methods-mcp.vercel.app/mcp').replace(/\/mcp\/?$/, '');
+}
+
+/**
+ * The counts from the endpoint's /stats.json, which answers only this repository's
+ * stats workflow on main, proven by the run's GitHub OIDC token. No secret is involved.
+ */
+async function mcpDaysFromEndpoint(days: number): Promise<{ date: string; counts: Record<string, number> }[]> {
+  const idRes = await fetch(`${env.ACTIONS_ID_TOKEN_REQUEST_URL}&audience=research-methods-stats`, {
+    headers: { authorization: `Bearer ${env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}` },
+  });
+  if (!idRes.ok) throw new Error(`GitHub OIDC token request failed: ${idRes.status}`);
+  const { value } = (await idRes.json()) as { value: string };
+  const res = await fetch(`${endpointOrigin()}/stats.json?days=${days}`, { headers: { authorization: `Bearer ${value}` } });
+  if (!res.ok) throw new Error(`/stats.json responded ${res.status}`);
+  return res.json() as Promise<{ date: string; counts: Record<string, number> }[]>;
+}
+
 async function mcpDays(dates: string[]): Promise<{ date: string; counts: Record<string, number> }[]> {
+  if (!env.UPSTASH_REDIS_REST_READONLY_TOKEN) return mcpDaysFromEndpoint(dates.length);
   const url = env.UPSTASH_REDIS_REST_URL!.replace(/\/+$/, '');
   const res = await fetch(`${url}/pipeline`, {
     method: 'POST',
@@ -330,8 +354,9 @@ export async function main() {
       errors.push(`${name}: ${(e as Error).message}`);
     }
   };
-  if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_READONLY_TOKEN) await run('MCP usage', () => syncMcp(sheet));
-  else console.log('Upstash credentials not set; skipping MCP usage.');
+  if ((env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_READONLY_TOKEN) || env.ACTIONS_ID_TOKEN_REQUEST_URL) {
+    await run('MCP usage', () => syncMcp(sheet));
+  } else console.log('No Upstash token and no GitHub OIDC token; skipping MCP usage.');
   await run('Book sites', () => syncBooks(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
   await sheet.write('updated', ['last_updated_utc'], [[new Date().toISOString().replace('T', ' ').slice(0, 16)]]);

@@ -17,8 +17,9 @@ a few hours. For live visitors, use Realtime in Google Analytics.
 The repository is public, so the Action’s logs are public too: the script prints only
 tab names and row counts, never a number from the data. Google access is keyless (no
 service-account key exists): the workflow trades GitHub’s OIDC token for a one-hour token
-through Workload Identity Federation, and only this repository is allowed to. The one
-secret, the Upstash read-only token, is in GitHub’s encrypted Actions secrets.
+through Workload Identity Federation, and only this repository is allowed to. MCP counts
+are read the same way, by the workflow proving itself to the endpoint, so nothing
+secret is stored in GitHub at all.
 
 ## Setup (done 2026-11-14)
 
@@ -54,19 +55,24 @@ Admin → Account “Mike Nguyen” → Account access management: `stats-sync@�
 **Editor**. Its id (from the URL `docs.google.com/spreadsheets/d/<id>/edit`) is the
 `STATS_SHEET_ID` variable below.
 
-### 4. GitHub variables and secret
+### 4. GitHub variable
 
-Repository → **Settings → Secrets and variables → Actions**:
+Repository → **Settings → Secrets and variables → Actions → Variables**:
+`STATS_SHEET_ID` = the sheet id. The workflow is skipped while it is unset. No secrets
+are needed.
 
-| Kind | Name | Value |
-| --- | --- | --- |
-| Variable | `STATS_SHEET_ID` | the sheet id |
-| Variable | `UPSTASH_REDIS_REST_URL` | `KV_REST_API_URL` from Vercel → Storage → `research-methods-usage` → Quickstart (.env.local) |
-| Secret | `UPSTASH_REDIS_REST_READONLY_TOKEN` | `KV_REST_API_READ_ONLY_TOKEN` from the same place (the read-only token, not the read-write one) |
+### 5. MCP counts without a secret
 
-The workflow is skipped while `STATS_SHEET_ID` is unset.
+The hosted endpoint serves the daily counters at `/stats.json` only to a request
+carrying a GitHub Actions OIDC token that GitHub signed for **this repository’s
+`.github/workflows/stats.yml` running on `main`**, with audience
+`research-methods-stats` (`src/oidc.ts` checks the signature against GitHub’s published
+keys, the issuer, audience, expiry, repository, and workflow ref). Any other caller gets
+401. The allowed repository is set in `src/vercel.ts` (override with
+`STATS_OIDC_REPOSITORY`). Outside GitHub Actions, the script can read Upstash directly
+with `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_READONLY_TOKEN`.
 
-### 5. First run
+### 6. First run
 
 GitHub → **Actions → Usage dashboard → Run workflow**. The first run backfills the full
 history (Redis keeps about 13 months; Google Analytics up to 400 days), and later runs
@@ -83,7 +89,7 @@ re-read only the last three days. The sheet gets these tabs:
 A run fails (and GitHub emails you) when a source stops answering; the other sources
 are still written. A book site that fails keeps its previous numbers.
 
-### 6. Build the Looker Studio report
+### 7. Build the Looker Studio report
 
 1. https://lookerstudio.google.com → **Blank report** → **Google Sheets** → choose the
    sheet → tab `mcp_daily` → **Add**. Then **Add data** again for `books_daily`,
@@ -121,9 +127,8 @@ day. For unique visitors over a period, use the numbers in Google Analytics itse
 - **GitHub pauses scheduled workflows** in a public repository after 60 days without a
   commit. If the dashboard stops updating, open **Actions → Usage dashboard** and
   click **Enable workflow**.
-- **Rotating the Upstash token.** Reset the read-only token in Upstash (Vercel → Storage),
-  then update the `UPSTASH_REDIS_REST_READONLY_TOKEN` secret. Google needs no rotation:
-  there is no key.
+- **No secrets to rotate.** Google access and the MCP counts both rely on GitHub’s
+  short-lived OIDC tokens.
 - **Running locally.** Set `GOOGLE_ACCESS_TOKEN` (for example from
   `gcloud auth print-access-token --impersonate-service-account=stats-sync@research-methods-stats.iam.gserviceaccount.com`)
   or `GOOGLE_SERVICE_ACCOUNT_KEY`, plus the variables above, and run `npx tsx scripts/sync-stats.ts`.

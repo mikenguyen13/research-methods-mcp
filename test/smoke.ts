@@ -4,6 +4,7 @@
 //   - the bundled stdio binary, if dist/stdio.js exists
 // Run: npm test            (SAMPLES=1 also prints sample answers)
 
+import { createSign, generateKeyPairSync } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { createServer as createHttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -13,6 +14,7 @@ import { toNodeHandler } from '@modelcontextprotocol/node';
 import { Client as V1Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport as V1HttpTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { createApp } from '../src/http.ts';
+import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, usageFields, type UsageStore } from '../src/usage.ts';
 import { Library } from '../src/library.ts';
@@ -276,6 +278,47 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(!plainLanding.includes('googletagmanager') && !plainLanding.includes('/_vercel/insights'), 'landing page loads no analytics by default');
   check((await plain(new Request('http://x/stats?key=k3y'))).status === 404, '/stats does not exist without a usage store');
   check(configureWebAnalytics({ googleId: "G-X');alert(1)//" }) === undefined && !(await (await plain(new Request('http://x/'))).text()).includes('alert'), 'malformed measurement IDs are ignored');
+
+  // /stats.json: only the configured workflow, proven by its GitHub OIDC token.
+  const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const jwk = { ...publicKey.export({ format: 'jwk' }), kid: 'test-kid', alg: 'RS256', use: 'sig' };
+  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const jwt = (claims: object, kid = 'test-kid', key = privateKey, alg = 'RS256') => {
+    const unsigned = `${b64({ alg, typ: 'JWT', kid })}.${b64(claims)}`;
+    return `${unsigned}.${createSign('RSA-SHA256').update(unsigned).sign(key, 'base64url')}`;
+  };
+  const repo = 'owner/repo';
+  const workflow = '.github/workflows/stats.yml@refs/heads/main';
+  const good = {
+    iss: 'https://token.actions.githubusercontent.com',
+    aud: 'research-methods-stats',
+    repository: repo,
+    workflow_ref: `${repo}/${workflow}`,
+    exp: Math.floor(Date.now() / 1000) + 300,
+  };
+  resetJwksCache();
+  const oapp = createApp(lib, { usage: memory, statsOidc: { repository: repo, workflow, fetchJwks: async () => [jwk] } });
+  const getStats = (token?: string) => oapp(new Request('http://x/stats.json?days=2', { headers: token ? { authorization: `Bearer ${token}` } : {} }));
+  const okRes = await getStats(jwt(good));
+  const okBody = await okRes.json();
+  check(okRes.status === 200 && Array.isArray(okBody) && okBody.length === 2 && okRes.headers.get('cache-control') === 'no-store', '/stats.json answers the allowed workflow');
+  const forger = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey;
+  const refused = [
+    undefined,
+    'not-a-token',
+    jwt({ ...good, repository: 'evil/repo', workflow_ref: `evil/repo/${workflow}` }),
+    jwt({ ...good, workflow_ref: `${repo}/.github/workflows/other.yml@refs/heads/main` }),
+    jwt({ ...good, workflow_ref: `${repo}/.github/workflows/stats.yml@refs/heads/dev` }),
+    jwt({ ...good, aud: 'someone-else' }),
+    jwt({ ...good, iss: 'https://evil.example' }),
+    jwt({ ...good, exp: Math.floor(Date.now() / 1000) - 3600 }),
+    jwt(good, 'test-kid', forger),
+    jwt(good, 'unknown-kid'),
+    jwt(good, 'test-kid', privateKey, 'none'),
+  ];
+  const statuses = await Promise.all(refused.map(async (t) => (await getStats(t)).status));
+  check(statuses.every((s) => s === 401), `/stats.json refuses other repositories, workflows, branches, audiences, issuers, and expired or forged tokens: ${statuses}`);
+  check((await plain(new Request('http://x/stats.json'))).status === 404, '/stats.json does not exist unless configured');
 }
 
 // --- subscriptions/listen (2026-07-28) -------------------------------------------

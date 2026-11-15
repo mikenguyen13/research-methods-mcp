@@ -3,6 +3,8 @@
 # Google access is keyless: GitHub's OIDC token is exchanged, through Workload
 # Identity Federation in the research-methods-stats Cloud project, for a one-hour
 # token of the stats-sync service account. Only this repository may do that.
+# MCP counts come from the endpoint's /stats.json, which accepts this workflow's
+# GitHub OIDC token (from main) and nothing else, so no secret is stored anywhere.
 # Skipped until the STATS_SHEET_ID variable is set. The script prints no counts,
 # because this repository's Action logs are public. Setup: docs/DASHBOARD.md.
 name: Usage dashboard
@@ -41,6 +43,4 @@ jobs:
         env:
           STATS_SHEET_ID: ${{ vars.STATS_SHEET_ID }}
           GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
-          UPSTASH_REDIS_REST_URL: ${{ vars.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_READONLY_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_READONLY_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}

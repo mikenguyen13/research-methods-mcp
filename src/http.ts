@@ -4,6 +4,7 @@
 import { createMcpHandler } from '@modelcontextprotocol/server';
 import { FAVICON_ICO_BASE64, ICON_PNG_BASE64, ICON_SVG, OG_PNG_BASE64 } from './icon.ts';
 import type { Library } from './library.ts';
+import { verifyGithubOidc, type JwksFetcher, type OidcPolicy } from './oidc.ts';
 import { configureWebAnalytics, landingPage, privacyPage, statsPage, termsPage, type WebAnalytics } from './pages.ts';
 import { createServer, HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE, VERSION } from './server.ts';
 import { describeCall, usageFields, type UsageStore } from './usage.ts';
@@ -117,6 +118,11 @@ export interface AppOptions {
   statsKey?: string;
   /** Page-view analytics for the HTML pages. */
   webAnalytics?: WebAnalytics;
+  /**
+   * The one GitHub Actions workflow allowed to read the usage counts at /stats.json,
+   * proven by its OIDC token (see oidc.ts). /stats.json does not exist without it.
+   */
+  statsOidc?: OidcPolicy & { fetchJwks?: JwksFetcher };
 }
 
 /** The analytics settings every host reads from its environment. */
@@ -171,6 +177,18 @@ async function stats(url: URL, opts: AppOptions): Promise<Response> {
   return new Response(statsPage(days), { headers: { ...headers, 'content-type': 'text/html; charset=utf-8' } });
 }
 
+/** Daily usage counts as JSON, for the workflow named in opts.statsOidc only. */
+async function statsJson(req: Request, url: URL, opts: AppOptions): Promise<Response> {
+  if (!opts.usage || !opts.statsOidc) return new Response('Not found', { status: 404 });
+  const token = req.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+  const { fetchJwks, ...policy } = opts.statsOidc;
+  if (!token || !(await verifyGithubOidc(token, policy, fetchJwks))) {
+    return new Response('Unauthorized', { status: 401, headers: { 'cache-control': 'no-store' } });
+  }
+  const days = await opts.usage.recent(Math.min(400, Math.max(1, Number(url.searchParams.get('days')) || 30)));
+  return Response.json(days, { headers: { 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } });
+}
+
 export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) => Promise<Response> {
   const mcp = createMcpHandler(() => createServer(lib), {
     onerror: (err) => console.error('[mcp]', err.message),
@@ -202,6 +220,8 @@ export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) =
         return html(termsPage());
       case '/stats':
         return stats(url, opts);
+      case '/stats.json':
+        return statsJson(req, url, opts);
       case '/health':
         return Response.json({ ok: true, name: SERVER_NAME, version: VERSION, sections: lib.index.records.length, built: lib.index.built });
       case '/robots.txt':
