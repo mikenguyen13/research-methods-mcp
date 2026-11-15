@@ -1,8 +1,12 @@
 # Usage dashboard
 
-One private Looker Studio page with every usage number: calls to the hosted MCP
-endpoint, visitors to each book site, and GitHub stars. It runs in the cloud, so it
-can be opened from any device at any time, and it costs nothing.
+A private Data Studio (formerly Looker Studio) report with every usage number: calls to
+the hosted MCP endpoint, visitors to each book site (with locations and traffic
+sources), and GitHub stars. It runs in the cloud, so it can be opened from any device at
+any time, and it costs nothing.
+
+**Dashboard:** https://datastudio.google.com/reporting/32b8df75-bc4b-442b-8cf4-c3eb48a5fbfa
+(pages *Overview* and *Locations*; visible only to the owner's Google account).
 
 ```
 Upstash Redis (MCP counters) ─┐
@@ -83,7 +87,11 @@ re-read only the last three days. The sheet gets these tabs:
 | `mcp_daily` | day: connections (split into `app_connections` from AI applications and `bot_connections` from directory crawlers and monitors), tool calls, calls per tool, prompts, resource reads |
 | `mcp_clients` | day and client name, with its kind (`app` or `bot`) |
 | `books_daily` | day and book site: active users, new users, sessions, views |
+| `books_geo` | day, book, market (United States, Vietnam, Rest of world), country, and region (state or province): active users, views; 120 days |
+| `books_sources` | day, book, channel, source, and medium: sessions, active users, views; 120 days |
 | `github_daily` | day and repository: stars, forks, watchers |
+| `github_latest` | repository: current stars, forks, watchers |
+| `summary` | headline metric: last 7 complete days, the 7 before, change in %, last 28 days; `order` keeps the row order |
 | `updated` | the time of the last successful write |
 
 A run fails (and GitHub emails you) when a source stops answering; the other sources
