@@ -245,15 +245,19 @@ export function mcpRows(days: { date: string; counts: Record<string, number> }[]
   return { daily, clients };
 }
 
+/** What this run wrote, for the summary tab. */
+const written: { mcp?: Row[]; books?: Row[]; github?: Row[]; githubHistory?: Row[] } = {};
+
 async function syncMcp(sheet: Sheet) {
   const stored = await sheet.read('mcp_daily');
   const dates = lastDays(stored.length ? RECENT_DAYS : BACKFILL_DAYS);
   const { daily, clients } = mcpRows(await mcpDays(dates));
   const fresh = new Set(dates);
+  written.mcp = merge(stored, daily, fresh);
   await sheet.write(
     'mcp_daily',
     ['date', 'connections', 'app_connections', 'bot_connections', 'tool_calls', ...TOOLS.map((t) => `tool_${t}`), 'prompts', 'resource_reads'],
-    merge(stored, daily, fresh),
+    written.mcp,
   );
   await sheet.write('mcp_clients', ['date', 'client', 'kind', 'connections'], merge(await sheet.read('mcp_clients'), clients, fresh));
 }
@@ -296,6 +300,7 @@ async function syncBooks(sheet: Sheet, token: string) {
   const merged = [...kept, ...rows].sort(
     (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])),
   );
+  written.books = merged;
   await sheet.write('books_daily', ['date', 'book', 'active_users', 'new_users', 'sessions', 'views'], merged);
   if (failed.length) throw new Error(`Google Analytics failed for ${failed.length} properties:\n${failed.join('\n')}`);
 }
@@ -323,11 +328,50 @@ async function syncGithub(sheet: Sheet) {
     const j = (await res.json()) as { stargazers_count: number; forks_count: number; subscribers_count: number };
     rows.push([today, repo.split('/')[1], j.stargazers_count, j.forks_count, j.subscribers_count]);
   }
+  written.github = rows;
+  written.githubHistory = merge(await sheet.read('github_daily'), rows, new Set([today]));
+  await sheet.write('github_daily', ['date', 'repository', 'stars', 'forks', 'watchers'], written.githubHistory);
+  // One row per repository, so a dashboard table needs no aggregation choice.
   await sheet.write(
-    'github_daily',
-    ['date', 'repository', 'stars', 'forks', 'watchers'],
-    merge(await sheet.read('github_daily'), rows, new Set([today])),
+    'github_latest',
+    ['repository', 'stars', 'forks', 'watchers'],
+    rows.map((r) => r.slice(1)).sort((a, b) => Number(b[1]) - Number(a[1]) || Number(b[2]) - Number(a[2])),
   );
+}
+
+/**
+ * Headline numbers over complete days (yesterday and before): the last 7 days, the 7
+ * before them, the change, and the last 28 days. Precomputed so the dashboard can show
+ * them as a plain table.
+ */
+export function summaryRows(w: typeof written, now = new Date()): Row[] {
+  const days = lastDays(29, now).slice(1); // yesterday first
+  const last7 = new Set(days.slice(0, 7));
+  const prev7 = new Set(days.slice(7, 14));
+  const last28 = new Set(days);
+  const sum = (rows: Row[] | undefined, col: number, set: Set<string>, keep: (r: Row) => boolean = () => true) =>
+    (rows ?? []).filter((r) => set.has(String(r[0])) && keep(r)).reduce((t, r) => t + (Number(r[col]) || 0), 0);
+  const line = (metric: string, rows: Row[] | undefined, col: number, keep?: (r: Row) => boolean): Row => {
+    const a = sum(rows, col, last7, keep);
+    const b = sum(rows, col, prev7, keep);
+    return [metric, a, b, b ? Math.round(((a - b) / b) * 100) : '', sum(rows, col, last28, keep)];
+  };
+  const out: Row[] = [];
+  if (w.mcp) {
+    out.push(line('MCP tool calls', w.mcp, 4), line('MCP connections from AI apps', w.mcp, 2), line('MCP connections from bots', w.mcp, 3));
+  }
+  if (w.books) {
+    out.push(line('Book views (all books)', w.books, 5), line('Book sessions (all books)', w.books, 4));
+    const books = [...new Set(w.books.map((r) => String(r[1])))];
+    const perBook = books.map((b) => line(`Views: ${b}`, w.books, 5, (r) => r[1] === b)).filter((r) => Number(r[4]) > 0);
+    out.push(...perBook.sort((x, y) => Number(y[4]) - Number(x[4])));
+  }
+  if (w.github) {
+    const total = (rows: Row[]) => rows.reduce((t, r) => t + Number(r[2]), 0);
+    const weekAgo = (w.githubHistory ?? []).filter((r) => r[0] === days[6]);
+    out.push(['GitHub stars (all repositories)', total(w.github), weekAgo.length ? total(weekAgo) : '', '', total(w.github)]);
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- main
@@ -359,6 +403,7 @@ export async function main() {
   } else console.log('No Upstash token and no GitHub OIDC token; skipping MCP usage.');
   await run('Book sites', () => syncBooks(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
+  await sheet.write('summary', ['metric', 'last_7_days', 'previous_7_days', 'change_pct', 'last_28_days'], summaryRows(written));
   await sheet.write('updated', ['last_updated_utc'], [[new Date().toISOString().replace('T', ' ').slice(0, 16)]]);
 
   if (errors.length) {
