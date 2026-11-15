@@ -1,7 +1,10 @@
 # Hourly copy of usage numbers (MCP endpoint counters, book-site Google Analytics,
 # GitHub stars) into the private Google Sheet behind the Looker Studio dashboard.
-# Does nothing until the secrets in docs/DASHBOARD.md are set. The script prints
-# no counts, because this repository's Action logs are public.
+# Google access is keyless: GitHub's OIDC token is exchanged, through Workload
+# Identity Federation in the research-methods-stats Cloud project, for a one-hour
+# token of the stats-sync service account. Only this repository may do that.
+# Skipped until the STATS_SHEET_ID variable is set. The script prints no counts,
+# because this repository's Action logs are public. Setup: docs/DASHBOARD.md.
 name: Usage dashboard
 on:
   schedule:
@@ -9,15 +12,25 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  id-token: write
 concurrency:
   group: stats
   cancel-in-progress: false
 jobs:
   sync:
+    if: vars.STATS_SHEET_ID != ''
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - id: google
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/720871649247/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: stats-sync@research-methods-stats.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/analytics.readonly
+          create_credentials_file: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -26,8 +39,8 @@ jobs:
       - name: Sync usage numbers to the sheet
         run: npx tsx scripts/sync-stats.ts
         env:
-          STATS_SHEET_ID: ${{ secrets.STATS_SHEET_ID }}
-          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          STATS_SHEET_ID: ${{ vars.STATS_SHEET_ID }}
+          GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
+          UPSTASH_REDIS_REST_URL: ${{ vars.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_READONLY_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_READONLY_TOKEN }}
           GITHUB_TOKEN: ${{ github.token }}

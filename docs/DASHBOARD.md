@@ -14,47 +14,57 @@ Freshness: MCP counts and GitHub stars are at most about an hour old (GitHub can
 scheduled run 10–30 minutes late). Google Analytics itself processes data with a delay of
 a few hours. For live visitors, use Realtime in Google Analytics.
 
-The repository is public, so the Action's logs are public too: the script prints only
-tab names and row counts, never a number from the data. The secrets live in GitHub's
-encrypted Actions secrets.
+The repository is public, so the Action’s logs are public too: the script prints only
+tab names and row counts, never a number from the data. Google access is keyless (no
+service-account key exists): the workflow trades GitHub’s OIDC token for a one-hour token
+through Workload Identity Federation, and only this repository is allowed to. The one
+secret, the Upstash read-only token, is in GitHub’s encrypted Actions secrets.
 
-## One-time setup (about 15 minutes)
+## Setup (done 2026-11-14)
 
-### 1. Google Cloud service account (free, no billing)
+These are already in place; they are listed so the setup can be checked or rebuilt.
 
-1. Open https://console.cloud.google.com/ with the Google account that owns the
-   Analytics properties, and create a project, for example `research-methods-stats`.
-2. **APIs & Services → Library**: enable **Google Sheets API** and
-   **Google Analytics Data API**.
-3. **IAM & Admin → Service accounts → Create service account**, named `stats-sync`.
-   Skip the optional role and user steps.
-4. Open the new account → **Keys → Add key → Create new key → JSON**. A `.json` file
-   downloads. Keep it private, and delete the local copy after step 4 below.
-5. Copy the account's email (`stats-sync@<project>.iam.gserviceaccount.com`).
+### 1. Google Cloud project `research-methods-stats` (free, no billing)
 
-### 2. Give the service account read access to Google Analytics
+Owned by the Google account that owns the Analytics properties.
 
-In Google Analytics: **Admin → Account (Mike Nguyen) → Account access management → + →
-Add users**, paste the service-account email, role **Viewer**, uncheck "Notify new users
-by email", **Add**. Access granted on the account covers every property in it.
+- **APIs enabled:** Google Sheets API, Google Analytics Data API, IAM Service Account
+  Credentials API.
+- **Service account:** `stats-sync@research-methods-stats.iam.gserviceaccount.com`, with
+  no project roles and no keys.
+- **Workload Identity pool `github`**, provider `github-actions` (OIDC, issuer
+  `https://token.actions.githubusercontent.com`, default audience). Attribute mapping
+  `google.subject = assertion.sub`, `attribute.repository = assertion.repository`;
+  condition `assertion.repository == 'mikenguyen13/research-methods-mcp'`.
+- **Grant:** on `stats-sync`, Workload Identity User for
+  `principalSet://iam.googleapis.com/projects/720871649247/locations/global/workloadIdentityPools/github/attribute.repository/mikenguyen13/research-methods-mcp`
+  (pool page → Grant access → service account impersonation).
 
-### 3. Create the Google Sheet
+The provider and service account are named in `.github/workflows/stats.yml`; they are
+identifiers, not secrets.
 
-Create a blank sheet, for example "Research Methods usage". **Share** it with the
-service-account email as **Editor** (uncheck "Notify people"). The sheet id is the long
-string in its URL: `docs.google.com/spreadsheets/d/<SHEET_ID>/edit`.
+### 2. Google Analytics access
 
-### 4. Add the GitHub secrets
+Admin → Account “Mike Nguyen” → Account access management: `stats-sync@…` has
+**Viewer**. Access on the account covers every property in it, including new ones.
 
-GitHub → this repository → **Settings → Secrets and variables → Actions → New
-repository secret**, four times:
+### 3. Google Sheet
 
-| Secret | Value |
-| --- | --- |
-| `STATS_SHEET_ID` | The sheet id from step 3 |
-| `GOOGLE_SERVICE_ACCOUNT_KEY` | The whole contents of the JSON key file from step 1 |
-| `UPSTASH_REDIS_REST_URL` | `KV_REST_API_URL` from Vercel → Storage → `research-methods-usage` → Quickstart (.env.local tab) |
-| `UPSTASH_REDIS_REST_READONLY_TOKEN` | `KV_REST_API_READ_ONLY_TOKEN` from the same place (the read-only token, not the read-write one) |
+“Research Methods usage” in the owner’s Drive, shared with `stats-sync@…` as
+**Editor**. Its id (from the URL `docs.google.com/spreadsheets/d/<id>/edit`) is the
+`STATS_SHEET_ID` variable below.
+
+### 4. GitHub variables and secret
+
+Repository → **Settings → Secrets and variables → Actions**:
+
+| Kind | Name | Value |
+| --- | --- | --- |
+| Variable | `STATS_SHEET_ID` | the sheet id |
+| Variable | `UPSTASH_REDIS_REST_URL` | `KV_REST_API_URL` from Vercel → Storage → `research-methods-usage` → Quickstart (.env.local) |
+| Secret | `UPSTASH_REDIS_REST_READONLY_TOKEN` | `KV_REST_API_READ_ONLY_TOKEN` from the same place (the read-only token, not the read-write one) |
+
+The workflow is skipped while `STATS_SHEET_ID` is unset.
 
 ### 5. First run
 
@@ -111,7 +121,11 @@ day. For unique visitors over a period, use the numbers in Google Analytics itse
 - **GitHub pauses scheduled workflows** in a public repository after 60 days without a
   commit. If the dashboard stops updating, open **Actions → Usage dashboard** and
   click **Enable workflow**.
-- **Rotating the key.** Create a new JSON key for the service account, replace the
-  `GOOGLE_SERVICE_ACCOUNT_KEY` secret, then delete the old key in Google Cloud.
+- **Rotating the Upstash token.** Reset the read-only token in Upstash (Vercel → Storage),
+  then update the `UPSTASH_REDIS_REST_READONLY_TOKEN` secret. Google needs no rotation:
+  there is no key.
+- **Running locally.** Set `GOOGLE_ACCESS_TOKEN` (for example from
+  `gcloud auth print-access-token --impersonate-service-account=stats-sync@research-methods-stats.iam.gserviceaccount.com`)
+  or `GOOGLE_SERVICE_ACCOUNT_KEY`, plus the variables above, and run `npx tsx scripts/sync-stats.ts`.
 - Upstash cost: each run reads three keys, about 2,200 commands a month, well inside the
   free plan's 500,000.

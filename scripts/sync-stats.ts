@@ -12,7 +12,10 @@
 //
 // Environment:
 //   STATS_SHEET_ID                      the spreadsheet id (from its URL)
-//   GOOGLE_SERVICE_ACCOUNT_KEY          the service account's JSON key
+//   GOOGLE_ACCESS_TOKEN                 a short-lived token for the service account; the
+//                                       workflow gets one through Workload Identity
+//                                       Federation, so no key exists
+//   GOOGLE_SERVICE_ACCOUNT_KEY          alternatively, a JSON key (for local runs)
 //   UPSTASH_REDIS_REST_URL              the Redis REST URL
 //   UPSTASH_REDIS_REST_READONLY_TOKEN   a read-only token (KV_REST_API_READ_ONLY_TOKEN)
 //   GITHUB_TOKEN                        optional, raises the GitHub API rate limit
@@ -306,15 +309,16 @@ async function syncGithub(sheet: Sheet) {
 // ---------------------------------------------------------------- main
 
 export async function main() {
-  if (!env.STATS_SHEET_ID || !env.GOOGLE_SERVICE_ACCOUNT_KEY) {
-    console.log('STATS_SHEET_ID or GOOGLE_SERVICE_ACCOUNT_KEY is not set; nothing to do (see docs/DASHBOARD.md).');
+  if (!env.STATS_SHEET_ID || !(env.GOOGLE_ACCESS_TOKEN || env.GOOGLE_SERVICE_ACCOUNT_KEY)) {
+    console.log('STATS_SHEET_ID or Google credentials are not set; nothing to do (see docs/DASHBOARD.md).');
     return;
   }
-  const sa = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_KEY) as ServiceAccount;
-  const token = await googleToken(sa, [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/analytics.readonly',
-  ]);
+  const token =
+    env.GOOGLE_ACCESS_TOKEN ||
+    (await googleToken(JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_KEY!) as ServiceAccount, [
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/analytics.readonly',
+    ]));
   const sheet = new Sheet(token, env.STATS_SHEET_ID);
   await sheet.init();
 
