@@ -7,7 +7,7 @@ import type { Library } from './library.ts';
 import { verifyGithubOidc, type JwksFetcher, type OidcPolicy } from './oidc.ts';
 import { configureWebAnalytics, landingPage, privacyPage, statsPage, termsPage, type WebAnalytics } from './pages.ts';
 import { createServer, HOMEPAGE, PUBLIC_ORIGIN, SERVER_DESCRIPTION, SERVER_NAME, SERVER_TITLE, VERSION } from './server.ts';
-import { describeCall, usageFields, type UsageStore } from './usage.ts';
+import { describeCall, sourceLabel, usageFields, type UsageStore } from './usage.ts';
 
 /** Pages for search engines; lastmod is the index build date. */
 function sitemap(lib: Library): string {
@@ -133,12 +133,15 @@ export function analyticsFromEnv(env: Record<string, string | undefined>): Pick<
   };
 }
 
-/** Counts the tool, prompt, and client named in a POST to /mcp, without delaying the response. */
-function recordUsage(body: Promise<unknown>, opts: AppOptions): void {
+/**
+ * Counts the tool, prompt, and client named in a POST to /mcp, and the URL's allowlisted
+ * `?src=` label, without delaying the response.
+ */
+function recordUsage(body: Promise<unknown>, src: string | undefined, opts: AppOptions): void {
   const { usage } = opts;
   if (!usage) return;
   const pending = body
-    .then((b) => usage.record(usageFields(b)))
+    .then((b) => usage.record(usageFields(b, src)))
     .catch((err: Error) => console.error('[usage]', err.message));
   opts.waitUntil?.(pending);
 }
@@ -201,7 +204,7 @@ export function createApp(lib: Library, opts: AppOptions = {}): (req: Request) =
     if (path === '/mcp') {
       if (req.method !== 'POST') return withCors(await mcp.fetch(req));
       const body: Promise<unknown> = req.clone().json().catch(() => undefined);
-      recordUsage(body, opts);
+      recordUsage(body, sourceLabel(url.searchParams.get('src')), opts);
       return withCors(watchSlow(await mcp.fetch(req), body));
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return new Response('Method not allowed', { status: 405 });

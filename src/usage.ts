@@ -13,6 +13,30 @@ const TTL_SECONDS = 400 * 86_400;
 const TOOLS = new Set(['choose_method', 'search', 'fetch', 'get_code', 'cite', 'list_sources']);
 const PROMPTS = new Set(['plan_analysis', 'write_methods_section', 'explain_method']);
 
+/**
+ * Labels allowed in `?src=` on the /mcp URL, one per place the URL is published, so the
+ * daily totals show which listing or link brought a connection. The label describes the
+ * link, not the person using it. Anything else is counted as "other".
+ */
+export const SOURCES: ReadonlySet<string> = new Set([
+  // MCP directories and registries (`registry` also covers its mirrors: PulseMCP, mcptry, GitHub)
+  'anthropic', 'registry', 'glama', 'docker', 'cline', 'cursor-directory', 'mcp-market', 'mcpso', 'openai',
+  // Our own pages
+  'readme', 'landing', 'llms-txt',
+  // Book sites (sources.yml ids, with hyphens)
+  ...['data-analysis', 'advanced-data-analysis', 'causalverse', 'credit-score', 'marketing-research', 'ai-in-action',
+    'tidy-finance-vn', 'tidy-finance-vn-vi', 'mlpy', 'social-theory'].map((b) => `book-${b}`),
+  // Campaigns
+  'youtube', 'linkedin', 'bluesky', 'x', 'reddit', 'hn', 'course', 'talk', 'email',
+]);
+
+/** The `src` query value reduced to an allowed label, "other", or undefined when absent. */
+export function sourceLabel(src: unknown): string | undefined {
+  if (typeof src !== 'string' || !src.trim()) return undefined;
+  const label = clientLabel(src);
+  return SOURCES.has(label) ? label : 'other';
+}
+
 /** A client's self-reported name (clientInfo.name), reduced to a short, safe label. */
 export function clientLabel(name: unknown): string {
   if (typeof name !== 'string') return 'unknown';
@@ -27,16 +51,20 @@ export function clientLabel(name: unknown): string {
 /**
  * Counter fields for one JSON-RPC body sent to /mcp (a message or a batch). Only the
  * method, the tool or prompt name, and the client's name are read; arguments are not.
+ * `src` is the label from the URL's `?src=` (see sourceLabel): it adds `src:<label>` to
+ * each connection and `src_calls:<label>` to each tool call.
  */
-export function usageFields(body: unknown): string[] {
+export function usageFields(body: unknown, src?: string): string[] {
   const fields: string[] = [];
   for (const msg of Array.isArray(body) ? body : [body]) {
     if (!msg || typeof msg !== 'object') continue;
     const { method, params } = msg as { method?: unknown; params?: any };
     if (method === 'initialize') {
       fields.push('connect', `client:${clientLabel(params?.clientInfo?.name)}`);
+      if (src) fields.push(`src:${src}`);
     } else if (method === 'tools/call') {
       fields.push('calls', `tool:${TOOLS.has(params?.name) ? params.name : 'other'}`);
+      if (src) fields.push(`src_calls:${src}`);
     } else if (method === 'prompts/get') {
       fields.push(`prompt:${PROMPTS.has(params?.name) ? params.name : 'other'}`);
     } else if (method === 'resources/read') {

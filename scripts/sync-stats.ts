@@ -4,7 +4,8 @@
 //
 // Sources, each skipped when its credentials are missing:
 //   - MCP endpoint: the anonymous daily counters in Upstash Redis (usage:YYYY-MM-DD).
-//   - Book sites: Google Analytics 4, through the Analytics Data API.
+//   - Book sites: Google Analytics 4, through the Analytics Data API, and Google Search
+//     Console for every property shared with the service account.
 //   - GitHub: stars, forks, and watchers of this repository and each book repository.
 //
 // The repository is public, so this script never prints a count: Action logs only
@@ -58,6 +59,8 @@ const APP_CLIENTS = [
 ];
 
 const TOOLS = ['search', 'fetch', 'choose_method', 'get_code', 'cite', 'list_sources', 'other'];
+/** Columns of the hand-kept experiment log (one row per experiment in the growth plan). */
+const EXPERIMENTS_HEADER = ['id', 'channel', 'change', 'metric', 'start', 'end', 'baseline', 'target', 'result', 'decision'];
 /** Days re-read on each run; the sheet keeps everything older. A first run backfills. */
 const RECENT_DAYS = 3;
 const BACKFILL_DAYS = 400;
@@ -148,6 +151,17 @@ class Sheet {
     return (r.values ?? []).map(([date, ...rest]) => [serialDate(date), ...rest]);
   }
 
+  /** Creates a tab with only a header when it does not exist; an existing tab is left alone. */
+  async create(tab: string, header: string[]) {
+    if (this.tabs.has(tab)) return;
+    await this.ensure(tab);
+    await google(this.token, `${this.base}/values/${encodeURIComponent(`${tab}!A1`)}?valueInputOption=RAW`, {
+      method: 'PUT',
+      body: JSON.stringify({ values: [header] }),
+    });
+    console.log(`created ${tab}`);
+  }
+
   /** Replaces a tab's contents with a header and rows. */
   async write(tab: string, header: string[], rows: Row[]) {
     await this.ensure(tab);
@@ -217,8 +231,12 @@ async function mcpDays(dates: string[]): Promise<{ date: string; counts: Record<
 export function mcpRows(days: { date: string; counts: Record<string, number> }[]) {
   const daily: Row[] = [];
   const clients: Row[] = [];
+  const sources: Row[] = [];
   for (const { date, counts } of days) {
     if (!Object.keys(counts).length) continue;
+    // ?src= labels on the /mcp URL (src/usage.ts): connections and tool calls per label.
+    const labels = new Set(Object.keys(counts).flatMap((k) => (k.startsWith('src:') ? [k.slice(4)] : k.startsWith('src_calls:') ? [k.slice(10)] : [])));
+    for (const label of [...labels].sort()) sources.push([date, label, counts[`src:${label}`] ?? 0, counts[`src_calls:${label}`] ?? 0]);
     let app = 0;
     let bot = 0;
     for (const [field, n] of Object.entries(counts)) {
@@ -242,16 +260,26 @@ export function mcpRows(days: { date: string; counts: Record<string, number> }[]
       counts['resource:read'] ?? 0,
     ]);
   }
-  return { daily, clients };
+  return { daily, clients, sources };
 }
 
 /** What this run wrote, for the summary tab. */
-const written: { mcp?: Row[]; books?: Row[]; github?: Row[]; githubHistory?: Row[]; geo?: Row[]; sources?: Row[] } = {};
+const written: {
+  mcp?: Row[];
+  mcpSrc?: Row[];
+  books?: Row[];
+  github?: Row[];
+  githubHistory?: Row[];
+  geo?: Row[];
+  sources?: Row[];
+  campaigns?: Row[];
+  gsc?: Row[];
+} = {};
 
 async function syncMcp(sheet: Sheet) {
   const stored = await sheet.read('mcp_daily');
   const dates = lastDays(stored.length ? RECENT_DAYS : BACKFILL_DAYS);
-  const { daily, clients } = mcpRows(await mcpDays(dates));
+  const { daily, clients, sources } = mcpRows(await mcpDays(dates));
   const fresh = new Set(dates);
   written.mcp = merge(stored, daily, fresh);
   await sheet.write(
@@ -260,6 +288,8 @@ async function syncMcp(sheet: Sheet) {
     written.mcp,
   );
   await sheet.write('mcp_clients', ['date', 'client', 'kind', 'connections'], merge(await sheet.read('mcp_clients'), clients, fresh));
+  written.mcpSrc = merge(await sheet.read('mcp_src'), sources, fresh);
+  await sheet.write('mcp_src', ['date', 'src', 'connections', 'tool_calls'], written.mcpSrc);
 }
 
 // ---------------------------------------------------------------- Book sites (GA4)
@@ -268,9 +298,15 @@ interface GaReport {
   rows?: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }[];
 }
 
+/** Whether a tab already has every column of `header`; if not, it is re-read in full. */
+const current = (stored: Row[], header: string[]) => stored.length > 0 && stored[0].length >= header.length;
+
+const BOOKS_DAILY = ['date', 'book', 'active_users', 'new_users', 'sessions', 'views', 'engaged_sessions'];
+
 async function syncBooks(sheet: Sheet, token: string) {
   const stored = await sheet.read('books_daily');
-  const n = stored.length ? RECENT_DAYS : BACKFILL_DAYS;
+  // A tab written before a column was added is backfilled once, so the new column has history.
+  const n = current(stored, BOOKS_DAILY) ? RECENT_DAYS : BACKFILL_DAYS;
   const dates = lastDays(n);
   const rows: Row[] = [];
   const failed: string[] = [];
@@ -281,7 +317,7 @@ async function syncBooks(sheet: Sheet, token: string) {
         body: JSON.stringify({
           dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
           dimensions: [{ name: 'date' }],
-          metrics: [{ name: 'activeUsers' }, { name: 'newUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }],
+          metrics: [{ name: 'activeUsers' }, { name: 'newUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }, { name: 'engagedSessions' }],
           limit: 1000,
         }),
       });
@@ -301,19 +337,44 @@ async function syncBooks(sheet: Sheet, token: string) {
     (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])),
   );
   written.books = merged;
-  await sheet.write('books_daily', ['date', 'book', 'active_users', 'new_users', 'sessions', 'views'], merged);
+  await sheet.write('books_daily', BOOKS_DAILY, merged);
   if (failed.length) throw new Error(`Google Analytics failed for ${failed.length} properties:\n${failed.join('\n')}`);
 }
 
+/** Days of detail kept in the per-source, per-location, and per-campaign tabs; their rows add up fast. */
+const DETAIL_DAYS = 120;
+
+/** The dashboard's three markets. */
+export function market(country: string): string {
+  return country === 'United States' ? 'United States' : country === 'Vietnam' ? 'Vietnam' : 'Rest of world';
+}
+
+/** Campaign names Google Analytics fills in itself; anything else came from a utm_campaign tag. */
+const UNTAGGED_CAMPAIGNS = ['(not set)', '(organic)', '(referral)', '(direct)', '(none)', '(data not available)', '(cross-network)', ''];
+
+interface GaTab {
+  tab: string;
+  label: string;
+  header: string[];
+  /** Report dimensions after `date`. */
+  dimensions: string[];
+  metrics: string[];
+  dimensionFilter?: unknown;
+  /** The sheet row for one report row, or null to drop it. */
+  row: (date: string, book: string, dims: string[], mets: number[]) => Row | null;
+  /** Column sorted largest first within a date and book. */
+  sortCol: number;
+}
+
 /**
- * Where book-site sessions come from (google / organic, chatgpt.com / referral, ...), per
- * day and book, so marketing experiments can be read off the dashboard.
+ * One daily Google Analytics tab with a breakdown (source, location, campaign) for every
+ * book site, keeping DETAIL_DAYS of history. A property that fails keeps its stored rows.
  */
-async function syncBookSources(sheet: Sheet, token: string) {
-  const stored = await sheet.read('books_sources');
-  const n = stored.length ? RECENT_DAYS : GEO_DAYS;
+async function syncGaTab(sheet: Sheet, token: string, spec: GaTab): Promise<Row[]> {
+  const stored = await sheet.read(spec.tab);
+  const n = current(stored, spec.header) ? RECENT_DAYS : DETAIL_DAYS;
   const dates = new Set(lastDays(n));
-  const oldest = lastDays(GEO_DAYS).at(-1)!;
+  const oldest = lastDays(DETAIL_DAYS).at(-1)!;
   const rows: Row[] = [];
   const failed: string[] = [];
   for (const [id, book] of Object.entries(GA_PROPERTIES)) {
@@ -322,16 +383,16 @@ async function syncBookSources(sheet: Sheet, token: string) {
         method: 'POST',
         body: JSON.stringify({
           dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
-          dimensions: [{ name: 'date' }, { name: 'sessionSource' }, { name: 'sessionMedium' }, { name: 'sessionDefaultChannelGroup' }],
-          metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'screenPageViews' }],
+          dimensions: ['date', ...spec.dimensions].map((name) => ({ name })),
+          metrics: spec.metrics.map((name) => ({ name })),
+          ...(spec.dimensionFilter ? { dimensionFilter: spec.dimensionFilter } : {}),
           limit: 100000,
         }),
       });
       for (const row of r.rows ?? []) {
-        const [d, source, medium, channel] = row.dimensionValues.map((v) => v.value);
-        const [sessions, users, views] = row.metricValues.map((m) => Number(m.value));
-        if (!sessions && !views) continue;
-        rows.push([`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`, book, channel, source, medium, sessions, users, views]);
+        const [d, ...dims] = row.dimensionValues.map((v) => v.value);
+        const out = spec.row(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`, book, dims, row.metricValues.map((m) => Number(m.value)));
+        if (out) rows.push(out);
       }
     } catch (e) {
       failed.push(`${book}: ${(e as Error).message.slice(0, 200)}`);
@@ -340,19 +401,29 @@ async function syncBookSources(sheet: Sheet, token: string) {
   const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
   const kept = stored.filter((r) => String(r[0]) >= oldest && (!dates.has(String(r[0])) || failedBooks.has(String(r[1]))));
   const merged = [...kept, ...rows].sort(
-    (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || Number(b[5]) - Number(a[5]),
+    (a, b) =>
+      String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || Number(b[spec.sortCol]) - Number(a[spec.sortCol]),
   );
-  written.sources = merged;
-  await sheet.write('books_sources', ['date', 'book', 'channel', 'source', 'medium', 'sessions', 'active_users', 'views'], merged);
-  if (failed.length) throw new Error(`Google Analytics (sources) failed for ${failed.length} properties:\n${failed.join('\n')}`);
+  await sheet.write(spec.tab, spec.header, merged);
+  if (failed.length) throw new Error(`Google Analytics (${spec.label}) failed for ${failed.length} properties:\n${failed.join('\n')}`);
+  return merged;
 }
 
-/** Days of location history kept; daily rows per book, country, and region add up fast. */
-const GEO_DAYS = 120;
-
-/** The dashboard's three markets. */
-export function market(country: string): string {
-  return country === 'United States' ? 'United States' : country === 'Vietnam' ? 'Vietnam' : 'Rest of world';
+/**
+ * Where book-site sessions come from (google / organic, chatgpt.com / referral, ...), per
+ * day and book, so marketing experiments can be read off the dashboard.
+ */
+async function syncBookSources(sheet: Sheet, token: string) {
+  written.sources = await syncGaTab(sheet, token, {
+    tab: 'books_sources',
+    label: 'sources',
+    header: ['date', 'book', 'channel', 'source', 'medium', 'sessions', 'active_users', 'views', 'engaged_sessions'],
+    dimensions: ['sessionDefaultChannelGroup', 'sessionSource', 'sessionMedium'],
+    metrics: ['sessions', 'activeUsers', 'screenPageViews', 'engagedSessions'],
+    row: (date, book, [channel, source, medium], [sessions, users, views, engaged]) =>
+      sessions || views ? [date, book, channel, source, medium, sessions, users, views, engaged] : null,
+    sortCol: 5,
+  });
 }
 
 /**
@@ -361,42 +432,130 @@ export function market(country: string): string {
  * only these aggregates reach the sheet.
  */
 async function syncBooksGeo(sheet: Sheet, token: string) {
-  const stored = await sheet.read('books_geo');
-  const n = stored.length ? RECENT_DAYS : GEO_DAYS;
+  written.geo = await syncGaTab(sheet, token, {
+    tab: 'books_geo',
+    label: 'locations',
+    header: ['date', 'book', 'market', 'country', 'region', 'active_users', 'views', 'engaged_sessions'],
+    dimensions: ['country', 'region'],
+    metrics: ['activeUsers', 'screenPageViews', 'engagedSessions'],
+    row: (date, book, [country, region], [users, views, engaged]) =>
+      users || views ? [date, book, market(country), country, region, users, views, engaged] : null,
+    sortCol: 6,
+  });
+}
+
+/**
+ * Sessions from links carrying utm_campaign (see "Source labels" in docs/LISTING.md), per
+ * day, book, and campaign, so each experiment's posts and links can be counted.
+ */
+async function syncBookCampaigns(sheet: Sheet, token: string) {
+  written.campaigns = await syncGaTab(sheet, token, {
+    tab: 'books_campaigns',
+    label: 'campaigns',
+    header: ['date', 'book', 'campaign', 'source', 'medium', 'sessions', 'engaged_sessions', 'views'],
+    dimensions: ['sessionCampaignName', 'sessionSource', 'sessionMedium'],
+    metrics: ['sessions', 'engagedSessions', 'screenPageViews'],
+    dimensionFilter: {
+      notExpression: { filter: { fieldName: 'sessionCampaignName', inListFilter: { values: UNTAGGED_CAMPAIGNS } } },
+    },
+    row: (date, book, [campaign, source, medium], [sessions, engaged, views]) =>
+      sessions || views ? [date, book, campaign, source, medium, sessions, engaged, views] : null,
+    sortCol: 5,
+  });
+}
+
+// ---------------------------------------------------------------- Search Console
+
+const SEARCH_CONSOLE = 'https://searchconsole.googleapis.com/webmasters/v3';
+/** Search Console finalises a day's numbers after two to three days. */
+const GSC_RECENT_DAYS = 5;
+
+/** Each book's site from sources.yml, plus the MCP endpoint's own pages. */
+export function bookSites(yml = readFileSync(new URL('../sources.yml', import.meta.url), 'utf8')): { book: string; site: string }[] {
+  const sites = yml
+    .split(/^\s*- id:\s*/m)
+    .slice(1)
+    .flatMap((block) => {
+      const book = block.match(/^([\w-]+)/)?.[1];
+      const site = block.match(/^\s*site:\s*(\S+)/m)?.[1];
+      return book && site ? [{ book, site }] : [];
+    });
+  return [...sites, { book: 'mcp_site', site: `${endpointOrigin()}/` }];
+}
+
+/**
+ * The Search Console property that covers a site: the longest URL-prefix property that
+ * the site starts with, else a domain property (sc-domain:) for its host.
+ */
+export function coveringProperty(site: string, properties: string[]): string | undefined {
+  const host = new URL(site).hostname;
+  const prefix = properties.filter((p) => !p.startsWith('sc-domain:') && site.startsWith(p)).sort((a, b) => b.length - a.length)[0];
+  return prefix ?? properties.find((p) => p.startsWith('sc-domain:') && (host === p.slice(10) || host.endsWith(`.${p.slice(10)}`)));
+}
+
+interface GscReport {
+  rows?: { keys: string[]; clicks: number; impressions: number; ctr: number; position: number }[];
+}
+
+/**
+ * Google Search clicks, impressions, click-through, and average position per day and
+ * book, plus each book's top queries and pages over the last 28 days. Reads every
+ * property shared with the service account; skipped until Search Console is set up.
+ */
+async function syncSearchConsole(sheet: Sheet, token: string) {
+  let properties: string[];
+  try {
+    const r = await google<{ siteEntry?: { siteUrl: string; permissionLevel: string }[] }>(token, `${SEARCH_CONSOLE}/sites`);
+    properties = (r.siteEntry ?? []).filter((s) => s.permissionLevel !== 'siteUnverifiedUser').map((s) => s.siteUrl);
+  } catch (e) {
+    // 403: the API is not enabled or the token lacks the scope (docs/DASHBOARD.md, step 8).
+    if (/failed: 403/.test((e as Error).message)) return console.log('Search Console is not set up; skipping.');
+    throw e;
+  }
+  const books = bookSites()
+    .map((b) => ({ ...b, property: coveringProperty(b.site, properties) }))
+    .filter((b): b is { book: string; site: string; property: string } => !!b.property);
+  if (!books.length) return console.log('No Search Console property covers a book site; skipping.');
+
+  const stored = await sheet.read('gsc_daily');
+  const n = stored.length ? GSC_RECENT_DAYS : BACKFILL_DAYS;
   const dates = new Set(lastDays(n));
-  const oldest = lastDays(GEO_DAYS).at(-1)!;
-  const rows: Row[] = [];
+  const query = (b: { site: string; property: string }, body: Record<string, unknown>) =>
+    google<GscReport>(token, `${SEARCH_CONSOLE}/sites/${encodeURIComponent(b.property)}/searchAnalytics/query`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...body,
+        dataState: 'all',
+        // A property shared by several books (a github.io user site) is split by page URL.
+        ...(b.property === b.site ? {} : { dimensionFilterGroups: [{ filters: [{ dimension: 'page', operator: 'contains', expression: b.site }] }] }),
+      }),
+    });
+  const round = (x: number, d: number) => Math.round(x * 10 ** d) / 10 ** d;
+  const daily: Row[] = [];
+  const top: Row[] = [];
   const failed: string[] = [];
-  for (const [id, book] of Object.entries(GA_PROPERTIES)) {
+  for (const b of books) {
     try {
-      const r = await google<GaReport>(token, `https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`, {
-        method: 'POST',
-        body: JSON.stringify({
-          dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
-          dimensions: [{ name: 'date' }, { name: 'country' }, { name: 'region' }],
-          metrics: [{ name: 'activeUsers' }, { name: 'screenPageViews' }],
-          limit: 100000,
-        }),
-      });
-      for (const row of r.rows ?? []) {
-        const [d, country, region] = row.dimensionValues.map((v) => v.value);
-        const [users, views] = row.metricValues.map((m) => Number(m.value));
-        if (!users && !views) continue;
-        rows.push([`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`, book, market(country), country, region, users, views]);
+      const r = await query(b, { startDate: lastDays(n).at(-1), endDate: iso(new Date()), dimensions: ['date'], rowLimit: 25000 });
+      for (const x of r.rows ?? []) daily.push([x.keys[0], b.book, x.clicks, x.impressions, round(x.ctr, 4), round(x.position, 1)]);
+      for (const kind of ['query', 'page']) {
+        const t = await query(b, { startDate: lastDays(29).at(-1), endDate: lastDays(2).at(-1), dimensions: [kind], rowLimit: 50 });
+        for (const x of t.rows ?? []) top.push([kind, b.book, x.keys[0], x.clicks, x.impressions, round(x.ctr, 4), round(x.position, 1)]);
       }
     } catch (e) {
-      failed.push(`${book}: ${(e as Error).message.slice(0, 200)}`);
+      failed.push(`${b.book}: ${(e as Error).message.slice(0, 200)}`);
     }
   }
   const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
-  const kept = stored.filter((r) => String(r[0]) >= oldest && (!dates.has(String(r[0])) || failedBooks.has(String(r[1]))));
-  const merged = [...kept, ...rows].sort(
-    (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || Number(b[6]) - Number(a[6]),
-  );
-  written.geo = merged;
-  await sheet.write('books_geo', ['date', 'book', 'market', 'country', 'region', 'active_users', 'views'], merged);
-  if (failed.length) throw new Error(`Google Analytics (locations) failed for ${failed.length} properties:\n${failed.join('\n')}`);
+  const kept = stored.filter((r) => !dates.has(String(r[0])) || failedBooks.has(String(r[1])));
+  written.gsc = [...kept, ...daily].sort((a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])));
+  await sheet.write('gsc_daily', ['date', 'book', 'clicks', 'impressions', 'ctr', 'position'], written.gsc);
+  if (top.length || !failed.length) {
+    await sheet.write('gsc_top', ['kind', 'book', 'key', 'clicks', 'impressions', 'ctr', 'position'], top.sort((a, b) => Number(b[3]) - Number(a[3])));
+  }
+  if (failed.length) throw new Error(`Search Console failed for ${failed.length} sites:\n${failed.join('\n')}`);
 }
+
 
 // ---------------------------------------------------------------- GitHub
 
@@ -453,19 +612,34 @@ export function summaryRows(w: typeof written, now = new Date()): Row[] {
   if (w.mcp) {
     out.push(line('MCP tool calls', w.mcp, 4), line('MCP connections from AI apps', w.mcp, 2), line('MCP connections from bots', w.mcp, 3));
   }
+  if (w.mcpSrc?.length) {
+    out.push(line('MCP tool calls via a ?src= label', w.mcpSrc, 3));
+    const labels = [...new Set(w.mcpSrc.map((r) => String(r[1])))];
+    const perLabel = labels.map((l) => line(`MCP tool calls via src=${l}`, w.mcpSrc, 3, (r) => r[1] === l)).filter((r) => Number(r[4]) > 0);
+    out.push(...perLabel.sort((x, y) => Number(y[4]) - Number(x[4])));
+  }
   if (w.books) {
     out.push(line('Book views (all books)', w.books, 5), line('Book sessions (all books)', w.books, 4));
+    out.push(line('Book engaged sessions (all books)', w.books, 6));
     const books = [...new Set(w.books.map((r) => String(r[1])))];
     const perBook = books.map((b) => line(`Views: ${b}`, w.books, 5, (r) => r[1] === b)).filter((r) => Number(r[4]) > 0);
     out.push(...perBook.sort((x, y) => Number(y[4]) - Number(x[4])));
   }
   if (w.geo) {
     for (const m of ['United States', 'Vietnam', 'Rest of world']) out.push(line(`Book views: ${m}`, w.geo, 6, (r) => r[2] === m));
+    for (const m of ['United States', 'Vietnam', 'Rest of world']) out.push(line(`Book engaged sessions: ${m}`, w.geo, 7, (r) => r[2] === m));
   }
   if (w.sources) {
     const ai = /chatgpt|openai|claude|anthropic|perplexity|gemini|copilot|bard|deepseek|you.com|phind/i;
     out.push(line('Book sessions from AI assistants', w.sources, 5, (r) => ai.test(String(r[3]))));
     out.push(line('Book sessions from search engines', w.sources, 5, (r) => r[2] === 'Organic Search'));
+    out.push(line('Book engaged sessions from search engines', w.sources, 8, (r) => r[2] === 'Organic Search'));
+  }
+  if (w.campaigns) {
+    out.push(line('Book sessions from tagged links (utm_campaign)', w.campaigns, 5), line('Book engaged sessions from tagged links', w.campaigns, 6));
+  }
+  if (w.gsc) {
+    out.push(line('Google Search clicks (Search Console)', w.gsc, 2), line('Google Search impressions (Search Console)', w.gsc, 3));
   }
   if (w.github) {
     const total = (rows: Row[]) => rows.reduce((t, r) => t + Number(r[2]), 0);
@@ -487,6 +661,7 @@ export async function main() {
     (await googleToken(JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_KEY!) as ServiceAccount, [
       'https://www.googleapis.com/auth/spreadsheets',
       'https://www.googleapis.com/auth/analytics.readonly',
+      'https://www.googleapis.com/auth/webmasters.readonly',
     ]));
   const sheet = new Sheet(token, env.STATS_SHEET_ID);
   await sheet.init();
@@ -505,7 +680,11 @@ export async function main() {
   await run('Book sites', () => syncBooks(sheet, token));
   await run('Book-site locations', () => syncBooksGeo(sheet, token));
   await run('Book-site traffic sources', () => syncBookSources(sheet, token));
+  await run('Book-site campaigns', () => syncBookCampaigns(sheet, token));
+  await run('Search Console', () => syncSearchConsole(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
+  // Filled in by hand; the sync only creates it, never writes to it again.
+  await run('Experiments tab', () => sheet.create('experiments', EXPERIMENTS_HEADER));
   // `order` lets a dashboard table keep this row order (sort by it ascending).
   await sheet.write(
     'summary',

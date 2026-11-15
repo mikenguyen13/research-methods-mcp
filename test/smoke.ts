@@ -16,7 +16,8 @@ import { StreamableHTTPClientTransport as V1HttpTransport } from '@modelcontextp
 import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
-import { clientLabel, describeCall, usageFields, type UsageStore } from '../src/usage.ts';
+import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
+import { bookSites, coveringProperty, mcpRows } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -254,6 +255,51 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(recorded.includes('connect') && recorded.includes('client:usage-test'), `usage records the connecting client: ${recorded}`);
   check(recorded.filter((f) => f === 'calls').length === 2 && recorded.includes('tool:search') && recorded.includes('tool:cite'), 'usage counts each tool call');
   check(!recorded.some((f) => f.includes('weak')), 'usage never records tool arguments');
+  check(!recorded.some((f) => f.startsWith('src')), 'a URL without ?src= adds no source fields');
+
+  check(
+    sourceLabel('Glama') === 'glama' && sourceLabel('book-data-analysis') === 'book-data-analysis' && sourceLabel('evil<script>') === 'other' &&
+      sourceLabel('') === undefined && sourceLabel(null) === undefined,
+    'source labels are allowlisted; anything else counts as other',
+  );
+  check(
+    JSON.stringify(usageFields([{ method: 'initialize', params: { clientInfo: { name: 'x' } } }, { method: 'tools/call', params: { name: 'fetch' } }], 'glama')) ===
+      '["connect","client:x","src:glama","calls","tool:fetch","src_calls:glama"]',
+    'a source label is counted on connections and tool calls',
+  );
+  const before = recorded.length;
+  for (const src of ['glama', 'Not-On-The-List']) {
+    const sc = new Client({ name: 'Src-Test', version: '1.0.0' });
+    await sc.connect(new StreamableHTTPClientTransport(new URL(`${ubase}/mcp?src=${src}`)));
+    await sc.callTool({ name: 'search', arguments: { query: 'regression discontinuity', limit: 1 } });
+    await sc.close();
+  }
+  await Promise.all(pending);
+  const withSrc = recorded.slice(before);
+  check(
+    ['src:glama', 'src_calls:glama', 'src:other', 'src_calls:other'].every((f) => withSrc.includes(f)) && !withSrc.some((f) => /not-on|regression/i.test(f)),
+    `?src= on the MCP URL is counted per allowlisted label: ${withSrc.filter((f) => f.startsWith('src')).join(', ')}`,
+  );
+  {
+    const { sources } = mcpRows([{ date: '2026-11-15', counts: { connect: 3, 'src:glama': 2, 'src_calls:glama': 5, 'src_calls:anthropic': 1 } }]);
+    check(
+      JSON.stringify(sources) === '[["2026-11-15","anthropic",0,1],["2026-11-15","glama",2,5]]',
+      `the sync turns source counters into mcp_src rows: ${JSON.stringify(sources)}`,
+    );
+    const sites = bookSites();
+    check(
+      sites.some((s) => s.book === 'credit_score' && s.site === 'https://mikenguyen13.github.io/credit_score/') && sites.at(-1)?.book === 'mcp_site',
+      'the Search Console sync finds each book site in sources.yml',
+    );
+    const props = ['https://mikenguyen13.github.io/', 'https://mikenguyen13.github.io/credit_score/', 'sc-domain:netlify.app'];
+    check(
+      coveringProperty('https://mikenguyen13.github.io/credit_score/', props) === 'https://mikenguyen13.github.io/credit_score/' &&
+        coveringProperty('https://mikenguyen13.github.io/mlpy/', props) === 'https://mikenguyen13.github.io/' &&
+        coveringProperty('https://advanced-data-analysis.netlify.app/', props) === 'sc-domain:netlify.app' &&
+        coveringProperty('https://mike-data-analysis.share.connect.posit.cloud/', props) === undefined,
+      'each book site maps to the most specific Search Console property that covers it',
+    );
+  }
 
   check((await fetch(`${ubase}/stats`)).status === 404 && (await fetch(`${ubase}/stats?key=wrong`)).status === 404, '/stats is hidden without the key');
   const statsRes = await fetch(`${ubase}/stats?key=k3y&days=7`);
@@ -261,12 +307,12 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
   check(statsRes.status === 200 && statsHtml.includes('usage-test') && statsHtml.includes('search') && statsRes.headers.get('x-robots-tag') === 'noindex', '/stats shows tool and client totals');
   check(!statsHtml.includes('googletagmanager') && !statsHtml.includes('/_vercel/insights'), '/stats loads no analytics (its URL holds the key)');
   const statsJson = await (await fetch(`${ubase}/stats?key=k3y&days=3&format=json`)).json();
-  check(Array.isArray(statsJson) && statsJson.length === 3 && statsJson[0].counts['tool:search'] === 1, '/stats returns JSON on request');
+  check(Array.isArray(statsJson) && statsJson.length === 3 && statsJson[0].counts['tool:search'] === recorded.filter((f) => f === 'tool:search').length, '/stats returns JSON on request');
 
   const landing = await (await fetch(`${ubase}/`)).text();
   check(landing.includes('/_vercel/insights/script.js') && landing.includes('gtag/js?id=G-TEST123'), 'landing page loads the configured web analytics');
   const privacy = await (await fetch(`${ubase}/privacy`)).text();
-  check(privacy.includes('anonymous daily totals') && privacy.includes('Vercel Web Analytics') && privacy.includes('Google Analytics'), 'privacy page discloses usage totals and web analytics');
+  check(privacy.includes('anonymous daily totals') && privacy.includes('source label') &&privacy.includes('Vercel Web Analytics') && privacy.includes('Google Analytics'), 'privacy page discloses usage totals and web analytics');
   srv.close();
 
   // Defaults (as in the earlier checks): no store, no analytics, nothing disclosed or loaded.

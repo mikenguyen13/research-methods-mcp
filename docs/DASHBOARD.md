@@ -10,7 +10,8 @@ any time, and it costs nothing.
 
 ```
 Upstash Redis (MCP counters) ─┐
-Google Analytics 4 (books)  ──┼─ GitHub Action, hourly ─→ Google Sheet ─→ Looker Studio
+Google Analytics 4 (books)  ──┤
+Google Search Console       ──┼─ GitHub Action, hourly ─→ Google Sheet ─→ Looker Studio
 GitHub API (stars, forks)   ──┘   scripts/sync-stats.ts     (private)       (private link)
 ```
 
@@ -86,9 +87,14 @@ re-read only the last three days. The sheet gets these tabs:
 | --- | --- |
 | `mcp_daily` | day: connections (split into `app_connections` from AI applications and `bot_connections` from directory crawlers and monitors), tool calls, calls per tool, prompts, resource reads |
 | `mcp_clients` | day and client name, with its kind (`app` or `bot`) |
-| `books_daily` | day and book site: active users, new users, sessions, views |
-| `books_geo` | day, book, market (United States, Vietnam, Rest of world), country, and region (state or province): active users, views; 120 days |
-| `books_sources` | day, book, channel, source, and medium: sessions, active users, views; 120 days |
+| `mcp_src` | day and `?src=` label on the endpoint URL (see "Source labels" in `docs/LISTING.md`): connections, tool calls |
+| `books_daily` | day and book site: active users, new users, sessions, views, engaged sessions |
+| `books_geo` | day, book, market (United States, Vietnam, Rest of world), country, and region (state or province): active users, views, engaged sessions; 120 days |
+| `books_sources` | day, book, channel, source, and medium: sessions, active users, views, engaged sessions; 120 days |
+| `books_campaigns` | day, book, `utm_campaign`, source, and medium, for tagged links only: sessions, engaged sessions, views; 120 days |
+| `gsc_daily` | day and book: Google Search clicks, impressions, click-through, average position (after step 8) |
+| `gsc_top` | the top 50 queries and the top 50 pages per book over the last 28 days (replaced each run) |
+| `experiments` | one experiment from the growth plan, filled in by hand; the sync creates the tab once and never writes to it again |
 | `github_daily` | day and repository: stars, forks, watchers |
 | `github_latest` | repository: current stars, forks, watchers |
 | `summary` | headline metric: last 7 complete days, the 7 before, change in %, last 28 days; `order` keeps the row order |
@@ -123,6 +129,26 @@ are still written. A book site that fails keeps its previous numbers.
 
 Note: `active_users` per day added over many days counts a returning visitor once per
 day. For unique visitors over a period, use the numbers in Google Analytics itself.
+
+**Engaged sessions** (Google Analytics: longer than 10 seconds, two or more pages, or a key
+event) are the number to judge experiments by, because a large part of the views total is
+automated (one-page visits at one view per visitor, often from a single country or
+referrer). A tab written before
+the `engaged_sessions` column existed is re-read in full once, so the column has history.
+
+### 8. Search Console (pending)
+
+1. In the `research-methods-stats` Cloud project, enable the **Google Search Console API**.
+2. In Search Console, for each property that covers a book site (a URL-prefix property
+   such as `https://mikenguyen13.github.io/`, or a domain property), **Settings → Users
+   and permissions → Add user**: `stats-sync@research-methods-stats.iam.gserviceaccount.com`,
+   permission **Restricted** (read-only). Sites without a property need one first
+   (verify ownership, then submit the sitemap).
+3. Run the workflow. The sync lists every property shared with the service account,
+   matches each book site in `sources.yml` to the most specific property covering it
+   (a shared `github.io` property is split by page URL), backfills `gsc_daily`, and then
+   re-reads the last five days each hour. Until step 1 is done it logs "Search Console
+   is not set up; skipping" and the run still succeeds.
 
 ## Maintenance
 

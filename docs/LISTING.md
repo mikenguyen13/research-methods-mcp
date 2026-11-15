@@ -111,6 +111,38 @@ Negative (the assistant should not use the tools):
 2. "Write a birthday poem for my sister."
 3. "Book me a table for two tonight."
 
+### Source labels (`?src=`)
+
+Give each directory its own copy of the endpoint URL with a source label, so the
+dashboard's `mcp_src` tab shows connections and tool calls per listing:
+`https://research-methods-mcp.vercel.app/mcp?src=<label>`. Allowed labels are listed in
+`SOURCES` in `src/usage.ts`; any other label is counted as `other`, and a URL without
+`src` adds nothing. Existing users keep the URL they installed, so a label counts new
+installations from that listing only.
+
+| Where the URL is published | Label |
+| --- | --- |
+| Anthropic Connectors Directory | `anthropic` |
+| Official MCP Registry (`server.json`; also feeds PulseMCP, mcptry, the GitHub MCP Registry) | `registry` |
+| Glama | `glama` |
+| Docker MCP Catalog | `docker` |
+| Cline MCP Marketplace | `cline` |
+| cursor.directory | `cursor-directory` |
+| MCP Market | `mcp-market` |
+| mcp.so | `mcpso` |
+| OpenAI plugin directory | `openai` |
+| This README, the landing page, `llms.txt` | `readme`, `landing`, `llms-txt` |
+| A book site (`sources.yml` id with hyphens) | `book-data-analysis`, `book-credit-score`, … |
+| Posts, videos, courses, talks, email | `youtube`, `linkedin`, `bluesky`, `x`, `reddit`, `hn`, `course`, `talk`, `email` |
+
+Changing a published listing's URL is an edit to that listing (Anthropic reviews edits
+while the live listing stays up; the registry needs a new version). Book links use UTM
+parameters instead: `utm_source` = the site or app the link is on, `utm_medium` = one of
+`social`, `video`, `forum`, `email`, `course`, `directory`, `ai-tool`, `talk`, and
+`utm_campaign` = the experiment id and a short slug (`e14-video-did`). Never put a
+person's name, email, or institution in a UTM value, and never tag links between the
+books themselves. Tagged sessions appear in the dashboard's `books_campaigns` tab.
+
 ## 4. Directories
 
 Free listings first, in approximate order of reach. Status as of 2026-11-09.

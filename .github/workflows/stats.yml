@@ -31,7 +31,7 @@ jobs:
           workload_identity_provider: projects/720871649247/locations/global/workloadIdentityPools/github/providers/github-actions
           service_account: stats-sync@research-methods-stats.iam.gserviceaccount.com
           token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/analytics.readonly
+          access_token_scopes: https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/webmasters.readonly
           create_credentials_file: false
       - uses: actions/setup-node@v4
         with:
