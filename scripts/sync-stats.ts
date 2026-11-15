@@ -403,7 +403,12 @@ export async function main() {
   } else console.log('No Upstash token and no GitHub OIDC token; skipping MCP usage.');
   await run('Book sites', () => syncBooks(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
-  await sheet.write('summary', ['metric', 'last_7_days', 'previous_7_days', 'change_pct', 'last_28_days'], summaryRows(written));
+  // `order` lets a dashboard table keep this row order (sort by it ascending).
+  await sheet.write(
+    'summary',
+    ['metric', 'last_7_days', 'previous_7_days', 'change_pct', 'last_28_days', 'order'],
+    summaryRows(written).map((r, i) => [...r, i + 1]),
+  );
   await sheet.write('updated', ['last_updated_utc'], [[new Date().toISOString().replace('T', ' ').slice(0, 16)]]);
 
   if (errors.length) {
