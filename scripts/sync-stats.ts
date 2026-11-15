@@ -246,7 +246,7 @@ export function mcpRows(days: { date: string; counts: Record<string, number> }[]
 }
 
 /** What this run wrote, for the summary tab. */
-const written: { mcp?: Row[]; books?: Row[]; github?: Row[]; githubHistory?: Row[] } = {};
+const written: { mcp?: Row[]; books?: Row[]; github?: Row[]; githubHistory?: Row[]; geo?: Row[]; sources?: Row[] } = {};
 
 async function syncMcp(sheet: Sheet) {
   const stored = await sheet.read('mcp_daily');
@@ -303,6 +303,99 @@ async function syncBooks(sheet: Sheet, token: string) {
   written.books = merged;
   await sheet.write('books_daily', ['date', 'book', 'active_users', 'new_users', 'sessions', 'views'], merged);
   if (failed.length) throw new Error(`Google Analytics failed for ${failed.length} properties:\n${failed.join('\n')}`);
+}
+
+/**
+ * Where book-site sessions come from (google / organic, chatgpt.com / referral, ...), per
+ * day and book, so marketing experiments can be read off the dashboard.
+ */
+async function syncBookSources(sheet: Sheet, token: string) {
+  const stored = await sheet.read('books_sources');
+  const n = stored.length ? RECENT_DAYS : GEO_DAYS;
+  const dates = new Set(lastDays(n));
+  const oldest = lastDays(GEO_DAYS).at(-1)!;
+  const rows: Row[] = [];
+  const failed: string[] = [];
+  for (const [id, book] of Object.entries(GA_PROPERTIES)) {
+    try {
+      const r = await google<GaReport>(token, `https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`, {
+        method: 'POST',
+        body: JSON.stringify({
+          dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
+          dimensions: [{ name: 'date' }, { name: 'sessionSource' }, { name: 'sessionMedium' }, { name: 'sessionDefaultChannelGroup' }],
+          metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'screenPageViews' }],
+          limit: 100000,
+        }),
+      });
+      for (const row of r.rows ?? []) {
+        const [d, source, medium, channel] = row.dimensionValues.map((v) => v.value);
+        const [sessions, users, views] = row.metricValues.map((m) => Number(m.value));
+        if (!sessions && !views) continue;
+        rows.push([`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`, book, channel, source, medium, sessions, users, views]);
+      }
+    } catch (e) {
+      failed.push(`${book}: ${(e as Error).message.slice(0, 200)}`);
+    }
+  }
+  const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
+  const kept = stored.filter((r) => String(r[0]) >= oldest && (!dates.has(String(r[0])) || failedBooks.has(String(r[1]))));
+  const merged = [...kept, ...rows].sort(
+    (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || Number(b[5]) - Number(a[5]),
+  );
+  written.sources = merged;
+  await sheet.write('books_sources', ['date', 'book', 'channel', 'source', 'medium', 'sessions', 'active_users', 'views'], merged);
+  if (failed.length) throw new Error(`Google Analytics (sources) failed for ${failed.length} properties:\n${failed.join('\n')}`);
+}
+
+/** Days of location history kept; daily rows per book, country, and region add up fast. */
+const GEO_DAYS = 120;
+
+/** The dashboard's three markets. */
+export function market(country: string): string {
+  return country === 'United States' ? 'United States' : country === 'Vietnam' ? 'Vietnam' : 'Rest of world';
+}
+
+/**
+ * Book-site visitors by country and region (US state, Vietnamese province, ...) per day,
+ * as Google Analytics reports them. GA derives location from the visitor's IP address;
+ * only these aggregates reach the sheet.
+ */
+async function syncBooksGeo(sheet: Sheet, token: string) {
+  const stored = await sheet.read('books_geo');
+  const n = stored.length ? RECENT_DAYS : GEO_DAYS;
+  const dates = new Set(lastDays(n));
+  const oldest = lastDays(GEO_DAYS).at(-1)!;
+  const rows: Row[] = [];
+  const failed: string[] = [];
+  for (const [id, book] of Object.entries(GA_PROPERTIES)) {
+    try {
+      const r = await google<GaReport>(token, `https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`, {
+        method: 'POST',
+        body: JSON.stringify({
+          dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
+          dimensions: [{ name: 'date' }, { name: 'country' }, { name: 'region' }],
+          metrics: [{ name: 'activeUsers' }, { name: 'screenPageViews' }],
+          limit: 100000,
+        }),
+      });
+      for (const row of r.rows ?? []) {
+        const [d, country, region] = row.dimensionValues.map((v) => v.value);
+        const [users, views] = row.metricValues.map((m) => Number(m.value));
+        if (!users && !views) continue;
+        rows.push([`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`, book, market(country), country, region, users, views]);
+      }
+    } catch (e) {
+      failed.push(`${book}: ${(e as Error).message.slice(0, 200)}`);
+    }
+  }
+  const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
+  const kept = stored.filter((r) => String(r[0]) >= oldest && (!dates.has(String(r[0])) || failedBooks.has(String(r[1]))));
+  const merged = [...kept, ...rows].sort(
+    (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || Number(b[6]) - Number(a[6]),
+  );
+  written.geo = merged;
+  await sheet.write('books_geo', ['date', 'book', 'market', 'country', 'region', 'active_users', 'views'], merged);
+  if (failed.length) throw new Error(`Google Analytics (locations) failed for ${failed.length} properties:\n${failed.join('\n')}`);
 }
 
 // ---------------------------------------------------------------- GitHub
@@ -366,6 +459,14 @@ export function summaryRows(w: typeof written, now = new Date()): Row[] {
     const perBook = books.map((b) => line(`Views: ${b}`, w.books, 5, (r) => r[1] === b)).filter((r) => Number(r[4]) > 0);
     out.push(...perBook.sort((x, y) => Number(y[4]) - Number(x[4])));
   }
+  if (w.geo) {
+    for (const m of ['United States', 'Vietnam', 'Rest of world']) out.push(line(`Book views: ${m}`, w.geo, 6, (r) => r[2] === m));
+  }
+  if (w.sources) {
+    const ai = /chatgpt|openai|claude|anthropic|perplexity|gemini|copilot|bard|deepseek|you.com|phind/i;
+    out.push(line('Book sessions from AI assistants', w.sources, 5, (r) => ai.test(String(r[3]))));
+    out.push(line('Book sessions from search engines', w.sources, 5, (r) => r[2] === 'Organic Search'));
+  }
   if (w.github) {
     const total = (rows: Row[]) => rows.reduce((t, r) => t + Number(r[2]), 0);
     const weekAgo = (w.githubHistory ?? []).filter((r) => r[0] === days[6]);
@@ -402,6 +503,8 @@ export async function main() {
     await run('MCP usage', () => syncMcp(sheet));
   } else console.log('No Upstash token and no GitHub OIDC token; skipping MCP usage.');
   await run('Book sites', () => syncBooks(sheet, token));
+  await run('Book-site locations', () => syncBooksGeo(sheet, token));
+  await run('Book-site traffic sources', () => syncBookSources(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
   // `order` lets a dashboard table keep this row order (sort by it ascending).
   await sheet.write(
