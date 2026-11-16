@@ -46,8 +46,8 @@ const S: Scenario[] = [
   // Newer books
   { persona: 'finance researcher (Vietnam)', tool: 'search', args: { query: 'Fama-French factors Vietnamese stock market portfolio sorts' }, expect: /Tidy Finance|Vietnam/i },
   { persona: 'Vietnamese student', tool: 'search', args: { query: 'tài chính danh mục đầu tư lợi nhuận', source: 'tidy_finance_vn_vi' }, expect: /./ },
-  { persona: 'ML engineer', tool: 'search', args: { query: 'multi-armed bandit simulation', source: 'mlpy' }, expect: /bandit/i },
-  { persona: 'ML engineer', tool: 'get_code', args: { topic: 'approximate nearest neighbors', language: 'python', source: 'mlpy' }, expect: /```python/i },
+  { persona: 'ML engineer', tool: 'search', args: { query: 'nearest neighbors embeddings', source: 'ai_in_action' }, expect: /neighbo/i },
+  { persona: 'ML engineer', tool: 'get_code', args: { topic: 'k-means clustering', language: 'python', source: 'ai_in_action' }, expect: /```python/i },
   { persona: 'R user', tool: 'get_code', args: { topic: 'gradient boosting xgboost tuning', language: 'r', source: 'advanced_data_analysis' }, expect: /```r/i },
   { persona: 'data scientist', tool: 'search', args: { query: 'prediction versus estimation', source: 'advanced_data_analysis' }, expect: /predict/i },
   { persona: 'IS researcher', tool: 'cite', args: { ids: ['publications:10.1287/isre.2024.1365'], style: 'apa' }, expect: /Information Systems Research/ },

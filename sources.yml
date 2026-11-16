@@ -277,26 +277,8 @@ sources:
       year: 2026
       url: https://mikenguyen13.github.io/tidy_finance_vn_vi/
 
-  - id: mlpy
-    title: Machine Learning in Python
-    summary: >-
-      Machine learning theory and industry applications in Python: supervised
-      learning, regularization, optimization, matrix factorization, credit
-      scoring and approval, fraud detection, text similarity, approximate
-      nearest neighbors, multi-armed bandits, and two-sided matching.
-    repo: mlpy
-    format: jupyter-book
-    site: https://mikenguyen13.github.io/mlpy/
-    github: https://github.com/mikenguyen13/mlpy
-    text_access: full
-    license: { text: CC-BY-SA-4.0, code: unspecified }
-    citation:
-      key: Nguyen2021MLPy
-      type: book
-      title: Machine Learning in Python
-      authors: *mike
-      year: 2021
-      url: https://mikenguyen13.github.io/mlpy/
+  # Machine Learning in Python (mlpy) was retired on 2026-11-11: its site now redirects
+  # to AI in Action, which carries its content, so it is no longer indexed.
 
   - id: social_theory
     title: "Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business"

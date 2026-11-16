@@ -12,7 +12,7 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 <a href="https://mcptry.com/servers/io.github.mikenguyen13/research-methods-mcp"><img src="https://mcptry.com/badge/io.github.mikenguyen13/research-methods-mcp" alt="mcptry: live status and score"></a>
 </p>
 
-The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 9 books, an R package, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
+The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 8 books, an R package, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
 
 The server works with Claude, ChatGPT, Amazon Bedrock AgentCore, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
 
@@ -80,15 +80,14 @@ All tools are read-only. The server makes no calls to language models and stores
 <!-- sources:start -->
 | Work | Code | Sections | Served | License |
 | --- | --- | ---: | --- | --- |
-| [A Guide on Data Analysis](https://mike-data-analysis.share.connect.posit.cloud/) | Python, R | 1,635 | Full text | CC BY-NC-SA 4.0 |
+| [A Guide on Data Analysis](https://mike-data-analysis.share.connect.posit.cloud/) | Python, R | 1,634 | Full text | CC BY-NC-SA 4.0 |
 | [causalverse: The All-in-One Causal Inference Toolkit](https://mikenguyen13.github.io/causalverse/) | R | 1,163 | Full text and function reference | GPL-3.0 |
-| [Credit Scoring: Theory, Methods, and Practice](https://mikenguyen13.github.io/credit_score/) | Python | 2,639 | Full text | CC BY 4.0 text, MIT code |
-| [Marketing Research: A Technical and Academic Treatment](https://mike-marketing-research.share.connect.posit.cloud/) | Python, R | 1,842 | Excerpts and code; full text on the website | All rights reserved text, MIT code |
-| [AI in Action: A Reference for Artificial Intelligence](https://mikenguyen13.github.io/ai_in_action/) | Julia, Python | 5,978 | Excerpts and code; full text on the website | All rights reserved |
-| [Advanced Data Analysis](https://advanced-data-analysis.netlify.app/) | Python, R | 1,844 | Full text | CC BY 4.0 |
-| [Applying Tidy Finance with Python to Vietnam](https://mikenguyen13.github.io/tidy_finance_vn/) | Python | 1,345 | Excerpts and code; full text on the website | All rights reserved |
-| [Tài Chính Ứng Dụng với Python](https://mikenguyen13.github.io/tidy_finance_vn_vi/) | Python | 1,309 | Excerpts and code; full text on the website | All rights reserved |
-| [Machine Learning in Python](https://mikenguyen13.github.io/mlpy/) | Python | 361 | Full text | CC BY-SA 4.0 |
+| [Credit Scoring: Theory, Methods, and Practice](https://mikenguyen13.github.io/credit_score/) | Python | 2,625 | Full text | CC BY 4.0 text, MIT code |
+| [Marketing Research: A Technical and Academic Treatment](https://mike-marketing-research.share.connect.posit.cloud/) | Python, R | 1,997 | Excerpts and code; full text on the website | All rights reserved text, MIT code |
+| [AI in Action: A Reference for Artificial Intelligence](https://mikenguyen13.github.io/ai_in_action/) | Julia, Python | 6,266 | Excerpts and code; full text on the website | All rights reserved |
+| [Advanced Data Analysis](https://advanced-data-analysis.netlify.app/) | Python, R | 1,834 | Full text | CC BY 4.0 |
+| [Applying Tidy Finance with Python to Vietnam](https://mikenguyen13.github.io/tidy_finance_vn/) | Python | 1,331 | Excerpts and code; full text on the website | All rights reserved |
+| [Tài Chính Ứng Dụng với Python](https://mikenguyen13.github.io/tidy_finance_vn_vi/) | Python | 1,310 | Excerpts and code; full text on the website | All rights reserved |
 | [Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business](https://mikenguyen13.github.io/social-theory/) | R | 1,118 | Full text | CC BY 4.0 text, MIT code |
 | [Research Articles and Publications](https://orcid.org/0000-0002-3432-8595) | — | 7 | Abstracts, DOIs, and citations | Publishers' terms |
 
