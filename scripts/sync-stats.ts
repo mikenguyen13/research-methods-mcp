@@ -61,6 +61,36 @@ const APP_CLIENTS = [
 const TOOLS = ['search', 'fetch', 'choose_method', 'get_code', 'cite', 'list_sources', 'other'];
 /** Columns of the hand-kept experiment log (one row per experiment in the growth plan). */
 const EXPERIMENTS_HEADER = ['id', 'channel', 'change', 'metric', 'start', 'end', 'baseline', 'target', 'result', 'decision'];
+interface PlannedExperiment {
+  id: string;
+  priority: number;
+  channel: string;
+  change: string;
+  metric: string;
+  start: string;
+  end: string;
+  baseline: string;
+  target: string;
+  result: string;
+  decision: string;
+}
+
+/**
+ * The experiment log is kept by hand in the sheet (results and decisions are typed in
+ * there). While the tab is empty it is seeded from `scripts/experiments.json`, the
+ * experiments of the growth plan; once it has rows the sync never touches it.
+ */
+export async function seedExperiments(sheet: Pick<Sheet, 'create' | 'read' | 'write'>) {
+  await sheet.create('experiments', EXPERIMENTS_HEADER);
+  if ((await sheet.read('experiments')).length) return;
+  const planned = JSON.parse(readFileSync(new URL('./experiments.json', import.meta.url), 'utf8')) as PlannedExperiment[];
+  await sheet.write(
+    'experiments',
+    EXPERIMENTS_HEADER,
+    planned.map((e) => [e.id, `${e.channel} (P${e.priority})`, e.change, e.metric, e.start, e.end, e.baseline, e.target, e.result, e.decision]),
+  );
+}
+
 /** Days re-read on each run; the sheet keeps everything older. A first run backfills. */
 const RECENT_DAYS = 3;
 const BACKFILL_DAYS = 400;
@@ -684,7 +714,7 @@ export async function main() {
   await run('Search Console', () => syncSearchConsole(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
   // Filled in by hand; the sync only creates it, never writes to it again.
-  await run('Experiments tab', () => sheet.create('experiments', EXPERIMENTS_HEADER));
+  await run('Experiments tab', () => seedExperiments(sheet));
   // `order` lets a dashboard table keep this row order (sort by it ascending).
   await sheet.write(
     'summary',
