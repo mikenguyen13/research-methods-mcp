@@ -87,7 +87,13 @@ export async function seedExperiments(sheet: Pick<Sheet, 'create' | 'read' | 'wr
   await sheet.write(
     'experiments',
     EXPERIMENTS_HEADER,
-    planned.map((e) => [e.id, `${e.channel} (P${e.priority})`, e.change, e.metric, e.start, e.end, e.baseline, e.target, e.result, e.decision]),
+    // Free text such as "+25%" or "+1 percentage point" would be parsed as a number or a
+    // formula (USER_ENTERED); a leading apostrophe keeps it as text.
+    planned.map((e) =>
+      [e.id, `${e.channel} (P${e.priority})`, e.change, e.metric, e.start, e.end, e.baseline, e.target, e.result, e.decision].map((v) =>
+        /^[+=\-@]/.test(v) ? `'${v}` : v,
+      ),
+    ),
   );
 }
 
