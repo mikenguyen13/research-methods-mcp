@@ -10,7 +10,9 @@
 //   - ORCID, OpenAlex, and Crossref (public, no key): published volumes and citations, once a day.
 //
 // The repository is public, so this script never prints a count: Action logs only
-// show which tabs were written and how many rows they hold.
+// show which tabs were written and how many rows they hold. The one public number file,
+// stats/bio.json, holds round milestones (500,000 readers, 200 countries) for the bio
+// page, and the workflow commits it only when a milestone changes.
 //
 // Environment:
 //   STATS_SHEET_ID                      the spreadsheet id (from its URL)
@@ -25,7 +27,7 @@
 //   GITHUB_TOKEN                        optional, raises the GitHub API rate limit
 
 import { createSign } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 /** Google Analytics 4 properties of the book sites (property id → label). */
 const GA_PROPERTIES: Record<string, string> = {
@@ -739,6 +741,19 @@ export function reachRows(list: Reach[]): Row[] {
   ];
 }
 
+/**
+ * The public bio numbers, rounded down to a milestone so they read as "more than" and the
+ * file changes only a few times a year: readers and views to the leading digit's place
+ * (529,152 is 500,000; 1,076,993 is 1,000,000), countries to the 50 below (218 is 200).
+ */
+export function bioMilestones(readers: number, views: number, countries: number) {
+  const lead = (n: number) => {
+    const step = n >= 10 ? 10 ** Math.floor(Math.log10(n)) : 1;
+    return Math.floor(n / step) * step;
+  };
+  return { readers: lead(readers), views: lead(views), countries: Math.floor(countries / 50) * 50 };
+}
+
 const BIO_DAILY = ['date', 'series_volumes', 'citations', 'readers_all_books', 'countries', 'engaged_sessions_all_time', 'github_stars'];
 
 async function syncBio(sheet: Sheet, token: string) {
@@ -783,6 +798,10 @@ async function syncBio(sheet: Sheet, token: string) {
   // A partial read would understate the totals, so the tab and the history wait for a full one.
   if (reach.length === Object.keys(GA_PROPERTIES).length) {
     await sheet.write('reach', ['book', 'readers', 'views', 'engaged_sessions', 'countries', 'since'], rows);
+    const [, readers, views, , countries] = rows[0];
+    const bio = bioMilestones(Number(readers), Number(views), Number(countries));
+    writeFileSync(new URL('../stats/bio.json', import.meta.url), `${JSON.stringify(bio, null, 2)}
+`);
   }
 
   if (!errors.length) {

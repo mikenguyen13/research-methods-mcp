@@ -7,13 +7,15 @@
 # GitHub OIDC token (from main) and nothing else, so no secret is stored anywhere.
 # Skipped until the STATS_SHEET_ID variable is set. The script prints no counts,
 # because this repository's Action logs are public. Setup: docs/DASHBOARD.md.
+# The one public output is stats/bio.json (round milestones the bio page shows), which is
+# committed only when a milestone changes, so commits are rare.
 name: Usage dashboard
 on:
   schedule:
     - cron: '23 * * * *'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   id-token: write
 concurrency:
   group: stats
@@ -44,3 +46,12 @@ jobs:
           STATS_SHEET_ID: ${{ vars.STATS_SHEET_ID }}
           GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
           GITHUB_TOKEN: ${{ github.token }}
+      - name: Publish the bio milestones if they changed
+        if: ${{ !cancelled() }}
+        run: |
+          git diff --quiet -- stats/bio.json && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Update the bio milestones' -- stats/bio.json
+          git pull --rebase --quiet
+          git push

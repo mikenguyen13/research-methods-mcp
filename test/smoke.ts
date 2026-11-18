@@ -17,7 +17,7 @@ import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
-import { bookSites, coveringProperty, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes } from '../scripts/sync-stats.ts';
+import { bioMilestones, bookSites, coveringProperty, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -339,6 +339,9 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
       JSON.stringify(reach) === JSON.stringify([['All books', 60, 90, 13, 3, '2020-01'], ['B', 50, 60, 9, 2, '2020-01'], ['A', 10, 30, 4, 2, '2021-05']]),
       `reach rows total the books, count each country once, and drop empty books: ${JSON.stringify(reach)}`,
     );
+    const bio = bioMilestones(529152, 1076993, 218);
+    check(JSON.stringify(bio) === '{"readers":500000,"views":1000000,"countries":200}', `bio numbers round down to milestones: ${JSON.stringify(bio)}`);
+    check(JSON.stringify(bioMilestones(9, 0, 49)) === '{"readers":9,"views":0,"countries":0}', 'small bio numbers stay whole and never go negative');
   }
 
   check((await fetch(`${ubase}/stats`)).status === 404 && (await fetch(`${ubase}/stats?key=wrong`)).status === 404, '/stats is hidden without the key');

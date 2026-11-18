@@ -6,7 +6,7 @@ sources), and GitHub stars. It runs in the cloud, so it can be opened from any d
 any time, and it costs nothing.
 
 **Dashboard:** https://datastudio.google.com/reporting/32b8df75-bc4b-442b-8cf4-c3eb48a5fbfa
-(pages *Overview* and *Locations*; visible only to the owner's Google account).
+(pages *Overview*, *Growth & experiments*, *Locations*, and *Bio*; visible only to the owner's Google account).
 
 ```
 Upstash Redis (MCP counters) ─┐
@@ -147,6 +147,12 @@ from `bio_daily` for `series_volumes`, `citations`, `readers_all_books`, and `co
 (aggregation **Max**, date range **Last 7 days**, so each shows the latest day); a time
 series of `citations` and `readers_all_books` by `date`; and tables of `reach` and
 `citations` (sorted by `readers` and `citations`).
+
+The bio page (mikenguyen.netlify.app) reads `stats/bio.json` from this repository: readers,
+views, and countries rounded down to a milestone (`bioMilestones`), so it says "more than
+half a million" rather than an exact count. The sync rewrites the file when it reads the
+full reach, and the workflow commits it only when a milestone changes. If the file cannot
+be fetched, the page keeps the numbers written into it.
 
 How far each number can be trusted when quoting it:
 
