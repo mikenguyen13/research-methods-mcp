@@ -95,9 +95,13 @@ re-read only the last three days. The sheet gets these tabs:
 | `gsc_daily` | day and book: Google Search clicks, impressions, click-through, average position (after step 8) |
 | `gsc_top` | the top 50 queries and the top 50 pages per book over the last 28 days (replaced each run) |
 | `experiments` | one experiment from the growth plan, filled in by hand; the sync creates the tab once and never writes to it again |
+| `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in all book-site sessions (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status` |
 | `github_daily` | day and repository: stars, forks, watchers |
 | `github_latest` | repository: current stars, forks, watchers |
 | `summary` | headline metric: last 7 complete days, the 7 before, change in %, last 28 days; `order` keeps the row order |
+| `reach` | book, over each Google Analytics property's whole history: readers (total users), views, engaged sessions, countries with at least one engaged session, first month with data (`since`); an `All books` row on top. Rewritten once a day |
+| `citations` | each work with a DOI on the ORCID record: type, year, `citations` (the larger of `openalex` and `crossref`), and whether it is a volume of the Springer series. Rewritten once a day |
+| `bio_daily` | day: Springer series volumes, citations (all works), readers and countries (all books), all-time engaged sessions, GitHub stars. One row a day, for watching the bio numbers grow |
 | `updated` | the time of the last successful write |
 
 A run fails (and GitHub emails you) when a source stops answering; the other sources
@@ -135,6 +139,63 @@ event) are the number to judge experiments by, because a large part of the views
 automated (one-page visits at one view per visitor, often from a single country or
 referrer). A tab written before
 the `engaged_sessions` column existed is re-read in full once, so the column has history.
+
+### Bio numbers (page *Bio*)
+
+Add `bio_daily`, `reach`, and `citations` as data sources, then a page with: scorecards
+from `bio_daily` for `series_volumes`, `citations`, `readers_all_books`, and `countries`
+(aggregation **Max**, date range **Last 7 days**, so each shows the latest day); a time
+series of `citations` and `readers_all_books` by `date`; and tables of `reach` and
+`citations` (sorted by `readers` and `citations`).
+
+How far each number can be trusted when quoting it:
+
+- **Readers** start when each book's Google Analytics 4 property did (the `since`
+  column). Visits counted before it, under Universal Analytics or on bookdown.org, are
+  not included, so the true total is higher. `All books` adds the books together: one
+  person who read two books counts twice.
+- **Readers and views include automated visits** (see engaged sessions above).
+  `engaged_sessions` and `countries` count only real reading, so they are the safer
+  numbers to quote.
+- **Citations** come from OpenAlex and Crossref by DOI. Google Scholar has no API and
+  counts more, chiefly citations of the open web books, which have no DOI; check Scholar
+  by hand before quoting it. A work missing from the ORCID record is not counted (in
+  November 2026, the chapters of volume 2 were not on ORCID).
+- **Series volumes** are books on the ORCID record with a Springer DOI (prefix
+  `10.1007`), so a new volume appears once it is added to ORCID.
+
+### Reading the experiment scorecard
+
+Each experiment's metric is defined in `MEASURES` in `scripts/sync-stats.ts`; the
+dates and the `decision` column come from the `experiments` tab, so changing a start
+date there moves its windows. Rates are scaled to the unit of the plan's target (a day,
+a week, or 28 days), so a run shorter than 28 days still compares with the baseline.
+
+- `adjusted_change_pct` = (1 + change) / (1 + all-books change) - 1. It keeps a term
+  break or a holiday from reading as lift (or as a loss). It is a before-and-after
+  comparison against all books, not a randomized test: several experiments that start
+  in the same weeks share it.
+- `status`: `not started`; `start date passed; not shipped` (the decision still
+  says `planned`: set it to `running` on the day the change goes live); `too early`
+  (under 7 days); `target met`; `improving; below target` (adjusted change of +10% or
+  more); `declining` (-10% or less); `no clear change yet`; `ended: ...` after its end
+  date. Decide keep or stop at the end date and type it in `decision` and `result`.
+- E10 (Google Scholar) has no numeric target; check Scholar by hand each month.
+- E7's treated-versus-held-out comparison needs page-level numbers, which the sync does
+  not read yet; the scorecard shows the total.
+
+### Tagging links for experiments
+
+The scorecard finds an experiment's visits by these tags, so every link an experiment
+publishes carries them (see "Source labels" in `docs/LISTING.md`):
+
+- Book links: `utm_source` = the site or app the link is on, `utm_medium` = `social`,
+  `video`, `forum`, `email`, `course`, `directory`, `ai-tool` or `talk`, and
+  `utm_campaign` = the experiment id and a slug: `e6-syllabus-causal`,
+  `e11-zalo-did`, `e14-video-did`, `e15-launch-hn`.
+- Links the server returns are tagged automatically (E4):
+  `utm_source=research-methods-mcp&utm_medium=ai-tool&utm_campaign=e4-<tool>`.
+- MCP endpoint links: `?src=<label>` (`book-<id>`, `youtube`, `linkedin`, ...).
 
 ### 8. Search Console (pending)
 

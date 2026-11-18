@@ -7,6 +7,7 @@
 //   - Book sites: Google Analytics 4, through the Analytics Data API, and Google Search
 //     Console for every property shared with the service account.
 //   - GitHub: stars, forks, and watchers of this repository and each book repository.
+//   - ORCID, OpenAlex, and Crossref (public, no key): published volumes and citations, once a day.
 //
 // The repository is public, so this script never prints a count: Action logs only
 // show which tabs were written and how many rows they hold.
@@ -303,6 +304,7 @@ export function mcpRows(days: { date: string; counts: Record<string, number> }[]
 const written: {
   mcp?: Row[];
   mcpSrc?: Row[];
+  clients?: Row[];
   books?: Row[];
   github?: Row[];
   githubHistory?: Row[];
@@ -323,7 +325,8 @@ async function syncMcp(sheet: Sheet) {
     ['date', 'connections', 'app_connections', 'bot_connections', 'tool_calls', ...TOOLS.map((t) => `tool_${t}`), 'prompts', 'resource_reads'],
     written.mcp,
   );
-  await sheet.write('mcp_clients', ['date', 'client', 'kind', 'connections'], merge(await sheet.read('mcp_clients'), clients, fresh));
+  written.clients = merge(await sheet.read('mcp_clients'), clients, fresh);
+  await sheet.write('mcp_clients', ['date', 'client', 'kind', 'connections'], written.clients);
   written.mcpSrc = merge(await sheet.read('mcp_src'), sources, fresh);
   await sheet.write('mcp_src', ['date', 'src', 'connections', 'tool_calls'], written.mcpSrc);
 }
@@ -627,6 +630,169 @@ async function syncGithub(sheet: Sheet) {
   );
 }
 
+// ---------------------------------------------------------------- Bio numbers
+
+/**
+ * The numbers worth quoting in a bio, refreshed once a day: readers and countries over
+ * each book site's whole Google Analytics history, the published volumes and their
+ * citations (from the ORCID record and OpenAlex), and GitHub stars. `bio_daily` keeps one
+ * row per day so their growth can be watched.
+ */
+const ORCID = '0000-0002-3432-8595';
+/** Google Analytics 4 accepts no start date earlier than this; it means "since the property began". */
+const GA_EPOCH = '2015-08-14';
+
+export interface OrcidWork {
+  type: string;
+  title: string;
+  doi: string;
+  year: string;
+}
+
+/** Works with a DOI from ORCID's public works list (one summary per group). */
+export function orcidWorks(record: any): OrcidWork[] {
+  return (record?.group ?? []).flatMap((g: any) => {
+    const w = g['work-summary']?.[0];
+    const doi = (g['external-ids']?.['external-id'] ?? []).find((x: any) => x['external-id-type'] === 'doi')?.['external-id-value'];
+    return w && doi
+      ? [{ type: String(w.type), title: String(w.title?.title?.value ?? ''), doi: String(doi).toLowerCase(), year: String(w['publication-date']?.year?.value ?? '') }]
+      : [];
+  });
+}
+
+/** Volumes of the Springer series: books (not chapters) with a Springer DOI (prefix 10.1007). */
+export const seriesVolumes = (works: OrcidWork[]) => works.filter((w) => w.type === 'book' && w.doi.startsWith('10.1007/'));
+
+/** A count from a JSON API, or undefined when the work is not indexed there (404). */
+async function countFrom(url: string, pick: (j: any) => number): Promise<number | undefined> {
+  const res = await fetch(url, { headers: { 'user-agent': 'research-methods-stats' } });
+  if (res.status === 404) return undefined;
+  if (!res.ok) throw new Error(`${new URL(url).host}: ${res.status}`);
+  return pick(await res.json());
+}
+
+/**
+ * Citations of each work by DOI, from OpenAlex and Crossref; each misses some, so the
+ * larger is kept. (OpenAlex's DOI filter misses recent books, so each DOI is looked up
+ * directly.) Google Scholar has no API and usually counts more, since it also finds
+ * citations of the open web books, which have no DOI: this is a floor that moves the
+ * same way, and Scholar is checked by hand.
+ */
+export async function workCitations(works: OrcidWork[]): Promise<Map<string, { openalex?: number; crossref?: number }>> {
+  const out = new Map<string, { openalex?: number; crossref?: number }>();
+  for (const w of works) {
+    const openalex = await countFrom(`https://api.openalex.org/works/doi:${w.doi}?select=cited_by_count`, (j) => j.cited_by_count);
+    // Crossref holds only DOIs it registered (not Zenodo's DataCite ones), hence the 404s.
+    const crossref = w.doi.startsWith('10.5281/')
+      ? undefined
+      : await countFrom(`https://api.crossref.org/works/${w.doi}`, (j) => j.message['is-referenced-by-count']);
+    out.set(w.doi, { openalex, crossref });
+  }
+  return out;
+}
+
+export const bestCount = (c: { openalex?: number; crossref?: number } | undefined) => Math.max(c?.openalex ?? 0, c?.crossref ?? 0);
+
+interface Reach {
+  book: string;
+  readers: number;
+  views: number;
+  engaged: number;
+  since: string;
+  /** Countries with at least one engaged session (automated one-page visits are not). */
+  countries: Set<string>;
+}
+
+/** All-time readers, views, engaged sessions, first month, and countries of one GA property. */
+async function lifetimeReach(token: string, id: string, book: string): Promise<Reach> {
+  const dateRanges = [{ startDate: GA_EPOCH, endDate: 'today' }];
+  const r = await google<{ reports: GaReport[] }>(token, `https://analyticsdata.googleapis.com/v1beta/properties/${id}:batchRunReports`, {
+    method: 'POST',
+    body: JSON.stringify({
+      requests: [
+        { dateRanges, metrics: [{ name: 'totalUsers' }, { name: 'screenPageViews' }, { name: 'engagedSessions' }] },
+        { dateRanges, dimensions: [{ name: 'yearMonth' }], metrics: [{ name: 'screenPageViews' }], orderBys: [{ dimension: { dimensionName: 'yearMonth' } }], limit: 1 },
+        { dateRanges, dimensions: [{ name: 'country' }], metrics: [{ name: 'engagedSessions' }], limit: 1000 },
+      ],
+    }),
+  });
+  const [totals, first, geo] = r.reports;
+  const m = totals.rows?.[0]?.metricValues.map((v) => Number(v.value)) ?? [0, 0, 0];
+  const ym = first.rows?.[0]?.dimensionValues[0].value ?? '';
+  const countries = new Set(
+    (geo.rows ?? []).filter((x) => Number(x.metricValues[0].value) > 0 && x.dimensionValues[0].value !== '(not set)').map((x) => x.dimensionValues[0].value),
+  );
+  return { book, readers: m[0], views: m[1], engaged: m[2], since: ym ? `${ym.slice(0, 4)}-${ym.slice(4)}` : '', countries };
+}
+
+/** The `reach` tab: one row per book, largest first, and an "All books" row on top. */
+export function reachRows(list: Reach[]): Row[] {
+  const all = new Set(list.flatMap((r) => [...r.countries]));
+  const sum = (k: 'readers' | 'views' | 'engaged') => list.reduce((t, r) => t + r[k], 0);
+  const since = list.map((r) => r.since).filter(Boolean).sort()[0] ?? '';
+  return [
+    ['All books', sum('readers'), sum('views'), sum('engaged'), all.size, since],
+    ...list
+      .filter((r) => r.readers || r.views)
+      .sort((a, b) => b.readers - a.readers)
+      .map((r) => [r.book, r.readers, r.views, r.engaged, r.countries.size, r.since]),
+  ];
+}
+
+const BIO_DAILY = ['date', 'series_volumes', 'citations', 'readers_all_books', 'countries', 'engaged_sessions_all_time', 'github_stars'];
+
+async function syncBio(sheet: Sheet, token: string) {
+  const today = iso(new Date());
+  const stored = await sheet.read('bio_daily');
+  // Once a day is enough, and all-time Analytics reports cost more quota than daily ones.
+  if (stored.some((r) => r[0] === today)) return;
+
+  const errors: string[] = [];
+  let works: OrcidWork[] = [];
+  let cites = 0;
+  try {
+    const res = await fetch(`https://pub.orcid.org/v3.0/${ORCID}/works`, { headers: { accept: 'application/json', 'user-agent': 'research-methods-stats' } });
+    if (!res.ok) throw new Error(`ORCID: ${res.status}`);
+    works = orcidWorks(await res.json());
+    const counts = await workCitations(works);
+    cites = works.reduce((t, w) => t + bestCount(counts.get(w.doi)), 0);
+    const blank = (n: number | undefined) => n ?? '';
+    await sheet.write(
+      'citations',
+      ['title', 'type', 'year', 'doi', 'citations', 'openalex', 'crossref', 'series_volume'],
+      works
+        .map((w) => {
+          const c = counts.get(w.doi);
+          return [w.title, w.type, w.year, w.doi, bestCount(c), blank(c?.openalex), blank(c?.crossref), seriesVolumes([w]).length ? 'yes' : ''] as Row;
+        })
+        .sort((a, b) => Number(b[4]) - Number(a[4]) || String(a[0]).localeCompare(String(b[0]))),
+    );
+  } catch (e) {
+    errors.push((e as Error).message.slice(0, 200));
+  }
+
+  const reach: Reach[] = [];
+  for (const [id, book] of Object.entries(GA_PROPERTIES)) {
+    try {
+      reach.push(await lifetimeReach(token, id, book));
+    } catch (e) {
+      errors.push(`${book}: ${(e as Error).message.slice(0, 200)}`);
+    }
+  }
+  const rows = reachRows(reach);
+  // A partial read would understate the totals, so the tab and the history wait for a full one.
+  if (reach.length === Object.keys(GA_PROPERTIES).length) {
+    await sheet.write('reach', ['book', 'readers', 'views', 'engaged_sessions', 'countries', 'since'], rows);
+  }
+
+  if (!errors.length) {
+    const stars = (written.github ?? []).reduce((t, r) => t + Number(r[2]), 0);
+    const [, readers, , engaged, countries] = rows[0];
+    const row: Row = [today, seriesVolumes(works).length, cites, readers, countries, engaged, written.github ? stars : ''];
+    await sheet.write('bio_daily', BIO_DAILY, merge(stored, [row], new Set([today])));
+  } else throw new Error(`bio numbers incomplete:\n${errors.join('\n')}`);
+}
+
 /**
  * Headline numbers over complete days (yesterday and before): the last 7 days, the 7
  * before them, the change, and the last 28 days. Precomputed so the dashboard can show
@@ -685,6 +851,229 @@ export function summaryRows(w: typeof written, now = new Date()): Row[] {
   return out;
 }
 
+// ---------------------------------------------------------------- Experiment scorecard
+
+/** One experiment's metric as a daily series: a count, or a numerator and denominator. */
+interface Series {
+  num: Map<string, number>;
+  den?: Map<string, number>;
+}
+
+interface Measure {
+  /** What is measured, in words, for the scorecard row. */
+  label: string;
+  /**
+   * rate: average per `per` days (window sums are scaled, so a part window still compares);
+   * ratio: 100 × num / den over the window (a percentage);
+   * level: the value on the window's last day with data (stars);
+   * total: the sum since the start (one-off launches).
+   */
+  kind: 'rate' | 'ratio' | 'level' | 'total';
+  per?: 1 | 7 | 28;
+  /** The goal in the same unit; a function of the baseline for relative targets. */
+  target?: number | ((baseline: number) => number);
+  /** Compare the change with all book-site sessions, so a seasonal swing is not read as lift. */
+  control?: boolean;
+  series: (w: typeof written) => Series | undefined;
+}
+
+const AI_SOURCE = /chatgpt|openai|claude|anthropic|perplexity|gemini|copilot|bard|deepseek|you\.com|phind/i;
+const LMS_SOURCE = /canvas|instructure|blackboard|moodle|brightspace|d2l|schoology|sakai|classroom\.google/i;
+
+/** Sums column `col` per date over the rows `keep` accepts; undefined when the tab was not synced. */
+export function byDate(rows: Row[] | undefined, col: number, keep: (r: Row) => boolean = () => true): Map<string, number> | undefined {
+  if (!rows) return undefined;
+  const m = new Map<string, number>();
+  for (const r of rows) if (keep(r)) m.set(String(r[0]), (m.get(String(r[0])) ?? 0) + (Number(r[col]) || 0));
+  return m;
+}
+
+const one = (num: Map<string, number> | undefined): Series | undefined => num && { num };
+const pair = (num?: Map<string, number>, den?: Map<string, number>): Series | undefined => (num && den ? { num, den } : undefined);
+
+/**
+ * How each experiment in scripts/experiments.json is read off the tabs this sync writes.
+ * Column numbers follow the tab headers above (books_sources: date, book, channel, source,
+ * medium, sessions, active_users, views, engaged_sessions; and so on).
+ */
+export const MEASURES: Record<string, Measure> = {
+  E1: {
+    label: 'Organic Search sessions a week, A Guide on Data Analysis',
+    kind: 'rate', per: 7, target: 450, control: true,
+    series: (w) => one(byDate(w.sources, 5, (r) => r[1] === 'A Guide on Data Analysis' && r[2] === 'Organic Search')),
+  },
+  E2: {
+    label: 'Organic Search sessions a week per book: Marketing Research, AI in Action, Credit Scoring (average)',
+    kind: 'rate', per: 7, target: 30, control: true,
+    series: (w) => {
+      const m = byDate(w.sources, 5, (r) => ['Marketing Research', 'AI in Action', 'Credit Scoring'].includes(String(r[1])) && r[2] === 'Organic Search');
+      return one(m && new Map([...m].map(([d, v]) => [d, v / 3])));
+    },
+  },
+  E3: {
+    label: 'MCP connections a week from book-site links (src=book-*)',
+    kind: 'rate', per: 7, target: 50,
+    series: (w) => one(byDate(w.mcpSrc, 2, (r) => String(r[1]).startsWith('book-'))),
+  },
+  E4: {
+    label: 'Book sessions from server links (utm_source=research-methods-mcp), % of fetch calls',
+    kind: 'ratio', target: 5,
+    series: (w) => pair(byDate(w.campaigns, 5, (r) => r[3] === 'research-methods-mcp'), byDate(w.mcp, 6)),
+  },
+  E5: {
+    label: 'MCP connections a day from AI applications',
+    kind: 'rate', per: 1, target: 100,
+    series: (w) => one(byDate(w.mcp, 2)),
+  },
+  E6: {
+    label: 'Book sessions per 28 days from courses (LMS referrers or utm_medium=course)',
+    kind: 'rate', per: 28, target: 150, control: true,
+    series: (w) => one(byDate(w.sources, 5, (r) => r[4] === 'course' || LMS_SOURCE.test(String(r[3])))),
+  },
+  E7: {
+    label: 'Book sessions per 28 days from AI assistants',
+    kind: 'rate', per: 28, target: 200, control: true,
+    series: (w) => one(byDate(w.sources, 5, (r) => AI_SOURCE.test(String(r[3])))),
+  },
+  E8: {
+    label: 'Google Search click-through %, data_analysis (Search Console)',
+    kind: 'ratio', target: (b) => b + 1,
+    series: (w) => pair(byDate(w.gsc, 2, (r) => r[1] === 'data_analysis'), byDate(w.gsc, 3, (r) => r[1] === 'data_analysis')),
+  },
+  E9: {
+    label: 'Book sessions per 28 days referred by another book site',
+    kind: 'rate', per: 28, target: 250, control: true,
+    series: (w) => {
+      const hosts = new Set(bookSites().map((b) => new URL(b.site).hostname));
+      return one(byDate(w.sources, 5, (r) => r[4] === 'referral' && hosts.has(String(r[3]))));
+    },
+  },
+  E10: {
+    label: 'Book sessions per 28 days from Google Scholar',
+    kind: 'rate', per: 28, control: true,
+    series: (w) => one(byDate(w.sources, 5, (r) => /scholar\.google/.test(String(r[3])))),
+  },
+  E11: {
+    label: 'Book views per 28 days from Vietnam',
+    kind: 'rate', per: 28, target: 600, control: true,
+    series: (w) => one(byDate(w.geo, 6, (r) => r[2] === 'Vietnam')),
+  },
+  E12: {
+    label: 'GitHub stars, data_analysis + causalverse',
+    kind: 'level', target: 160,
+    series: (w) => one(byDate(w.githubHistory, 2, (r) => r[1] === 'data_analysis' || r[1] === 'causalverse')),
+  },
+  E13: {
+    label: 'Book sessions per 28 days from Cross Validated and Reddit',
+    kind: 'rate', per: 28, target: 100, control: true,
+    series: (w) => one(byDate(w.sources, 5, (r) => /stats\.stackexchange|reddit/.test(String(r[3])))),
+  },
+  E14: {
+    label: 'Engaged sessions since start from links tagged utm_campaign=e14-*',
+    kind: 'total', target: 300,
+    series: (w) => one(byDate(w.campaigns, 6, (r) => /^e14/i.test(String(r[2])))),
+  },
+  E15: {
+    label: 'Engaged sessions since start from links tagged utm_campaign=e15-*',
+    kind: 'total', target: 1000,
+    series: (w) => one(byDate(w.campaigns, 6, (r) => /^e15/i.test(String(r[2])))),
+  },
+  E16: {
+    label: 'MCP connections a day from Claude clients',
+    kind: 'rate', per: 1, target: (b) => b * 1.25,
+    series: (w) => one(byDate(w.clients, 3, (r) => /^(anthropic|claude)/.test(String(r[1])))),
+  },
+};
+
+export const SCORECARD_HEADER = [
+  'id', 'channel', 'measured', 'start', 'end', 'days_in', 'baseline', 'current', 'target',
+  'change_pct', 'all_books_change_pct', 'adjusted_change_pct', 'status', 'decision',
+];
+
+const addDays = (d: string, n: number) => iso(new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000));
+const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000) + 1;
+
+/** A measure's value over [from, to]; undefined when it cannot be computed. */
+function windowValue(m: Pick<Measure, 'kind' | 'per'>, s: Series, from: string, to: string): number | undefined {
+  const inWindow = (map: Map<string, number>) => [...map.keys()].filter((d) => d >= from && d <= to);
+  const sum = (map: Map<string, number>) => inWindow(map).reduce((t, d) => t + map.get(d)!, 0);
+  if (m.kind === 'level') {
+    const last = inWindow(s.num).sort().at(-1);
+    return last ? s.num.get(last) : undefined;
+  }
+  if (m.kind === 'ratio') {
+    const den = s.den ? sum(s.den) : 0;
+    return den ? (100 * sum(s.num)) / den : undefined;
+  }
+  if (m.kind === 'total') return sum(s.num);
+  return (sum(s.num) / daysBetween(from, to)) * (m.per ?? 1);
+}
+
+export interface PlannedRow {
+  id: string;
+  channel: string;
+  start: string;
+  end: string;
+  decision: string;
+}
+
+/**
+ * One row per experiment: its metric over the 28 days before it started (baseline) and
+ * over its run so far (at most its last 28 complete days), the change, the same change in
+ * all book-site sessions, and the change net of that, (1 + change) / (1 + all-books change)
+ * - 1, a rough difference-in-differences that keeps a term break or holiday from reading
+ * as lift. Dates and decisions come from the hand-kept experiments tab.
+ */
+export function scorecardRows(w: typeof written, plan: PlannedRow[], now = new Date()): Row[] {
+  const yesterday = lastDays(2, now)[1];
+  const control = byDate(w.books, 4);
+  return plan.map((e) => {
+    const m = MEASURES[e.id];
+    const head = [e.id, e.channel, m?.label ?? '(measured by hand)', e.start, e.end];
+    const blank = (status: string): Row => [...head, '', '', '', '', '', '', '', status, e.decision];
+    if (!m) return blank('measured by hand');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e.start)) return blank('no start date');
+    const s = m.series(w);
+    if (!s) return blank('no data (source not synced this run)');
+
+    const before: [string, string] = [addDays(e.start, -28), addDays(e.start, -1)];
+    const end = e.end && e.end < yesterday ? e.end : yesterday;
+    const daysIn = yesterday < e.start ? 0 : daysBetween(e.start, end);
+    const from = m.kind === 'rate' || m.kind === 'ratio' ? [e.start, addDays(end, -27)].sort()[1] : e.start;
+    const baseline = m.kind === 'total' ? 0 : windowValue(m, s, ...before);
+    const current = daysIn ? windowValue(m, s, from, end) : undefined;
+    const target = typeof m.target === 'function' ? (baseline === undefined ? undefined : m.target(baseline)) : m.target;
+    const change = baseline && current !== undefined ? current / baseline - 1 : undefined;
+    const ctrlBase = control && windowValue({ kind: 'rate', per: 1 }, { num: control }, ...before);
+    const ctrlNow = control && daysIn ? windowValue({ kind: 'rate', per: 1 }, { num: control }, from, end) : undefined;
+    const ctrl = m.control && ctrlBase && ctrlNow !== undefined ? ctrlNow / ctrlBase - 1 : undefined;
+    const adjusted = change !== undefined && ctrl !== undefined ? (1 + change) / (1 + ctrl) - 1 : change;
+
+    let status: string;
+    if (!daysIn) status = 'not started';
+    else if (/^planned$/i.test(e.decision.trim())) status = 'start date passed; not shipped (decision is "planned")';
+    else if (daysIn < 7) status = `too early (${daysIn} days)`;
+    else if (target !== undefined && current !== undefined && current >= target) status = 'target met';
+    else if (adjusted === undefined) status = current ? 'running; no baseline to compare' : 'running; nothing measured yet';
+    else if (adjusted >= 0.1) status = 'improving; below target';
+    else if (adjusted <= -0.1) status = 'declining';
+    else status = 'no clear change yet';
+    if (daysIn && e.end && yesterday > e.end) status = `ended: ${status}`;
+
+    const pct = (x: number | undefined) => (x === undefined ? '' : Math.round(x * 100));
+    const val = (x: number | undefined) => (x === undefined ? '' : Math.round(x * 10) / 10);
+    return [...head, daysIn, val(baseline), val(current), val(target), pct(change), pct(ctrl), pct(adjusted), status, e.decision];
+  });
+}
+
+/** Rewrites the experiment_scorecard tab from the experiments tab and this run's data. */
+async function syncScorecard(sheet: Sheet) {
+  const plan = (await sheet.read('experiments'))
+    .filter((r) => r[0])
+    .map((r) => ({ id: String(r[0]), channel: String(r[1] ?? ''), start: serialDate(r[4] ?? ''), end: serialDate(r[5] ?? ''), decision: String(r[9] ?? '') }));
+  await sheet.write('experiment_scorecard', SCORECARD_HEADER, scorecardRows(written, plan));
+}
+
 // ---------------------------------------------------------------- main
 
 export async function main() {
@@ -719,8 +1108,12 @@ export async function main() {
   await run('Book-site campaigns', () => syncBookCampaigns(sheet, token));
   await run('Search Console', () => syncSearchConsole(sheet, token));
   await run('GitHub', () => syncGithub(sheet));
+  // After GitHub, so the day's row carries the star count.
+  await run('Bio numbers', () => syncBio(sheet, token));
   // Filled in by hand; the sync only creates it, never writes to it again.
   await run('Experiments tab', () => seedExperiments(sheet));
+  // Rewritten each run: every experiment's metric before and since its start.
+  await run('Experiment scorecard', () => syncScorecard(sheet));
   // `order` lets a dashboard table keep this row order (sort by it ascending).
   await sheet.write(
     'summary',

@@ -139,7 +139,9 @@ Changing a published listing's URL is an edit to that listing (Anthropic reviews
 while the live listing stays up; the registry needs a new version). Book links use UTM
 parameters instead: `utm_source` = the site or app the link is on, `utm_medium` = one of
 `social`, `video`, `forum`, `email`, `course`, `directory`, `ai-tool`, `talk`, and
-`utm_campaign` = the experiment id and a short slug (`e14-video-did`). Never put a
+`utm_campaign` = the experiment id and a short slug (`e14-video-did`). Links the server
+itself returns to the books are tagged `utm_source=research-methods-mcp&utm_medium=ai-tool&utm_campaign=e4-<tool>`
+(`tagLink` in `src/library.ts`); citations are not tagged. Never put a
 person's name, email, or institution in a UTM value, and never tag links between the
 books themselves. Tagged sessions appear in the dashboard's `books_campaigns` tab.
 

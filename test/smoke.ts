@@ -5,7 +5,7 @@
 // Run: npm test            (SAMPLES=1 also prints sample answers)
 
 import { createSign, generateKeyPairSync } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createServer as createHttpServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
@@ -17,7 +17,7 @@ import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
-import { bookSites, coveringProperty, mcpRows } from '../scripts/sync-stats.ts';
+import { bookSites, coveringProperty, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -82,7 +82,10 @@ check((py.structuredContent?.results ?? []).length > 0, 'search with language fi
 // fetch: OpenAI shape, citation footer, long sections split
 const f = await call('fetch', { id: hits[0].id });
 const doc = f.structuredContent;
-check(doc?.id === hits[0].id && doc.text.includes('Source:') && doc.url === hits[0].url && doc.metadata?.cite_as, 'fetch returns text, url, citation');
+check(doc?.id === hits[0].id && doc.text.includes('Source:') && doc.url === hits[0].url.replace('utm_campaign=e4-search', 'utm_campaign=e4-fetch') && doc.metadata?.cite_as, 'fetch returns text, url, citation');
+const bookHit = hits.find((h: any) => !/doi.org/.test(h.url));
+check(/[?&]utm_source=research-methods-mcp&utm_medium=ai-tool&utm_campaign=e4-search(#|$)/.test(bookHit?.url ?? ''), `book links carry UTM tags (E4): ${bookHit?.url}`);
+check(doc.text.includes(doc.url), 'fetch text links the tagged url');
 const longest = lib.index.records.reduce((a, b) => (b.md.length > a.md.length ? b : a));
 const p1 = (await call('fetch', { id: longest.id })).structuredContent;
 const p2 = (await call('fetch', { id: `${longest.id}@2` })).structuredContent;
@@ -286,6 +289,23 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
       JSON.stringify(sources) === '[["2026-11-15","anthropic",0,1],["2026-11-15","glama",2,5]]',
       `the sync turns source counters into mcp_src rows: ${JSON.stringify(sources)}`,
     );
+    // Experiment scorecard: E1 doubles while all book sessions stay flat; E5 has not started.
+    const day = (i: number) => new Date(Date.UTC(2026, 10, 1) + i * 86_400_000).toISOString().slice(0, 10);
+    const sourcesRows = Array.from({ length: 56 }, (_, i) => [day(i), 'A Guide on Data Analysis', 'Organic Search', 'google', 'organic', i < 28 ? 10 : 20, 0, 0, 0]);
+    const booksRows = Array.from({ length: 56 }, (_, i) => [day(i), 'A Guide on Data Analysis', 0, 0, 100, 0, 0]);
+    const plan = [
+      { id: 'E1', channel: 'SEO', start: day(28), end: day(80), decision: 'running' },
+      { id: 'E5', channel: 'MCP', start: day(90), end: day(100), decision: 'planned' },
+      { id: 'E2', channel: 'SEO', start: day(10), end: day(80), decision: 'planned' },
+    ];
+    const card = scorecardRows({ sources: sourcesRows, books: booksRows, mcp: [] }, plan, new Date(Date.parse(day(56)) + 3_600_000));
+    check(
+      card[0][5] === 28 && card[0][6] === 70 && card[0][7] === 140 && card[0][9] === 100 && card[0][10] === 0 && card[0][11] === 100,
+      `scorecard computes baseline, current, and adjusted change: ${JSON.stringify(card[0])}`,
+    );
+    check(card[1][12] === 'not started' && /not shipped/.test(String(card[2][12])), `scorecard statuses: ${card[1][12]} / ${card[2][12]}`);
+    const ids = JSON.parse(readFileSync(new URL('../scripts/experiments.json', import.meta.url), 'utf8')).map((e: { id: string }) => e.id);
+    check(ids.every((id: string) => id === 'E10' || MEASURES[id]?.target !== undefined), 'every planned experiment but E10 has a measured target');
     const sites = bookSites();
     check(
       sites.some((s) => s.book === 'credit_score' && s.site === 'https://mikenguyen13.github.io/credit_score/') && sites.at(-1)?.book === 'mcp_site',
@@ -298,6 +318,26 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
         coveringProperty('https://advanced-data-analysis.netlify.app/', props) === 'sc-domain:netlify.app' &&
         coveringProperty('https://mike-data-analysis.share.connect.posit.cloud/', props) === undefined,
       'each book site maps to the most specific Search Console property that covers it',
+    );
+    const orcid = {
+      group: [
+        { 'external-ids': { 'external-id': [{ 'external-id-type': 'doi', 'external-id-value': '10.1007/978-3-032-01858-8' }] }, 'work-summary': [{ type: 'book', title: { title: { value: 'Foundations' } }, 'publication-date': { year: { value: '2025' } } }] },
+        { 'external-ids': { 'external-id': [{ 'external-id-type': 'doi', 'external-id-value': '10.1007/978-3-032-01858-8_2' }] }, 'work-summary': [{ type: 'book-chapter', title: { title: { value: 'Prerequisites' } } }] },
+        { 'external-ids': { 'external-id': [{ 'external-id-type': 'doi', 'external-id-value': '10.5281/ZENODO.1' }] }, 'work-summary': [{ type: 'book', title: { title: { value: 'Field Guide' } } }] },
+        { 'external-ids': { 'external-id': [] }, 'work-summary': [{ type: 'book', title: { title: { value: 'No DOI' } } }] },
+      ],
+    };
+    const works = orcidWorks(orcid);
+    check(works.length === 3 && works[2].doi === '10.5281/zenodo.1', 'ORCID works keep those with a DOI, lowercased');
+    check(seriesVolumes(works).map((w) => w.title).join() === 'Foundations', 'series volumes are Springer books, not chapters or other books');
+    const reach = reachRows([
+      { book: 'A', readers: 10, views: 30, engaged: 4, since: '2021-05', countries: new Set(['Vietnam', 'France']) },
+      { book: 'B', readers: 50, views: 60, engaged: 9, since: '2020-01', countries: new Set(['France', 'Peru']) },
+      { book: 'C', readers: 0, views: 0, engaged: 0, since: '', countries: new Set() },
+    ]);
+    check(
+      JSON.stringify(reach) === JSON.stringify([['All books', 60, 90, 13, 3, '2020-01'], ['B', 50, 60, 9, 2, '2020-01'], ['A', 10, 30, 4, 2, '2021-05']]),
+      `reach rows total the books, count each country once, and drop empty books: ${JSON.stringify(reach)}`,
     );
   }
 

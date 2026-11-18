@@ -119,7 +119,7 @@ export function createServer(lib: Library): McpServer {
     },
     async ({ question, language, limit }) => {
       const methods = lib.methods(question, limit ?? 3).map((m) => lib.describeMethod(m, language));
-      const related = lib.search(question, { limit: 5, language });
+      const related = lib.search(question, { limit: 5, language, campaign: 'choose_method' });
       if (!methods.length && !related.length) return fail('No matching methods. Try describing the data and how treatment was assigned.');
       const lines: string[] = [];
       for (const [i, m] of methods.entries()) {

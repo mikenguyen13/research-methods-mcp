@@ -46,6 +46,22 @@ export interface SearchOptions {
   limit?: number;
   /** Only sections that contain code (in `language`, if given). */
   withCode?: boolean;
+  /** utm_campaign on the returned links (the tool that returned them); default "search". */
+  campaign?: string;
+}
+
+/**
+ * Tags a link to one of the books' own sites with utm_source=research-methods-mcp,
+ * utm_medium=ai-tool, and utm_campaign=e4-<tool> (docs/LISTING.md, "Source labels"), so Google Analytics counts the visits that
+ * come through the server (books_campaigns on the dashboard; experiment E4). Links
+ * elsewhere (DOIs, journals) and links already tagged are returned unchanged.
+ */
+export function tagLink(url: string, campaign: string, sites: readonly string[]): string {
+  if (!sites.some((s) => url.startsWith(s)) || /[?&]utm_source=/.test(url)) return url;
+  const hash = url.indexOf('#');
+  const [base, frag] = hash < 0 ? [url, ''] : [url.slice(0, hash), url.slice(hash)];
+  const q = `utm_source=research-methods-mcp&utm_medium=ai-tool&utm_campaign=e4-${encodeURIComponent(campaign)}`;
+  return `${base}${base.includes('?') ? '&' : '?'}${q}${frag}`;
 }
 
 export interface SearchHit {
@@ -105,6 +121,8 @@ export class Library {
   readonly byId: Map<string, SectionRecord>;
   readonly works: Map<string, Work>;
   readonly sources: Map<string, SourceMeta>;
+  /** The books' own sites; links to them are tagged for Google Analytics (see tagLink). */
+  private readonly sites: string[];
   private sectionSearch?: MiniSearch<SectionRecord>;
   private methodSearch: MiniSearch<MethodEntry>;
 
@@ -118,6 +136,7 @@ export class Library {
     this.byId = new Map(index.records.map((r) => [r.id, r]));
     this.works = new Map(index.works.map((w) => [w.key, w]));
     this.sources = new Map(index.sources.map((s) => [s.id, s]));
+    this.sites = index.sources.map((s) => s.site).filter(Boolean);
 
     this.methodSearch = new MiniSearch<MethodEntry>({
       fields: ['name', 'keywords', 'use_when', 'family'],
@@ -187,6 +206,11 @@ export class Library {
     return w ? formatWork(w, style) : '';
   }
 
+  /** A section link as handed to a reader, tagged with the tool that returned it. */
+  link(url: string, campaign: string): string {
+    return tagLink(url, campaign, this.sites);
+  }
+
   pathOf(record: SectionRecord): string {
     const src = this.sources.get(record.source);
     return [src?.title ?? record.source, ...record.crumbs, record.title].join(' > ');
@@ -226,7 +250,7 @@ export class Library {
       hits.push({
         id: rec.id,
         title: rec.title,
-        url: rec.url,
+        url: this.link(rec.url, opts.campaign ?? 'search'),
         source: rec.source,
         path: this.pathOf(rec),
         snippet: snippet(proseOf(rec.md), terms),
@@ -252,18 +276,19 @@ export class Library {
     const works = this.worksFor(rec);
     const citeAs = works[0] ? formatWork(works[0], 'apa') : '';
     const body = parts[part - 1];
+    const url = this.link(rec.url, 'fetch');
     const more = part < parts.length ? `\n\n[Section continues: fetch id \`${rec.id}@${part + 1}\` for part ${part + 1} of ${parts.length}.]` : '';
     const teaserNote = src.text_access === 'teaser'
-      ? `\n\n[The full text of this section is on the book's website: ${rec.url}]`
+      ? `\n\n[The full text of this section is on the book's website: ${url}]`
       : '';
     const text =
       `# ${rec.title}\n\n_${this.pathOf(rec)}_\n\n${body}${more}${teaserNote}\n\n---\n` +
-      `Source: ${citeAs}\nSection: "${rec.title}", ${rec.url}`;
+      `Source: ${citeAs}\nSection: "${rec.title}", ${url}`;
     return {
       id: part > 1 ? `${rec.id}@${part}` : rec.id,
       title: rec.title,
       text,
-      url: rec.url,
+      url,
       metadata: {
         source: rec.source,
         work: src.title,
@@ -285,10 +310,10 @@ export class Library {
 
   code(topic: string, opts: { language?: Language; source?: string; limit?: number }) {
     const limit = Math.min(Math.max(opts.limit ?? 4, 1), 10);
-    let hits = this.search(topic, { ...opts, withCode: true, limit: limit * 3 });
+    let hits = this.search(topic, { ...opts, withCode: true, limit: limit * 3, campaign: 'get_code' });
     let note = '';
     if (opts.language && !hits.length) {
-      hits = this.search(topic, { source: opts.source, withCode: true, limit: limit * 3 });
+      hits = this.search(topic, { source: opts.source, withCode: true, limit: limit * 3, campaign: 'get_code' });
       if (hits.length) {
         const langs = [...new Set(hits.flatMap((h) => h.languages))].join(', ');
         note = `No ${opts.language} code for this topic in the library; showing ${langs} code instead.`;
@@ -315,7 +340,7 @@ export class Library {
       results.push({
         id: rec.id,
         title: rec.title,
-        url: rec.url,
+        url: h.url,
         path: h.path,
         packages: rec.pkgs.filter((p) => !p.includes('::')).slice(0, 12),
         blocks: kept.map((b) => ({ language: b.lang, code: b.code })),
@@ -378,7 +403,7 @@ export class Library {
     const sections = m.sections
       .map((id) => this.byId.get(id))
       .filter((r): r is SectionRecord => Boolean(r))
-      .map((r) => ({ id: r.id, title: r.title, url: r.url, source: r.source, languages: r.langs, cite_as: this.citeAs(r) }));
+      .map((r) => ({ id: r.id, title: r.title, url: this.link(r.url, 'choose_method'), source: r.source, languages: r.langs, cite_as: this.citeAs(r) }));
     const packages = language
       ? { [language]: m.packages[language as 'r' | 'python'] ?? [] }
       : m.packages;

@@ -210,7 +210,7 @@ sources:
       type: book
       title: "AI in Action: A Reference for Artificial Intelligence"
       authors: *mike
-      year: 2025
+      year: 2026
       url: https://mikenguyen13.github.io/ai_in_action/
 
   - id: advanced_data_analysis
