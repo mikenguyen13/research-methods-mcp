@@ -17,7 +17,7 @@ import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
-import { bioMilestones, bookSites, coveringProperty, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes } from '../scripts/sync-stats.ts';
+import { bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -304,6 +304,32 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
       `scorecard computes baseline, current, and adjusted change: ${JSON.stringify(card[0])}`,
     );
     check(card[1][12] === 'not started' && /not shipped/.test(String(card[2][12])), `scorecard statuses: ${card[1][12]} / ${card[2][12]}`);
+    // A rate whose data starts inside the 28-day baseline window averages over the days with
+    // data, not the whole window: 10 a day from day 50 on is a baseline of 10, not 10 × 6 / 28.
+    const mcpRowsShort = Array.from({ length: 12 }, (_, i) => [day(50 + i), 0, i < 6 ? 10 : 12]);
+    const short = scorecardRows(
+      { sources: sourcesRows, books: booksRows, mcp: mcpRowsShort },
+      [{ id: 'E5', channel: 'MCP', start: day(56), end: day(90), decision: 'running' }],
+      new Date(Date.parse(day(62)) + 3_600_000),
+    );
+    check(
+      short[0][6] === 10 && short[0][7] === 12 && short[0][9] === 20 && /baseline from 6 of 28 days/.test(String(short[0][12])),
+      `scorecard baseline uses only days with data: ${JSON.stringify(short[0])}`,
+    );
+    // Rows a run wrote twice (same date, book and breakdown) collapse to one, keeping the fuller count.
+    const deduped = dedupe(
+      [
+        ['2026-11-14', 'A', 'Vietnam', 2, 14, 3],
+        ['2026-11-14', 'A', 'Vietnam', 2, 14, 4],
+        ['2026-11-14', 'A', 'Vietnam', 2, 14, 3],
+        ['2026-11-14', 'B', 'Vietnam', 1, 1, 0],
+      ],
+      3,
+    );
+    check(
+      JSON.stringify(deduped) === '[["2026-11-14","A","Vietnam",2,14,4],["2026-11-14","B","Vietnam",1,1,0]]',
+      `duplicate sheet rows collapse to one per key: ${JSON.stringify(deduped)}`,
+    );
     const ids = JSON.parse(readFileSync(new URL('../scripts/experiments.json', import.meta.url), 'utf8')).map((e: { id: string }) => e.id);
     check(ids.every((id: string) => id === 'E10' || MEASURES[id]?.target !== undefined), 'every planned experiment but E10 has a measured target');
     const sites = bookSites();

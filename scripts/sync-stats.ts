@@ -226,6 +226,31 @@ export function merge(stored: Row[], fresh: Row[], freshDates: Set<string>): Row
   );
 }
 
+/**
+ * One row per key (the first `keyCols` columns: date, book, and any breakdown). When a key
+ * repeats, the row with the larger metric total wins (Google Analytics only adds to a day's
+ * numbers as it processes late hits), and on a tie the later row, so fresh rows beat stored
+ * ones. Removes duplicates an earlier run wrote, and keeps new ones from piling up.
+ */
+export function dedupe(rows: Row[], keyCols: number): Row[] {
+  const total = (r: Row) => r.slice(keyCols).reduce<number>((t, v) => t + (Number(v) || 0), 0);
+  const byKey = new Map<string, Row>();
+  for (const r of rows) {
+    const key = JSON.stringify(r.slice(0, keyCols));
+    const had = byKey.get(key);
+    if (!had || total(r) >= total(had)) byKey.set(key, r);
+  }
+  return [...byKey.values()];
+}
+
+/**
+ * Google Analytics reads dates in each property's own time zone, while the dates a run
+ * re-reads (lastDays) are UTC. Asking for those exact calendar dates, rather than
+ * "NdaysAgo" to "today" in the property's zone, keeps the two lists the same, so every day
+ * a run reads replaces its stored rows instead of being added a second time.
+ */
+const gaRange = (dates: string[]) => ({ startDate: dates.at(-1)!, endDate: dates[0] });
+
 // ---------------------------------------------------------------- MCP usage (Upstash)
 
 /** The hosted endpoint's origin, from package.json (config.endpoint without /mcp). */
@@ -356,7 +381,7 @@ async function syncBooks(sheet: Sheet, token: string) {
       const r = await google<GaReport>(token, `https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`, {
         method: 'POST',
         body: JSON.stringify({
-          dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
+          dateRanges: [gaRange(dates)],
           dimensions: [{ name: 'date' }],
           metrics: [{ name: 'activeUsers' }, { name: 'newUsers' }, { name: 'sessions' }, { name: 'screenPageViews' }, { name: 'engagedSessions' }],
           limit: 1000,
@@ -374,7 +399,7 @@ async function syncBooks(sheet: Sheet, token: string) {
   const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
   const fresh = new Set(dates);
   const kept = stored.filter((r) => !fresh.has(String(r[0])) || failedBooks.has(String(r[1])));
-  const merged = [...kept, ...rows].sort(
+  const merged = dedupe([...kept, ...rows], 2).sort(
     (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])),
   );
   written.books = merged;
@@ -414,7 +439,8 @@ interface GaTab {
 async function syncGaTab(sheet: Sheet, token: string, spec: GaTab): Promise<Row[]> {
   const stored = await sheet.read(spec.tab);
   const n = current(stored, spec.header) ? RECENT_DAYS : DETAIL_DAYS;
-  const dates = new Set(lastDays(n));
+  const dateList = lastDays(n);
+  const dates = new Set(dateList);
   const oldest = lastDays(DETAIL_DAYS).at(-1)!;
   const rows: Row[] = [];
   const failed: string[] = [];
@@ -423,7 +449,7 @@ async function syncGaTab(sheet: Sheet, token: string, spec: GaTab): Promise<Row[
       const r = await google<GaReport>(token, `https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`, {
         method: 'POST',
         body: JSON.stringify({
-          dateRanges: [{ startDate: `${n - 1}daysAgo`, endDate: 'today' }],
+          dateRanges: [gaRange(dateList)],
           dimensions: ['date', ...spec.dimensions].map((name) => ({ name })),
           metrics: spec.metrics.map((name) => ({ name })),
           ...(spec.dimensionFilter ? { dimensionFilter: spec.dimensionFilter } : {}),
@@ -441,7 +467,8 @@ async function syncGaTab(sheet: Sheet, token: string, spec: GaTab): Promise<Row[
   }
   const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
   const kept = stored.filter((r) => String(r[0]) >= oldest && (!dates.has(String(r[0])) || failedBooks.has(String(r[1]))));
-  const merged = [...kept, ...rows].sort(
+  // The columns before the metrics (date, book, breakdown) identify a row.
+  const merged = dedupe([...kept, ...rows], spec.header.length - spec.metrics.length).sort(
     (a, b) =>
       String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || Number(b[spec.sortCol]) - Number(a[spec.sortCol]),
   );
@@ -876,6 +903,11 @@ export function summaryRows(w: typeof written, now = new Date()): Row[] {
 interface Series {
   num: Map<string, number>;
   den?: Map<string, number>;
+  /**
+   * The first day its tab has data. A rate is averaged over the days from then on, so a
+   * window that starts before the data does is not read as days of zero.
+   */
+  since?: string;
 }
 
 interface Measure {
@@ -907,7 +939,11 @@ export function byDate(rows: Row[] | undefined, col: number, keep: (r: Row) => b
   return m;
 }
 
-const one = (num: Map<string, number> | undefined): Series | undefined => num && { num };
+/** The earliest date in a tab's rows; undefined when the tab is empty or was not synced. */
+export const firstDate = (rows: Row[] | undefined): string | undefined =>
+  rows?.reduce<string | undefined>((min, r) => (min === undefined || String(r[0]) < min ? String(r[0]) : min), undefined);
+
+const one = (num: Map<string, number> | undefined, since?: string): Series | undefined => num && { num, since };
 const pair = (num?: Map<string, number>, den?: Map<string, number>): Series | undefined => (num && den ? { num, den } : undefined);
 
 /**
@@ -919,20 +955,20 @@ export const MEASURES: Record<string, Measure> = {
   E1: {
     label: 'Organic Search sessions a week, A Guide on Data Analysis',
     kind: 'rate', per: 7, target: 450, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => r[1] === 'A Guide on Data Analysis' && r[2] === 'Organic Search')),
+    series: (w) => one(byDate(w.sources, 5, (r) => r[1] === 'A Guide on Data Analysis' && r[2] === 'Organic Search'), firstDate(w.sources)),
   },
   E2: {
     label: 'Organic Search sessions a week per book: Marketing Research, AI in Action, Credit Scoring (average)',
     kind: 'rate', per: 7, target: 30, control: true,
     series: (w) => {
       const m = byDate(w.sources, 5, (r) => ['Marketing Research', 'AI in Action', 'Credit Scoring'].includes(String(r[1])) && r[2] === 'Organic Search');
-      return one(m && new Map([...m].map(([d, v]) => [d, v / 3])));
+      return one(m && new Map([...m].map(([d, v]) => [d, v / 3])), firstDate(w.sources));
     },
   },
   E3: {
     label: 'MCP connections a week from book-site links (src=book-*)',
     kind: 'rate', per: 7, target: 50,
-    series: (w) => one(byDate(w.mcpSrc, 2, (r) => String(r[1]).startsWith('book-'))),
+    series: (w) => one(byDate(w.mcpSrc, 2, (r) => String(r[1]).startsWith('book-')), firstDate(w.mcp)),
   },
   E4: {
     label: 'Book sessions from server links (utm_source=research-methods-mcp), % of fetch calls',
@@ -942,17 +978,17 @@ export const MEASURES: Record<string, Measure> = {
   E5: {
     label: 'MCP connections a day from AI applications',
     kind: 'rate', per: 1, target: 100,
-    series: (w) => one(byDate(w.mcp, 2)),
+    series: (w) => one(byDate(w.mcp, 2), firstDate(w.mcp)),
   },
   E6: {
     label: 'Book sessions per 28 days from courses (LMS referrers or utm_medium=course)',
     kind: 'rate', per: 28, target: 150, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => r[4] === 'course' || LMS_SOURCE.test(String(r[3])))),
+    series: (w) => one(byDate(w.sources, 5, (r) => r[4] === 'course' || LMS_SOURCE.test(String(r[3]))), firstDate(w.sources)),
   },
   E7: {
     label: 'Book sessions per 28 days from AI assistants',
     kind: 'rate', per: 28, target: 200, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => AI_SOURCE.test(String(r[3])))),
+    series: (w) => one(byDate(w.sources, 5, (r) => AI_SOURCE.test(String(r[3]))), firstDate(w.sources)),
   },
   E8: {
     label: 'Google Search click-through %, data_analysis (Search Console)',
@@ -964,18 +1000,18 @@ export const MEASURES: Record<string, Measure> = {
     kind: 'rate', per: 28, target: 250, control: true,
     series: (w) => {
       const hosts = new Set(bookSites().map((b) => new URL(b.site).hostname));
-      return one(byDate(w.sources, 5, (r) => r[4] === 'referral' && hosts.has(String(r[3]))));
+      return one(byDate(w.sources, 5, (r) => r[4] === 'referral' && hosts.has(String(r[3]))), firstDate(w.sources));
     },
   },
   E10: {
     label: 'Book sessions per 28 days from Google Scholar',
     kind: 'rate', per: 28, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => /scholar\.google/.test(String(r[3])))),
+    series: (w) => one(byDate(w.sources, 5, (r) => /scholar\.google/.test(String(r[3]))), firstDate(w.sources)),
   },
   E11: {
     label: 'Book views per 28 days from Vietnam',
     kind: 'rate', per: 28, target: 600, control: true,
-    series: (w) => one(byDate(w.geo, 6, (r) => r[2] === 'Vietnam')),
+    series: (w) => one(byDate(w.geo, 6, (r) => r[2] === 'Vietnam'), firstDate(w.geo)),
   },
   E12: {
     label: 'GitHub stars, data_analysis + causalverse',
@@ -985,7 +1021,7 @@ export const MEASURES: Record<string, Measure> = {
   E13: {
     label: 'Book sessions per 28 days from Cross Validated and Reddit',
     kind: 'rate', per: 28, target: 100, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => /stats\.stackexchange|reddit/.test(String(r[3])))),
+    series: (w) => one(byDate(w.sources, 5, (r) => /stats\.stackexchange|reddit/.test(String(r[3]))), firstDate(w.sources)),
   },
   E14: {
     label: 'Engaged sessions since start from links tagged utm_campaign=e14-*',
@@ -1000,7 +1036,7 @@ export const MEASURES: Record<string, Measure> = {
   E16: {
     label: 'MCP connections a day from Claude clients',
     kind: 'rate', per: 1, target: (b) => b * 1.25,
-    series: (w) => one(byDate(w.clients, 3, (r) => /^(anthropic|claude)/.test(String(r[1])))),
+    series: (w) => one(byDate(w.clients, 3, (r) => /^(anthropic|claude)/.test(String(r[1]))), firstDate(w.clients)),
   },
 };
 
@@ -1025,7 +1061,10 @@ function windowValue(m: Pick<Measure, 'kind' | 'per'>, s: Series, from: string, 
     return den ? (100 * sum(s.num)) / den : undefined;
   }
   if (m.kind === 'total') return sum(s.num);
-  return (sum(s.num) / daysBetween(from, to)) * (m.per ?? 1);
+  // A rate averages over the days with data only: before the tab's first day is unknown, not zero.
+  const start = s.since && s.since > from ? s.since : from;
+  if (start > to) return undefined;
+  return (inWindow(s.num).filter((d) => d >= start).reduce((t, d) => t + s.num.get(d)!, 0) / daysBetween(start, to)) * (m.per ?? 1);
 }
 
 export interface PlannedRow {
@@ -1078,6 +1117,10 @@ export function scorecardRows(w: typeof written, plan: PlannedRow[], now = new D
     else if (adjusted <= -0.1) status = 'declining';
     else status = 'no clear change yet';
     if (daysIn && e.end && yesterday > e.end) status = `ended: ${status}`;
+    // Say when the baseline rests on fewer than its 28 days, so a short one is read with care.
+    if (m.kind === 'rate' && baseline !== undefined && s.since && s.since > before[0]) {
+      status += `; baseline from ${daysBetween(s.since, before[1])} of 28 days`;
+    }
 
     const pct = (x: number | undefined) => (x === undefined ? '' : Math.round(x * 100));
     const val = (x: number | undefined) => (x === undefined ? '' : Math.round(x * 10) / 10);

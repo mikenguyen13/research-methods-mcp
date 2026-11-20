@@ -95,7 +95,7 @@ re-read only the last three days. The sheet gets these tabs:
 | `gsc_daily` | day and book: Google Search clicks, impressions, click-through, average position (after step 8) |
 | `gsc_top` | the top 50 queries and the top 50 pages per book over the last 28 days (replaced each run) |
 | `experiments` | one experiment from the growth plan, filled in by hand; the sync creates the tab once and never writes to it again |
-| `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in all book-site sessions (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status` |
+| `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in all book-site sessions (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status`. A rate is averaged over the days its tab has data, and the status says when the baseline rests on fewer than 28 days |
 | `github_daily` | day and repository: stars, forks, watchers |
 | `github_latest` | repository: current stars, forks, watchers |
 | `summary` | headline metric: last 7 complete days, the 7 before, change in %, last 28 days; `order` keeps the row order |
