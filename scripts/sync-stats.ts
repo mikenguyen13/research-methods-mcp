@@ -692,13 +692,29 @@ export function orcidWorks(record: any): OrcidWork[] {
 /** Volumes of the Springer series: books (not chapters) with a Springer DOI (prefix 10.1007). */
 export const seriesVolumes = (works: OrcidWork[]) => works.filter((w) => w.type === 'book' && w.doi.startsWith('10.1007/'));
 
-/** A count from a JSON API, or undefined when the work is not indexed there (404). */
-async function countFrom(url: string, pick: (j: any) => number): Promise<number | undefined> {
-  const res = await fetch(url, { headers: { 'user-agent': 'research-methods-stats' } });
-  if (res.status === 404) return undefined;
-  if (!res.ok) throw new Error(`${new URL(url).host}: ${res.status}`);
-  return pick(await res.json());
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * A count from a JSON API, or undefined when the work is not indexed there (404). A rate
+ * limit or overload (429, 503) is retried after the server's Retry-After, or a growing
+ * pause, up to four tries: Crossref's public pool answers a quick run of lookups with 429.
+ */
+async function countFrom(url: string, pick: (j: any) => number, tries = 4): Promise<number | undefined> {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(url, { headers: { 'user-agent': 'research-methods-stats' } });
+    if (res.status === 404) return undefined;
+    if ((res.status === 429 || res.status === 503) && attempt < tries) {
+      const wait = Number(res.headers.get('retry-after'));
+      await sleep(Number.isFinite(wait) && wait > 0 ? Math.min(wait, 60) * 1000 : 2000 * 2 ** (attempt - 1));
+      continue;
+    }
+    if (!res.ok) throw new Error(`${new URL(url).host}: ${res.status}`);
+    return pick(await res.json());
+  }
 }
+
+/** Pause between Crossref lookups, so a run of about 30 DOIs stays under its rate limit. */
+const CROSSREF_GAP_MS = 1000;
 
 /**
  * Citations of each work by DOI, from OpenAlex and Crossref; each misses some, so the
@@ -712,9 +728,11 @@ export async function workCitations(works: OrcidWork[]): Promise<Map<string, { o
   for (const w of works) {
     const openalex = await countFrom(`https://api.openalex.org/works/doi:${w.doi}?select=cited_by_count`, (j) => j.cited_by_count);
     // Crossref holds only DOIs it registered (not Zenodo's DataCite ones), hence the 404s.
-    const crossref = w.doi.startsWith('10.5281/')
-      ? undefined
-      : await countFrom(`https://api.crossref.org/works/${w.doi}`, (j) => j.message['is-referenced-by-count']);
+    let crossref: number | undefined;
+    if (!w.doi.startsWith('10.5281/')) {
+      if (out.size) await sleep(CROSSREF_GAP_MS);
+      crossref = await countFrom(`https://api.crossref.org/works/${w.doi}`, (j) => j.message['is-referenced-by-count']);
+    }
     out.set(w.doi, { openalex, crossref });
   }
   return out;
