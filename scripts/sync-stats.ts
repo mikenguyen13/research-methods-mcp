@@ -716,29 +716,63 @@ async function countFrom(url: string, pick: (j: any) => number, tries = 4): Prom
 /** Pause between Crossref lookups, so a run of about 30 DOIs stays under its rate limit. */
 const CROSSREF_GAP_MS = 1000;
 
+export interface Cites {
+  openalex?: number;
+  crossref?: number;
+}
+
+/** The counts the last run stored in the `citations` tab, by DOI (blank cells: not indexed). */
+export function storedCitations(rows: Row[]): Map<string, Cites> {
+  const num = (v: Cell | undefined) => (v === undefined || v === '' ? undefined : Number(v));
+  return new Map(rows.filter((r) => r[3]).map((r) => [String(r[3]), { openalex: num(r[5]), crossref: num(r[6]) }]));
+}
+
 /**
  * Citations of each work by DOI, from OpenAlex and Crossref; each misses some, so the
  * larger is kept. (OpenAlex's DOI filter misses recent books, so each DOI is looked up
  * directly.) Google Scholar has no API and usually counts more, since it also finds
  * citations of the open web books, which have no DOI: this is a floor that moves the
  * same way, and Scholar is checked by hand.
+ *
+ * A lookup that still fails after countFrom's retries takes the count the last run stored
+ * for that work: Crossref's public pool, shared by every GitHub runner, can answer 429 for
+ * minutes at a time, and a day-old count is a fine floor where a missing one would stop
+ * the day's bio numbers. Only a work with nothing stored is reported as missing.
  */
-export async function workCitations(works: OrcidWork[]): Promise<Map<string, { openalex?: number; crossref?: number }>> {
-  const out = new Map<string, { openalex?: number; crossref?: number }>();
+export async function workCitations(
+  works: OrcidWork[],
+  stored: Map<string, Cites> = new Map(),
+  count: typeof countFrom = countFrom,
+): Promise<{ counts: Map<string, Cites>; stale: number; missing: string[] }> {
+  const counts = new Map<string, Cites>();
+  let stale = 0;
+  const missing: string[] = [];
   for (const w of works) {
-    const openalex = await countFrom(`https://api.openalex.org/works/doi:${w.doi}?select=cited_by_count`, (j) => j.cited_by_count);
+    const look = async (source: keyof Cites, url: string, pick: (j: any) => number) => {
+      try {
+        return await count(url, pick);
+      } catch (e) {
+        if (stored.has(w.doi)) {
+          stale++;
+          return stored.get(w.doi)![source];
+        }
+        missing.push(`${(e as Error).message} (${w.doi})`);
+        return undefined;
+      }
+    };
+    const openalex = await look('openalex', `https://api.openalex.org/works/doi:${w.doi}?select=cited_by_count`, (j) => j.cited_by_count);
     // Crossref holds only DOIs it registered (not Zenodo's DataCite ones), hence the 404s.
     let crossref: number | undefined;
     if (!w.doi.startsWith('10.5281/')) {
-      if (out.size) await sleep(CROSSREF_GAP_MS);
-      crossref = await countFrom(`https://api.crossref.org/works/${w.doi}`, (j) => j.message['is-referenced-by-count']);
+      if (counts.size) await sleep(CROSSREF_GAP_MS);
+      crossref = await look('crossref', `https://api.crossref.org/works/${w.doi}`, (j) => j.message['is-referenced-by-count']);
     }
-    out.set(w.doi, { openalex, crossref });
+    counts.set(w.doi, { openalex, crossref });
   }
-  return out;
+  return { counts, stale, missing };
 }
 
-export const bestCount = (c: { openalex?: number; crossref?: number } | undefined) => Math.max(c?.openalex ?? 0, c?.crossref ?? 0);
+export const bestCount = (c: Cites | undefined) => Math.max(c?.openalex ?? 0, c?.crossref ?? 0);
 
 interface Reach {
   book: string;
@@ -814,7 +848,10 @@ async function syncBio(sheet: Sheet, token: string) {
     const res = await fetch(`https://pub.orcid.org/v3.0/${ORCID}/works`, { headers: { accept: 'application/json', 'user-agent': 'research-methods-stats' } });
     if (!res.ok) throw new Error(`ORCID: ${res.status}`);
     works = orcidWorks(await res.json());
-    const counts = await workCitations(works);
+    const { counts, stale, missing } = await workCitations(works, storedCitations(await sheet.read('citations')));
+    if (stale) console.log(`Citations: ${stale} lookups failed; kept the counts the last run stored.`);
+    // A work never counted before and not reachable now would read as uncited; wait for the next run.
+    if (missing.length) throw new Error(`citations: ${missing.join('; ')}`);
     cites = works.reduce((t, w) => t + bestCount(counts.get(w.doi)), 0);
     const blank = (n: number | undefined) => n ?? '';
     await sheet.write(

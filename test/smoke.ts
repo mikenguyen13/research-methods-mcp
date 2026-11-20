@@ -17,7 +17,7 @@ import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
-import { bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes } from '../scripts/sync-stats.ts';
+import { bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes, storedCitations, workCitations } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -356,6 +356,22 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
     const works = orcidWorks(orcid);
     check(works.length === 3 && works[2].doi === '10.5281/zenodo.1', 'ORCID works keep those with a DOI, lowercased');
     check(seriesVolumes(works).map((w) => w.title).join() === 'Foundations', 'series volumes are Springer books, not chapters or other books');
+    // The Sheets API drops a row's trailing blank cells, so the Zenodo row ends at openalex.
+    const stored = storedCitations([
+      ['Foundations', 'book', '2025', '10.1007/978-3-032-01858-8', 9, 4, 9, 'yes'],
+      ['Field Guide', 'book', '', '10.5281/zenodo.1', 3, 3],
+    ]);
+    check(stored.get('10.5281/zenodo.1')?.openalex === 3 && stored.get('10.5281/zenodo.1')?.crossref === undefined, 'stored citations read blank cells as not indexed');
+    const crossrefDown = async (url: string, pick: (j: any) => number) => {
+      if (url.includes('crossref')) throw new Error('api.crossref.org: 429');
+      return pick({ cited_by_count: 5 });
+    };
+    const cited = await workCitations(works, stored, crossrefDown);
+    const found = cited.counts.get('10.1007/978-3-032-01858-8');
+    check(
+      found?.openalex === 5 && found.crossref === 9 && cited.stale === 1 && cited.missing.length === 1 && cited.missing[0].includes('_2'),
+      `a failed Crossref lookup keeps the stored count, and only a work never stored is missing: ${JSON.stringify({ found, stale: cited.stale, missing: cited.missing })}`,
+    );
     const reach = reachRows([
       { book: 'A', readers: 10, views: 30, engaged: 4, since: '2021-05', countries: new Set(['Vietnam', 'France']) },
       { book: 'B', readers: 50, views: 60, engaged: 9, since: '2020-01', countries: new Set(['France', 'Peru']) },
