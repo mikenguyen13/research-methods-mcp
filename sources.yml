@@ -24,9 +24,15 @@ authors: &mike
 # the new one when the index is built, so the server never hands out a redirect.
 moved:
   - from: https://bookdown.org/mike/data_analysis/
-    to: https://mike-data-analysis.share.connect.posit.cloud/
+    to: https://mikenguyen13.github.io/data_analysis/
   - from: https://bookdown.org/mike/marketing_research/
-    to: https://mike-marketing-research.share.connect.posit.cloud/
+    to: https://mikenguyen13.github.io/marketing_research/
+  # The Posit Connect copies still serve the same build, but GitHub Pages is the
+  # canonical host (growth experiment E2), so links send readers there.
+  - from: https://mike-data-analysis.share.connect.posit.cloud/
+    to: https://mikenguyen13.github.io/data_analysis/
+  - from: https://mike-marketing-research.share.connect.posit.cloud/
+    to: https://mikenguyen13.github.io/marketing_research/
 
 sources:
   - id: data_analysis
@@ -38,8 +44,9 @@ sources:
       learning, mediation, sensitivity analysis, and structural IO.
     repo: data_analysis
     format: bookdown
-    # Moved from bookdown.org/mike/data_analysis (now a redirect) to Posit Connect Cloud.
-    site: https://mike-data-analysis.share.connect.posit.cloud/
+    # Moved from bookdown.org/mike/data_analysis (now a redirect). GitHub Pages is the
+    # canonical host since data_analysis b0ec9a9; the Posit Connect copy is a duplicate.
+    site: https://mikenguyen13.github.io/data_analysis/
     github: https://github.com/mikenguyen13/data_analysis
     text_access: full
     license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
@@ -51,7 +58,7 @@ sources:
       title: A Guide on Data Analysis
       authors: *mike
       year: 2020
-      url: https://mike-data-analysis.share.connect.posit.cloud/
+      url: https://mikenguyen13.github.io/data_analysis/
     # Print volumes (Springer, cited by DOI) and their chapter DOIs, from the ORCID record
     # (data/publications.json). A section is cited as its chapter, then its volume.
     volume_citations:
@@ -179,7 +186,9 @@ sources:
       measurement, empirical and structural models) with reproducible R code.
     repo: marketing_research
     format: quarto
-    site: https://mike-marketing-research.share.connect.posit.cloud/
+    # GitHub Pages is the canonical host since marketing_research 68ac7e4; the Posit
+    # Connect copy is a duplicate.
+    site: https://mikenguyen13.github.io/marketing_research/
     github: https://github.com/mikenguyen13/marketing_research
     # Prose is all rights reserved (reserved for print); code is MIT.
     text_access: teaser
@@ -190,7 +199,7 @@ sources:
       title: "Marketing Research: A Technical and Academic Treatment"
       authors: *mike
       year: 2026
-      url: https://mike-marketing-research.share.connect.posit.cloud/
+      url: https://mikenguyen13.github.io/marketing_research/
 
   - id: ai_in_action
     title: "AI in Action: A Reference for Artificial Intelligence"

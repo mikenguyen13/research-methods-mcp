@@ -95,7 +95,7 @@ re-read only the last three days. The sheet gets these tabs:
 | `gsc_daily` | day and book: Google Search clicks, impressions, click-through, average position (after step 8) |
 | `gsc_top` | the top 50 queries and the top 50 pages per book over the last 28 days (replaced each run) |
 | `experiments` | one experiment from the growth plan, filled in by hand; the sync creates the tab once and never writes to it again |
-| `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in all book-site sessions (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status`. A rate is averaged over the days its tab has data, and the status says when the baseline rests on fewer than 28 days |
+| `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in the control, engaged sessions from all channels but Direct and Unassigned (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status`. A rate is averaged over the days its tab has data, and the status says when the baseline rests on fewer than 28 days |
 | `github_daily` | day and repository: stars, forks, watchers |
 | `github_latest` | repository: current stars, forks, watchers |
 | `summary` | headline metric: last 7 complete days, the 7 before, change in %, last 28 days; `order` keeps the row order |
@@ -177,14 +177,25 @@ dates and the `decision` column come from the `experiments` tab, so changing a s
 date there moves its windows. Rates are scaled to the unit of the plan's target (a day,
 a week, or 28 days), so a run shorter than 28 days still compares with the baseline.
 
-- `adjusted_change_pct` = (1 + change) / (1 + all-books change) - 1. It keeps a term
+- `adjusted_change_pct` = (1 + change) / (1 + control change) - 1. It keeps a term
   break or a holiday from reading as lift (or as a loss). It is a before-and-after
   comparison against all books, not a randomized test: several experiments that start
   in the same weeks share it.
+- The control (`all_books_change_pct`; the column keeps its name for the report) is
+  engaged sessions on all book sites from every channel except Direct and Unassigned,
+  minus the rows the experiment itself counts (E1's control leaves out Data Analysis
+  organic search). Automated bursts land in Direct or Unassigned, or have no engaged
+  sessions: on November 19–22, 2026, about 10,000 one-page Direct visits from China made
+  all-book sessions jump 300% and read E1 as `declining`, while engaged sessions from the
+  other channels stayed at 20 to 45 a day. E11, read from `books_geo`, uses the same
+  control without leaving anything out.
 - `status`: `not started`; `start date passed; not shipped` (the decision still
   says `planned`: set it to `running` on the day the change goes live); `too early`
   (under 7 days); `target met`; `improving; below target` (adjusted change of +10% or
-  more); `declining` (-10% or less); `no clear change yet`; `ended: ...` after its end
+  more); `declining` (-10% or less); `no clear change yet`, with `(within noise)` when
+  the change is 10% or more but, for a rate, no more than twice its rough Poisson
+  standard error (from the session counts of the measure and its control in both
+  windows), as happens with small counts or short runs; `ended: ...` after its end
   date. Decide keep or stop at the end date and type it in `decision` and `result`.
 - E10 (Google Scholar) has no numeric target; check Scholar by hand each month.
 - E7's treated-versus-held-out comparison needs page-level numbers, which the sync does

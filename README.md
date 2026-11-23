@@ -80,10 +80,10 @@ All tools are read-only. The server makes no calls to language models and stores
 <!-- sources:start -->
 | Work | Code | Sections | Served | License |
 | --- | --- | ---: | --- | --- |
-| [A Guide on Data Analysis](https://mike-data-analysis.share.connect.posit.cloud/) | Python, R | 1,634 | Full text | CC BY-NC-SA 4.0 |
+| [A Guide on Data Analysis](https://mikenguyen13.github.io/data_analysis/) | Python, R | 1,634 | Full text | CC BY-NC-SA 4.0 |
 | [causalverse: The All-in-One Causal Inference Toolkit](https://mikenguyen13.github.io/causalverse/) | R | 1,163 | Full text and function reference | GPL-3.0 |
 | [Credit Scoring: Theory, Methods, and Practice](https://mikenguyen13.github.io/credit_score/) | Python | 2,625 | Full text | CC BY 4.0 text, MIT code |
-| [Marketing Research: A Technical and Academic Treatment](https://mike-marketing-research.share.connect.posit.cloud/) | Python, R | 1,997 | Excerpts and code; full text on the website | All rights reserved text, MIT code |
+| [Marketing Research: A Technical and Academic Treatment](https://mikenguyen13.github.io/marketing_research/) | Python, R | 1,997 | Excerpts and code; full text on the website | All rights reserved text, MIT code |
 | [AI in Action: A Reference for Artificial Intelligence](https://mikenguyen13.github.io/ai_in_action/) | Julia, Python | 6,266 | Excerpts and code; full text on the website | All rights reserved |
 | [Advanced Data Analysis](https://advanced-data-analysis.netlify.app/) | Python, R | 1,834 | Full text | CC BY 4.0 |
 | [Applying Tidy Finance with Python to Vietnam](https://mikenguyen13.github.io/tidy_finance_vn/) | Python | 1,331 | Excerpts and code; full text on the website | All rights reserved |

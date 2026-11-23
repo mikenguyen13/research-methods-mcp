@@ -978,13 +978,46 @@ interface Measure {
   per?: 1 | 7 | 28;
   /** The goal in the same unit; a function of the baseline for relative targets. */
   target?: number | ((baseline: number) => number);
-  /** Compare the change with all book-site sessions, so a seasonal swing is not read as lift. */
+  /** Compare the change with real reading on all book sites (see `controlSeries`), so a seasonal swing is not read as lift. */
   control?: boolean;
+  /** The books_sources rows a measure counts, left out of its control so the control does not contain the outcome. */
+  own?: (r: Row) => boolean;
   series: (w: typeof written) => Series | undefined;
 }
 
 const AI_SOURCE = /chatgpt|openai|claude|anthropic|perplexity|gemini|copilot|bard|deepseek|you\.com|phind/i;
 const LMS_SOURCE = /canvas|instructure|blackboard|moodle|brightspace|d2l|schoology|sakai|classroom\.google/i;
+/**
+ * Channels where automated visits land. Bursts of thousands of one-page visits from one
+ * region arrive as Direct (November 19-22, 2026, from China) or Unassigned, and some
+ * referral spam has no engagement (November 5, 2026); neither moves engaged sessions
+ * from the other channels, which stay at 20 to 45 a day.
+ */
+const AUTOMATED_CHANNELS = new Set(['Direct', 'Unassigned']);
+
+/**
+ * The scorecard's control: engaged sessions on all book sites from search, referrals, AI
+ * assistants, social, and the other channels a visitor arrives through, outside the
+ * channels in AUTOMATED_CHANNELS, minus the rows the measure itself counts.
+ */
+export function controlSeries(w: typeof written, own?: (r: Row) => boolean): Series | undefined {
+  return one(byDate(w.sources, 8, (r) => !AUTOMATED_CHANNELS.has(String(r[2])) && !own?.(r)), firstDate(w.sources));
+}
+
+/** A rate of books_sources sessions over the rows `keep` accepts, averaged over `books` books. */
+function sourcesRate(keep: (r: Row) => boolean, books = 1): Pick<Measure, 'own' | 'series'> {
+  return {
+    own: keep,
+    series: (w) => {
+      const m = byDate(w.sources, 5, keep);
+      return one(m && (books === 1 ? m : new Map([...m].map(([d, v]) => [d, v / books]))), firstDate(w.sources));
+    },
+  };
+}
+
+let hosts: Set<string> | undefined;
+/** The host names of the book sites in sources.yml. */
+const bookHosts = () => (hosts ??= new Set(bookSites().map((b) => new URL(b.site).hostname)));
 
 /** Sums column `col` per date over the rows `keep` accepts; undefined when the tab was not synced. */
 export function byDate(rows: Row[] | undefined, col: number, keep: (r: Row) => boolean = () => true): Map<string, number> | undefined {
@@ -1010,15 +1043,12 @@ export const MEASURES: Record<string, Measure> = {
   E1: {
     label: 'Organic Search sessions a week, A Guide on Data Analysis',
     kind: 'rate', per: 7, target: 450, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => r[1] === 'A Guide on Data Analysis' && r[2] === 'Organic Search'), firstDate(w.sources)),
+    ...sourcesRate((r) => r[1] === 'A Guide on Data Analysis' && r[2] === 'Organic Search'),
   },
   E2: {
     label: 'Organic Search sessions a week per book: Marketing Research, AI in Action, Credit Scoring (average)',
     kind: 'rate', per: 7, target: 30, control: true,
-    series: (w) => {
-      const m = byDate(w.sources, 5, (r) => ['Marketing Research', 'AI in Action', 'Credit Scoring'].includes(String(r[1])) && r[2] === 'Organic Search');
-      return one(m && new Map([...m].map(([d, v]) => [d, v / 3])), firstDate(w.sources));
-    },
+    ...sourcesRate((r) => ['Marketing Research', 'AI in Action', 'Credit Scoring'].includes(String(r[1])) && r[2] === 'Organic Search', 3),
   },
   E3: {
     label: 'MCP connections a week from book-site links (src=book-*)',
@@ -1038,12 +1068,12 @@ export const MEASURES: Record<string, Measure> = {
   E6: {
     label: 'Book sessions per 28 days from courses (LMS referrers or utm_medium=course)',
     kind: 'rate', per: 28, target: 150, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => r[4] === 'course' || LMS_SOURCE.test(String(r[3]))), firstDate(w.sources)),
+    ...sourcesRate((r) => r[4] === 'course' || LMS_SOURCE.test(String(r[3]))),
   },
   E7: {
     label: 'Book sessions per 28 days from AI assistants',
     kind: 'rate', per: 28, target: 200, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => AI_SOURCE.test(String(r[3]))), firstDate(w.sources)),
+    ...sourcesRate((r) => AI_SOURCE.test(String(r[3]))),
   },
   E8: {
     label: 'Google Search click-through %, data_analysis (Search Console)',
@@ -1053,15 +1083,12 @@ export const MEASURES: Record<string, Measure> = {
   E9: {
     label: 'Book sessions per 28 days referred by another book site',
     kind: 'rate', per: 28, target: 250, control: true,
-    series: (w) => {
-      const hosts = new Set(bookSites().map((b) => new URL(b.site).hostname));
-      return one(byDate(w.sources, 5, (r) => r[4] === 'referral' && hosts.has(String(r[3]))), firstDate(w.sources));
-    },
+    ...sourcesRate((r) => r[4] === 'referral' && bookHosts().has(String(r[3]))),
   },
   E10: {
     label: 'Book sessions per 28 days from Google Scholar',
     kind: 'rate', per: 28, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => /scholar\.google/.test(String(r[3]))), firstDate(w.sources)),
+    ...sourcesRate((r) => /scholar\.google/.test(String(r[3]))),
   },
   E11: {
     label: 'Book views per 28 days from Vietnam',
@@ -1076,7 +1103,7 @@ export const MEASURES: Record<string, Measure> = {
   E13: {
     label: 'Book sessions per 28 days from Cross Validated and Reddit',
     kind: 'rate', per: 28, target: 100, control: true,
-    series: (w) => one(byDate(w.sources, 5, (r) => /stats\.stackexchange|reddit/.test(String(r[3]))), firstDate(w.sources)),
+    ...sourcesRate((r) => /stats\.stackexchange|reddit/.test(String(r[3]))),
   },
   E14: {
     label: 'Engaged sessions since start from links tagged utm_campaign=e14-*',
@@ -1133,13 +1160,14 @@ export interface PlannedRow {
 /**
  * One row per experiment: its metric over the 28 days before it started (baseline) and
  * over its run so far (at most its last 28 complete days), the change, the same change in
- * all book-site sessions, and the change net of that, (1 + change) / (1 + all-books change)
- * - 1, a rough difference-in-differences that keeps a term break or holiday from reading
- * as lift. Dates and decisions come from the hand-kept experiments tab.
+ * the control (`controlSeries`: engaged sessions from the channels bots do not reach, net
+ * of the measure's own rows; the column keeps its name all_books_change_pct for the
+ * dashboard), and the change net of that, (1 + change) / (1 + control change) - 1, a rough
+ * difference-in-differences that keeps a term break or holiday from reading as lift.
+ * Dates and decisions come from the hand-kept experiments tab.
  */
 export function scorecardRows(w: typeof written, plan: PlannedRow[], now = new Date()): Row[] {
   const yesterday = lastDays(2, now)[1];
-  const control = byDate(w.books, 4);
   return plan.map((e) => {
     const m = MEASURES[e.id];
     const head = [e.id, e.channel, m?.label ?? '(measured by hand)', e.start, e.end];
@@ -1157,10 +1185,19 @@ export function scorecardRows(w: typeof written, plan: PlannedRow[], now = new D
     const current = daysIn ? windowValue(m, s, from, end) : undefined;
     const target = typeof m.target === 'function' ? (baseline === undefined ? undefined : m.target(baseline)) : m.target;
     const change = baseline && current !== undefined ? current / baseline - 1 : undefined;
-    const ctrlBase = control && windowValue({ kind: 'rate', per: 1 }, { num: control }, ...before);
-    const ctrlNow = control && daysIn ? windowValue({ kind: 'rate', per: 1 }, { num: control }, from, end) : undefined;
-    const ctrl = m.control && ctrlBase && ctrlNow !== undefined ? ctrlNow / ctrlBase - 1 : undefined;
+    const c = m.control ? controlSeries(w, m.own) : undefined;
+    const ctrlBase = c && windowValue({ kind: 'rate', per: 1 }, c, ...before);
+    const ctrlNow = c && daysIn ? windowValue({ kind: 'rate', per: 1 }, c, from, end) : undefined;
+    const ctrl = ctrlBase && ctrlNow !== undefined ? ctrlNow / ctrlBase - 1 : undefined;
     const adjusted = change !== undefined && ctrl !== undefined ? (1 + change) / (1 + ctrl) - 1 : change;
+    // A rate's change is clear when log(1 + adjusted change) is more than twice its rough
+    // Poisson standard error, sqrt of the sum of 1 / count over the baseline and current
+    // windows of the measure and of its control. A small control (E1's is about 10
+    // engaged sessions a day) or a short run then reads as noise, not as a trend.
+    const count = (x: Series | undefined, a: string, b: string) => (x ? windowValue({ kind: 'total' }, x, a, b) ?? 0 : 0);
+    const counts = m.kind !== 'rate' ? [] : [count(s, ...before), count(s, from, end), ...(ctrl === undefined ? [] : [count(c, ...before), count(c, from, end)])];
+    const se = Math.sqrt(counts.reduce((t, n) => t + 1 / n, 0));
+    const clear = adjusted !== undefined && Math.abs(Math.log1p(adjusted)) > 2 * se;
 
     let status: string;
     if (!daysIn) status = 'not started';
@@ -1168,9 +1205,9 @@ export function scorecardRows(w: typeof written, plan: PlannedRow[], now = new D
     else if (daysIn < 7) status = `too early (${daysIn} days)`;
     else if (target !== undefined && current !== undefined && current >= target) status = 'target met';
     else if (adjusted === undefined) status = current ? 'running; no baseline to compare' : 'running; nothing measured yet';
-    else if (adjusted >= 0.1) status = 'improving; below target';
-    else if (adjusted <= -0.1) status = 'declining';
-    else status = 'no clear change yet';
+    else if (adjusted >= 0.1 && clear) status = 'improving; below target';
+    else if (adjusted <= -0.1 && clear) status = 'declining';
+    else status = Math.abs(adjusted) >= 0.1 ? 'no clear change yet (within noise)' : 'no clear change yet';
     if (daysIn && e.end && yesterday > e.end) status = `ended: ${status}`;
     // Say when the baseline rests on fewer than its 28 days, so a short one is read with care.
     if (m.kind === 'rate' && baseline !== undefined && s.since && s.since > before[0]) {

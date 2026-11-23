@@ -289,9 +289,15 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
       JSON.stringify(sources) === '[["2026-11-15","anthropic",0,1],["2026-11-15","glama",2,5]]',
       `the sync turns source counters into mcp_src rows: ${JSON.stringify(sources)}`,
     );
-    // Experiment scorecard: E1 doubles while all book sessions stay flat; E5 has not started.
+    // Experiment scorecard: E1 doubles while the control (engaged sessions outside Direct and
+    // Unassigned, net of E1's own rows) stays flat; a Direct bot burst in the run and E1's own
+    // engaged sessions must not move the control. E5 has not started.
     const day = (i: number) => new Date(Date.UTC(2026, 10, 1) + i * 86_400_000).toISOString().slice(0, 10);
-    const sourcesRows = Array.from({ length: 56 }, (_, i) => [day(i), 'A Guide on Data Analysis', 'Organic Search', 'google', 'organic', i < 28 ? 10 : 20, 0, 0, 0]);
+    const sourcesRows = Array.from({ length: 56 }, (_, i) => [
+      [day(i), 'A Guide on Data Analysis', 'Organic Search', 'google', 'organic', i < 28 ? 10 : 20, 0, 0, i < 28 ? 10 : 20],
+      [day(i), 'Marketing Research', 'Organic Search', 'google', 'organic', 8, 0, 0, 5],
+      ...(i >= 28 ? [[day(i), 'A Guide on Data Analysis', 'Direct', '(direct)', '(none)', 1000, 0, 0, 100]] : []),
+    ]).flat();
     const booksRows = Array.from({ length: 56 }, (_, i) => [day(i), 'A Guide on Data Analysis', 0, 0, 100, 0, 0]);
     const plan = [
       { id: 'E1', channel: 'SEO', start: day(28), end: day(80), decision: 'running' },
@@ -303,7 +309,20 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
       card[0][5] === 28 && card[0][6] === 70 && card[0][7] === 140 && card[0][9] === 100 && card[0][10] === 0 && card[0][11] === 100,
       `scorecard computes baseline, current, and adjusted change: ${JSON.stringify(card[0])}`,
     );
-    check(card[1][12] === 'not started' && /not shipped/.test(String(card[2][12])), `scorecard statuses: ${card[1][12]} / ${card[2][12]}`);
+    check(
+      card[0][12] === 'improving; below target' && card[1][12] === 'not started' && /not shipped/.test(String(card[2][12])),
+      `scorecard statuses: ${card[0][12]} / ${card[1][12]} / ${card[2][12]}`,
+    );
+    // The same doubling on one session a day over a week is within noise, not a trend.
+    const tiny = Array.from({ length: 35 }, (_, i) => [
+      [day(i), 'A Guide on Data Analysis', 'Organic Search', 'google', 'organic', i < 28 ? 1 : 2, 0, 0, 0],
+      [day(i), 'Marketing Research', 'Organic Search', 'google', 'organic', 1, 0, 0, 1],
+    ]).flat();
+    const noisy = scorecardRows({ sources: tiny, mcp: [] }, [plan[0]], new Date(Date.parse(day(35)) + 3_600_000));
+    check(
+      noisy[0][5] === 7 && noisy[0][11] === 100 && noisy[0][12] === 'no clear change yet (within noise)',
+      `a change smaller than twice its standard error is not called a trend: ${JSON.stringify(noisy[0])}`,
+    );
     // A rate whose data starts inside the 28-day baseline window averages over the days with
     // data, not the whole window: 10 a day from day 50 on is a baseline of 10, not 10 × 6 / 28.
     const mcpRowsShort = Array.from({ length: 12 }, (_, i) => [day(50 + i), 0, i < 6 ? 10 : 12]);
