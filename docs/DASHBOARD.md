@@ -15,9 +15,13 @@ Google Search Console       ──┼─ GitHub Action, hourly ─→ Google She
 GitHub API (stars, forks)   ──┘   scripts/sync-stats.ts     (private)       (private link)
 ```
 
-Freshness: MCP counts and GitHub stars are at most about an hour old (GitHub can start a
-scheduled run 10–30 minutes late). Google Analytics itself processes data with a delay of
-a few hours. For live visitors, use Realtime in Google Analytics.
+Freshness: the workflow is scheduled every hour, but GitHub runs scheduled workflows only
+when it has spare capacity and drops the rest. In November 2026 it ran three or four
+times a day, 5 to 9 hours apart, so the numbers can be most of a working day old. The
+`updated` tab has the time of the last write. For current numbers, run it by hand:
+**Actions → Usage dashboard → Run workflow** (about a minute, then reload the report).
+Google Analytics itself processes data with a delay of a few hours. For live visitors,
+use Realtime in Google Analytics.
 
 The repository is public, so the Action’s logs are public too: the script prints only
 tab names and row counts, never a number from the data. Google access is keyless (no
@@ -244,5 +248,5 @@ publishes carries them (see "Source labels" in `docs/LISTING.md`):
 - **Running locally.** Set `GOOGLE_ACCESS_TOKEN` (for example from
   `gcloud auth print-access-token --impersonate-service-account=stats-sync@research-methods-stats.iam.gserviceaccount.com`)
   or `GOOGLE_SERVICE_ACCOUNT_KEY`, plus the variables above, and run `npx tsx scripts/sync-stats.ts`.
-- Upstash cost: each run reads three keys, about 2,200 commands a month, well inside the
-  free plan's 500,000.
+- Upstash cost: each run reads three keys, at most about 2,200 commands a month (if every
+  hourly run happened), well inside the free plan's 500,000.
