@@ -1,13 +1,22 @@
 // Builds data/index.json.gz from the book repositories listed in sources.yml.
 //
-//   npm run build:index                 # sources are sibling folders of this repo
+//   npm run build:index                 # sources are sibling folders of this repo's main checkout
 //   SOURCES_ROOT=/path npm run build:index
+//   npm run build:index -- --working-tree   # preview: read the checkouts as they are
+//
+// Each book is read at the commit its live site was built from (`deploy` in
+// sources.yml), not at whatever the local checkout has checked out. The commit is
+// fetched from the book's GitHub repository without writing any ref, and its source
+// files are copied from the object store into a temporary folder, so the checkout's
+// branch, working tree, and refs are never touched.
 //
 // No knitting or rendering happens here: the .Rmd/.qmd/.Rd sources are parsed
 // directly, so a rebuild takes seconds and needs neither R nor Python.
 
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
@@ -16,7 +25,13 @@ import type { LibraryIndex, MethodEntry, SectionRecord, SourceMeta, TextAccess, 
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
-const sourcesRoot = path.resolve(process.env.SOURCES_ROOT ?? path.join(repoRoot, '..'));
+/** The folder holding the main checkout of this repository, also when run from a linked worktree. */
+function checkoutParent(): string {
+  const common = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: repoRoot, encoding: 'utf8' });
+  const gitDir = common.status === 0 ? common.stdout.trim() : '';
+  return path.basename(gitDir) === '.git' ? path.resolve(gitDir, '..', '..') : path.join(repoRoot, '..');
+}
+const sourcesRoot = path.resolve(process.env.SOURCES_ROOT ?? checkoutParent());
 
 interface SourceConfig {
   id: string;
@@ -36,6 +51,132 @@ interface SourceConfig {
    * cited first.
    */
   volume_citations?: { files: string[]; citation: Work; chapters?: Record<string, string> }[];
+  /** Which commit the live site was built from; see the comment at the top of sources.yml. */
+  deploy?: DeployRule;
+}
+
+interface DeployRule {
+  /** Branch the site is published from. */
+  branch: string;
+  /** From that branch's tip to the source commit: omitted (the tip), `message`, a branch, or a pinned sha. */
+  source?: string;
+  /** For a pinned `source`: the branch tip the pin was checked against. */
+  tip?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Reading a book at its deployed commit
+
+function git(cwd: string, args: string[], input?: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const child = spawn('git', args, { cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+    const out: Buffer[] = [];
+    const err: Buffer[] = [];
+    child.stdout.on('data', (c: Buffer) => out.push(c));
+    child.stderr.on('data', (c: Buffer) => err.push(c));
+    child.on('error', reject);
+    child.on('close', (code) =>
+      code === 0 ? resolve(Buffer.concat(out)) : reject(new Error(`git ${args.join(' ')} (in ${cwd}): ${Buffer.concat(err).toString().trim()}`)));
+    child.stdin.end(input ?? '');
+  });
+}
+
+const gitText = async (cwd: string, args: string[]) => (await git(cwd, args)).toString('utf8').trim();
+const isSha = (s: string) => /^[0-9a-f]{40}$/.test(s);
+const short = (sha: string) => sha.slice(0, 9);
+
+/** The commit a branch of the GitHub repository points at now. */
+async function remoteTip(dir: string, url: string, branch: string): Promise<string> {
+  const sha = (await gitText(dir, ['ls-remote', url, `refs/heads/${branch}`])).split(/\s/)[0];
+  if (!sha || !isSha(sha)) throw new Error(`branch ${branch} not found at ${url}`);
+  return sha;
+}
+
+/** Makes `sha` available locally, fetching `want` (a ref or the sha) without writing any ref or FETCH_HEAD. */
+async function ensureCommit(dir: string, url: string, sha: string, want = sha): Promise<void> {
+  try {
+    await git(dir, ['cat-file', '-e', `${sha}^{commit}`]);
+  } catch {
+    await git(dir, ['fetch', '--quiet', '--no-tags', '--no-write-fetch-head', url, want]);
+    await git(dir, ['cat-file', '-e', `${sha}^{commit}`]);
+  }
+}
+
+/** The commit the live site was built from, per the source's `deploy` rule, and how it was found. */
+async function deployedCommit(src: SourceConfig, dir: string): Promise<{ commit: string; how: string }> {
+  const rule = src.deploy;
+  if (!rule?.branch) {
+    throw new Error(`${src.id}: no \`deploy\` rule in sources.yml, so the commit its site was built from is unknown (see the comment at the top of sources.yml)`);
+  }
+  const url = src.github.replace(/\/$/, '') + '.git';
+  const tip = await remoteTip(dir, url, rule.branch);
+  const source = rule.source == null ? undefined : String(rule.source);
+  if (!source) {
+    await ensureCommit(dir, url, tip, `refs/heads/${rule.branch}`);
+    return { commit: tip, how: `${rule.branch} tip` };
+  }
+  if (isSha(source)) {
+    const pinnedTip = String(rule.tip ?? '');
+    if (!isSha(pinnedTip)) throw new Error(`${src.id}: deploy.source is a pinned commit, so deploy.tip must give the full ${rule.branch} commit it was checked against`);
+    if (tip !== pinnedTip) {
+      throw new Error(
+        `${src.id}: ${rule.branch} has moved from ${short(pinnedTip)} to ${short(tip)}, so the site was redeployed. ` +
+        `Find the commit the new build was made from and update deploy.source and deploy.tip in sources.yml.`,
+      );
+    }
+    await ensureCommit(dir, url, source);
+    return { commit: source, how: `pinned for ${rule.branch} ${short(tip)}` };
+  }
+  await ensureCommit(dir, url, tip, `refs/heads/${rule.branch}`);
+  if (source === 'message') {
+    const message = await gitText(dir, ['log', '-1', '--format=%B', tip]);
+    const named = /\b([0-9a-f]{40})\b/.exec(message)?.[1];
+    if (!named) throw new Error(`${src.id}: the ${rule.branch} tip ${short(tip)} names no source commit in its message: ${message.split('\n')[0]}`);
+    await ensureCommit(dir, url, named);
+    return { commit: named, how: `named by ${rule.branch} ${short(tip)}` };
+  }
+  // A branch as it stood when the published tip was committed.
+  const sourceTip = await remoteTip(dir, url, source);
+  await ensureCommit(dir, url, sourceTip, `refs/heads/${source}`);
+  const when = await gitText(dir, ['log', '-1', '--format=%ct', tip]);
+  const commit = await gitText(dir, ['rev-list', '-1', '--first-parent', `--before=${when}`, sourceTip]);
+  if (!isSha(commit)) throw new Error(`${src.id}: ${source} has no commit older than the ${rule.branch} tip ${short(tip)}`);
+  return { commit, how: `${source} as of ${rule.branch} ${short(tip)}` };
+}
+
+/**
+ * Files the readers below open: chapter sources, notebooks, Rd pages, and the
+ * book configs (_quarto.yml, _toc.yml). Everything else (data, images, the
+ * rendered site) is left out of the copy.
+ */
+const SOURCE_FILE = /\.(rmd|qmd|md|ipynb|rd|ya?ml)$/i;
+
+/** Copies the source files of `dir` (a folder in a git checkout) at `commit` into `dest`. */
+async function copyAtCommit(dir: string, commit: string, dest: string): Promise<void> {
+  const prefix = (await gitText(dir, ['rev-parse', '--show-prefix'])).replace(/\/$/, '');
+  const tree = prefix ? `${commit}:${prefix}` : `${commit}^{tree}`;
+  // --full-tree: from a subfolder, ls-tree would otherwise list only that subfolder of `tree`.
+  const entries = (await git(dir, ['ls-tree', '-r', '-z', '--full-tree', tree])).toString('utf8').split('\0').filter(Boolean);
+  const blobs: { sha: string; file: string }[] = [];
+  for (const entry of entries) {
+    const m = /^(\d+) (\w+) ([0-9a-f]+)\t(.*)$/s.exec(entry);
+    if (m && m[2] === 'blob' && (m[1] === '100644' || m[1] === '100755') && SOURCE_FILE.test(m[4])) blobs.push({ sha: m[3], file: m[4] });
+  }
+  await mkdir(dest, { recursive: true });
+  if (!blobs.length) return;
+  const out = await git(dir, ['cat-file', '--batch'], blobs.map((b) => b.sha).join('\n') + '\n');
+  let pos = 0;
+  for (const { sha, file } of blobs) {
+    const eol = out.indexOf(0x0a, pos);
+    const [got, type, size] = out.subarray(pos, eol).toString().split(' ');
+    if (got !== sha || type !== 'blob') throw new Error(`git cat-file: expected blob ${sha} for ${file}, got ${out.subarray(pos, eol).toString()}`);
+    const start = eol + 1;
+    const end = start + Number(size);
+    const target = path.join(dest, ...file.split('/'));
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, out.subarray(start, end));
+    pos = end + 1;
+  }
 }
 
 /** Chapter works from data/publications.json, by DOI (lowercase); filled in main(). */
@@ -622,9 +763,8 @@ async function livePages(urls: string[]): Promise<Map<string, Set<string> | null
   return out;
 }
 
-async function buildSource(src: SourceConfig, verify: boolean): Promise<{ meta: SourceMeta; works: Work[]; records: SectionRecord[] }> {
-  const dir = path.join(sourcesRoot, src.repo);
-  if (!existsSync(dir)) throw new Error(`${src.id}: source folder not found at ${dir}`);
+/** Builds one source from its files in `dir` (the deployed commit's copy, or the checkout itself). */
+async function buildSource(src: SourceConfig, verify: boolean, dir: string): Promise<{ meta: SourceMeta; works: Work[]; records: SectionRecord[] }> {
   const site = src.site.endsWith('/') ? src.site : src.site + '/';
   const drafts =
     src.format === 'bookdown' ? await bookdownDrafts(src, dir)
@@ -767,6 +907,7 @@ async function main() {
   movedSites = cfg.moved ?? [];
   const args = process.argv.slice(2);
   const verify = !args.includes("--no-verify");
+  const workingTree = args.includes('--working-tree');
   const only = args.filter((a) => !a.startsWith("--"));
   const sources: SourceMeta[] = [];
   const works: Work[] = [];
@@ -780,19 +921,40 @@ async function main() {
     : null;
   for (const w of publications?.works ?? []) if (w.type === 'chapter' && w.doi) chapterByDoi.set(w.doi.toLowerCase(), w);
 
-  for (const src of cfg.sources) {
-    if (only.length && !only.includes(src.id)) continue;
-    const t0 = Date.now();
-    const built = await buildSource(src, verify);
-    sources.push(built.meta);
-    works.push(...built.works);
-    records.push(...built.records);
-    const chars = built.records.reduce((n, r) => n + r.md.length, 0);
-    console.log(
-      `${src.id.padEnd(20)} ${String(built.records.length).padStart(5)} sections  ` +
-      `${String(built.meta.code_blocks).padStart(5)} code blocks  [${built.meta.languages.join(', ')}]  ` +
-      `${(chars / 1e6).toFixed(1)} MB text  ${Date.now() - t0} ms`,
-    );
+  if (workingTree) {
+    console.log('Reading the checkouts as they are on disk (--working-tree): the index may hold unpublished work. Do not commit it.\n');
+  }
+  // Copies of each book at its deployed commit; removed once every source is read.
+  const copies = workingTree ? null : await mkdtemp(path.join(os.tmpdir(), 'research-methods-index-'));
+  try {
+    for (const src of cfg.sources) {
+      if (only.length && !only.includes(src.id)) continue;
+      const t0 = Date.now();
+      const checkout = path.join(sourcesRoot, src.repo);
+      if (!existsSync(checkout)) throw new Error(`${src.id}: source folder not found at ${checkout}`);
+      let dir = checkout;
+      let commit: string | undefined;
+      if (copies) {
+        const deployed = await deployedCommit(src, checkout);
+        commit = deployed.commit;
+        dir = path.join(copies, src.id);
+        await copyAtCommit(checkout, commit, dir);
+        console.log(`${src.id.padEnd(20)} commit ${short(commit)} (${deployed.how})`);
+      }
+      const built = await buildSource(src, verify, dir);
+      if (commit) built.meta.commit = commit;
+      sources.push(built.meta);
+      works.push(...built.works);
+      records.push(...built.records);
+      const chars = built.records.reduce((n, r) => n + r.md.length, 0);
+      console.log(
+        `${src.id.padEnd(20)} ${String(built.records.length).padStart(5)} sections  ` +
+        `${String(built.meta.code_blocks).padStart(5)} code blocks  [${built.meta.languages.join(', ')}]  ` +
+        `${(chars / 1e6).toFixed(1)} MB text  ${Date.now() - t0} ms`,
+      );
+    }
+  } finally {
+    if (copies) await rm(copies, { recursive: true, force: true });
   }
 
   if (verify && redirected.length) {
