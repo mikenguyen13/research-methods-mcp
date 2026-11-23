@@ -125,12 +125,15 @@ The web analytics measure visits to the landing, privacy, and terms pages only; 
 ```bash
 npm ci
 npm run build:index   # parse the book repositories (sibling folders) into data/index.json.gz
+npm run diff-index    # compare the new index with the committed one, page by page
 npm run build         # bundle dist/stdio.js and dist/http.js
 npm test              # end-to-end tests through real MCP clients
 npm run check-links   # audit every link in the index against the live sites
 ```
 
-To add a book, add an entry to [`sources.yml`](sources.yml) and rebuild the index. To add or tune a method, edit [`methods.yml`](methods.yml); the build fails if a method points at a section that does not exist.
+The index builder reads each book at the commit its live site was built from, which the `deploy` rule of each book in [`sources.yml`](sources.yml) identifies (the tip of a publishing branch, the source commit named by a deploy action, or a pinned commit). It fetches that commit from GitHub without writing any ref and copies the book's source files from git into a temporary folder, so the sibling checkouts, which usually carry unpublished work, are never switched or modified. The repositories are found in the folder that contains this repository's main checkout (also when building from a git worktree), or in `SOURCES_ROOT`. `npm run build:index -- --working-tree` reads the checkouts as they are instead, to preview unpublished work; an index built that way is not to be committed. After a rebuild, `npm run diff-index` lists the pages added and removed for each book and fails if a removed page is still live.
+
+To add a book, add an entry, with its `deploy` rule, to [`sources.yml`](sources.yml) and rebuild the index. To add or tune a method, edit [`methods.yml`](methods.yml); the build fails if a method points at a section that does not exist.
 
 ## Citation
 

@@ -2,7 +2,29 @@
 #
 # To add a book: add an entry here, then run `npm run build:index`.
 # Paths in `repo` are relative to SOURCES_ROOT (default: the folder that
-# contains this repo, i.e. the sibling checkouts in ~/github).
+# contains this repo's main checkout, i.e. the sibling checkouts in ~/github).
+#
+# deploy: which commit of the book the live site was built from. The index is
+# built from that commit, never from what the local checkout has checked out
+# (checkouts usually sit on unpublished work branches). The build reads the
+# commit straight from the repository's objects after fetching it from `github`
+# (a fetch that writes no refs), so the checkout, its branches, and its working
+# tree are left untouched.
+#   branch  the branch the site is published from
+#   source  how to get from that branch's tip to the commit the site was built from:
+#             (omitted)  the tip itself: CI or GitHub Pages builds every push, or the
+#                        rendered site is committed alongside its source
+#             message    the commit named in the tip's message (a rendered-output branch
+#                        written by a deploy action, e.g. "Deploying to gh-pages from
+#                        @ owner/repo@<sha>")
+#             <branch>   that branch as it stood when the tip was committed (a
+#                        rendered-output branch published by hand from that branch)
+#             <sha>      that commit, pinned by hand; also give `tip`, the branch tip
+#                        the pin was checked against. When the branch moves past `tip`
+#                        the site was redeployed and the build stops until the pin is
+#                        updated.
+# `npm run build:index -- --working-tree` reads the checkouts as they are on disk
+# instead, to preview unpublished work; never commit an index built that way.
 #
 # text_access
 #   full    section text, code, and links are served
@@ -48,6 +70,14 @@ sources:
     # canonical host since data_analysis b0ec9a9; the Posit Connect copy is a duplicate.
     site: https://mikenguyen13.github.io/data_analysis/
     github: https://github.com/mikenguyen13/data_analysis
+    # Published by hand: gh-pages holds a render of lit-review/2026-08-12 at 1b617e6e5
+    # (2026-10-24; its timing-IV section is live, c09b96cbc's measurement-error section
+    # is not), patched in place by df592f0b7 (E3 box). Its commits do not name the
+    # source, so the source is pinned.
+    deploy:
+      branch: gh-pages
+      source: "1b617e6e5bac0db06317166f9bfe530c2b72e462"
+      tip: "df592f0b772ebc1c8643480a47101cad6b4e3442"
     text_access: full
     license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
     exclude:
@@ -143,6 +173,9 @@ sources:
     format: r-package
     site: https://mikenguyen13.github.io/causalverse/
     github: https://github.com/mikenguyen13/causalverse
+    # .github/workflows/pkgdown.yaml pushes the pre-built docs/ of each push to main to
+    # gh-pages, naming the main commit in the message.
+    deploy: { branch: gh-pages, source: message }
     text_access: full
     license: { text: GPL-3.0, code: GPL-3.0 }
     citation:
@@ -167,6 +200,8 @@ sources:
     format: quarto
     site: https://mikenguyen13.github.io/credit_score/
     github: https://github.com/mikenguyen13/credit_score
+    # `quarto publish gh-pages`, run by hand from main ("Built site for gh-pages").
+    deploy: { branch: gh-pages, source: main }
     text_access: full
     license: { text: CC-BY-4.0, code: MIT }
     citation:
@@ -190,6 +225,8 @@ sources:
     # Connect copy is a duplicate.
     site: https://mikenguyen13.github.io/marketing_research/
     github: https://github.com/mikenguyen13/marketing_research
+    # .github/workflows/publish.yml deploys the committed _book/ of each push to master.
+    deploy: { branch: master }
     # Prose is all rights reserved (reserved for print); code is MIT.
     text_access: teaser
     license: { text: All-Rights-Reserved, code: MIT }
@@ -211,6 +248,8 @@ sources:
     format: quarto
     site: https://mikenguyen13.github.io/ai_in_action/
     github: https://github.com/mikenguyen13/ai_in_action
+    # GitHub Pages serves the rendered docs/ committed on main.
+    deploy: { branch: main }
     # No license file yet; the site footer says all rights reserved.
     text_access: teaser
     license: { text: All-Rights-Reserved, code: unspecified }
@@ -233,6 +272,10 @@ sources:
     format: quarto
     site: https://advanced-data-analysis.netlify.app/
     github: https://github.com/mikenguyen13/advanced_data_analysis
+    # `quarto publish netlify` (_publish.yml), run by hand after pushing master. Netlify
+    # keeps no record in git, so this assumes master is published once pushed (checked
+    # 2026-11-22: 7ba13bb's per-page canonical and AI-assistant box are live).
+    deploy: { branch: master }
     text_access: full
     license: { text: CC-BY-4.0, code: CC-BY-4.0 }
     citation:
@@ -256,6 +299,8 @@ sources:
     format: quarto
     site: https://mikenguyen13.github.io/tidy_finance_vn/
     github: https://github.com/mikenguyen13/tidy_finance_vn
+    # GitHub Pages serves the rendered docs/ committed on main.
+    deploy: { branch: main }
     # No license file; the site footer says all rights reserved.
     text_access: teaser
     license: { text: All-Rights-Reserved, code: unspecified }
@@ -276,6 +321,8 @@ sources:
     format: quarto
     site: https://mikenguyen13.github.io/tidy_finance_vn_vi/
     github: https://github.com/mikenguyen13/tidy_finance_vn_vi
+    # GitHub Pages serves the rendered docs/ committed on main.
+    deploy: { branch: main }
     text_access: teaser
     license: { text: All-Rights-Reserved, code: unspecified }
     citation:
@@ -301,6 +348,8 @@ sources:
     format: bookdown
     site: https://mikenguyen13.github.io/social-theory/
     github: https://github.com/mikenguyen13/social-theory
+    # .github/workflows/book.yml renders and deploys each push to master.
+    deploy: { branch: master }
     text_access: full
     license: { text: CC-BY-4.0, code: MIT }
     exclude:

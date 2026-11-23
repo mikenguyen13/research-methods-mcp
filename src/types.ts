@@ -49,6 +49,8 @@ export interface SourceMeta {
   languages: string[];
   sections: number;
   code_blocks: number;
+  /** Commit of the book's repository the index was built from (the one its live site was built from). */
+  commit?: string;
 }
 
 /** One section of a book page (a chapter, or a level 2 or 3 heading inside it). */
