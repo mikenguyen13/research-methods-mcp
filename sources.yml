@@ -193,6 +193,35 @@ sources:
       doi: 10.5281/zenodo.8254063
       url: https://doi.org/10.5281/zenodo.8254063
 
+  - id: regsensitivity
+    title: "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias"
+    summary: >-
+      R package (on CRAN) for sensitivity analysis of regression coefficients to
+      omitted variables when the controls may themselves be endogenous: the
+      identified set and breakdown point of Diegert, Masten and Poirier (rxbar,
+      rybar, cbar), Oster's (2019) delta and R-squared bounds, Masten and
+      Poirier's maximum-bias constraint, breakdown frontiers, clustered bootstrap
+      intervals on the breakdown point, ggplot2 plots, and a crosswalk from the
+      Stata regsensitivity command. Vignettes plus a function reference.
+    # Not a sibling in ~/github: the checkout lives in the Dropbox projects folder.
+    repo: ../Dropbox/projects/regsensitivity
+    format: r-package
+    site: https://mikenguyen13.github.io/regsensitivity/
+    github: https://github.com/mikenguyen13/regsensitivity
+    # .github/workflows/pkgdown.yaml deploys docs/ of each push to main to gh-pages,
+    # naming the main commit in the message.
+    deploy: { branch: gh-pages, source: message }
+    text_access: full
+    license: { text: MIT, code: MIT }
+    citation:
+      key: Nguyen2026regsensitivity
+      type: software
+      title: "regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias"
+      authors: *mike
+      year: 2026
+      version: 0.3.1
+      url: https://CRAN.R-project.org/package=regsensitivity
+
   - id: credit_score
     title: "Credit Scoring: Theory, Methods, and Practice"
     summary: >-

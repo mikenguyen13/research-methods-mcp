@@ -273,9 +273,9 @@ methods:
     family: Robustness
     use_when: An observational estimate is reported, and the strength an unobserved confounder would need to overturn it must be assessed.
     assumptions: [A benchmark covariate or plausible bounds on confounding strength]
-    keywords: [sensitivity analysis, unobserved confounding, omitted variable bias, e-value, rosenbaum bounds, sensemakr, robustness value, oster, coefficient stability, konfound]
-    sections: [data_analysis:sec-matching-methods#sec-rosenbaum-bounds, data_analysis:sec-matching-methods#sec-coefficient-stability-bounds, data_analysis:sec-endogeneity#sec-omitted-variable-bias, causalverse:articles/j_sensitivity]
-    packages: { r: [sensemakr, EValue, rbounds, konfound], python: [PySensemakr] }
+    keywords: [sensitivity analysis, unobserved confounding, omitted variable bias, e-value, rosenbaum bounds, sensemakr, robustness value, oster, oster delta, coefficient stability, konfound, breakdown point, breakdown frontier, endogenous controls, rmax, diegert masten poirier, regsensitivity]
+    sections: [data_analysis:sec-matching-methods#sec-rosenbaum-bounds, data_analysis:sec-matching-methods#sec-coefficient-stability-bounds, data_analysis:sec-endogeneity#sec-omitted-variable-bias, causalverse:articles/j_sensitivity, regsensitivity:articles/regsensitivity, regsensitivity:articles/interpreting-results]
+    packages: { r: [sensemakr, regsensitivity, EValue, rbounds, konfound], python: [PySensemakr] }
 
   - id: clustered_se
     name: Clustered and robust standard errors
