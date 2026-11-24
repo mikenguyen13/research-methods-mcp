@@ -96,8 +96,8 @@ re-read only the last three days. The sheet gets these tabs:
 | `books_geo` | day, book, market (United States, Vietnam, Rest of world), country, and region (state or province): active users, views, engaged sessions; 120 days |
 | `books_sources` | day, book, channel, source, and medium: sessions, active users, views, engaged sessions; 120 days |
 | `books_campaigns` | day, book, `utm_campaign`, source, and medium, for tagged links only: sessions, engaged sessions, views; 120 days |
-| `gsc_daily` | day and book: Google Search clicks, impressions, click-through, average position (after step 8) |
-| `gsc_top` | the top 50 queries and the top 50 pages per book over the last 28 days (replaced each run) |
+| `gsc_daily` | day, book, and `site` (the address searched: the book's site, or an old address from `moved` in `sources.yml`, such as `bookdown.org/mike/data_analysis/`): Google Search clicks, impressions, click-through, average position. Sum clicks and impressions over `site` for a book's total; recompute click-through from the sums rather than averaging it |
+| `gsc_top` | the top 50 queries and the top 50 pages per book and `site` over the last 28 days (replaced each run) |
 | `experiments` | one experiment from the growth plan, filled in by hand; the sync creates the tab once and never writes to it again |
 | `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in the control, engaged sessions from all channels but Direct and Unassigned (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status`. A rate is averaged over the days its tab has data, and the status says when the baseline rests on fewer than 28 days |
 | `github_daily` | day and repository: stars, forks, watchers |
@@ -218,7 +218,18 @@ publishes carries them (see "Source labels" in `docs/LISTING.md`):
   `utm_source=research-methods-mcp&utm_medium=ai-tool&utm_campaign=e4-<tool>`.
 - MCP endpoint links: `?src=<label>` (`book-<id>`, `youtube`, `linkedin`, ...).
 
-### 8. Search Console (pending)
+### 8. Search Console (done 2026-11-23, except one Social Theory address)
+
+Shared with `stats-sync@…` (Restricted): the URL-prefix properties of `data_analysis`,
+`causalverse`, `credit_score`, `marketing_research`, `ai_in_action`, `tidy_finance_vn`, and
+`tidy_finance_vn_vi` under `mikenguyen13.github.io`, `advanced-data-analysis.netlify.app`,
+and the old addresses `bookdown.org/mike/data_analysis/`, `bookdown.org/mike/marketing_research/`,
+and `bookdown.org/mike/social-theory/`. Google still ranks the bookdown.org addresses, so
+most of a moved book's search traffic shows up there, not on its new site.
+
+Still missing: `https://mikenguyen13.github.io/social-theory/` has no property yet, so
+Social Theory's rows come only from its bookdown.org address until one is verified and
+shared as below. The Posit Connect copies in `moved` have no property and are skipped.
 
 1. In the `research-methods-stats` Cloud project, enable the **Google Search Console API**.
 2. In Search Console, for each property that covers a book site (a URL-prefix property
@@ -227,9 +238,10 @@ publishes carries them (see "Source labels" in `docs/LISTING.md`):
    permission **Restricted** (read-only). Sites without a property need one first
    (verify ownership, then submit the sitemap).
 3. Run the workflow. The sync lists every property shared with the service account,
-   matches each book site in `sources.yml` to the most specific property covering it
-   (a shared `github.io` property is split by page URL), backfills `gsc_daily`, and then
-   re-reads the last five days each hour. Until step 1 is done it logs "Search Console
+   matches each book site in `sources.yml`, and each old address in `moved` that points
+   to one, to the most specific property covering it (a shared `github.io` property is
+   split by page URL), backfills `gsc_daily` for any address it has no rows for yet, and
+   then re-reads the last five days each hour. Until step 1 is done it logs "Search Console
    is not set up; skipping" and the run still succeeds.
 
 ## Maintenance

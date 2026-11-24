@@ -17,7 +17,7 @@ import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
-import { bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, seriesVolumes, storedCitations, workCitations } from '../scripts/sync-stats.ts';
+import { bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, searchSites, seriesVolumes, storedCitations, withSite, workCitations } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -355,6 +355,23 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
     check(
       sites.some((s) => s.book === 'credit_score' && s.site === 'https://mikenguyen13.github.io/credit_score/') && sites.at(-1)?.book === 'mcp_site',
       'the Search Console sync finds each book site in sources.yml',
+    );
+    const searched = searchSites();
+    const da = searched.filter((s) => s.book === 'data_analysis').map((s) => s.site);
+    check(
+      da[0] === 'https://mikenguyen13.github.io/data_analysis/' &&
+        da.includes('https://bookdown.org/mike/data_analysis/') &&
+        searched.filter((s) => s.book === 'credit_score').length === 1 &&
+        !sites.some((s) => s.site.includes('bookdown.org')),
+      `Search Console also reads a book's old addresses from \`moved\`, and only for Search Console: ${JSON.stringify(da)}`,
+    );
+    const filled = withSite(
+      [['2026-11-20', 'data_analysis', 1, 10, 0.1, 5], ['2026-11-20', 'data_analysis', 2, 20, 0.1, 6, 'https://bookdown.org/mike/data_analysis/']],
+      new Map([['data_analysis', 'https://mikenguyen13.github.io/data_analysis/']]),
+    );
+    check(
+      filled[0][6] === 'https://mikenguyen13.github.io/data_analysis/' && filled[1][6] === 'https://bookdown.org/mike/data_analysis/',
+      'gsc_daily rows written before the site column are credited to the book\'s own site',
     );
     const props = ['https://mikenguyen13.github.io/', 'https://mikenguyen13.github.io/credit_score/', 'sc-domain:netlify.app'];
     check(

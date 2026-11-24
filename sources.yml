@@ -55,6 +55,10 @@ moved:
     to: https://mikenguyen13.github.io/data_analysis/
   - from: https://mike-marketing-research.share.connect.posit.cloud/
     to: https://mikenguyen13.github.io/marketing_research/
+  # The bookdown.org copy still serves, but GitHub Pages is the canonical host (E2). Listed
+  # here so links are rewritten and its Google Search numbers count toward the book.
+  - from: https://bookdown.org/mike/social-theory/
+    to: https://mikenguyen13.github.io/social-theory/
 
 sources:
   - id: data_analysis

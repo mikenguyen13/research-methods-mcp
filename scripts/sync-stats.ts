@@ -28,6 +28,7 @@
 
 import { createSign } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
+import YAML from 'yaml';
 
 /** Google Analytics 4 properties of the book sites (property id → label). */
 const GA_PROPERTIES: Record<string, string> = {
@@ -552,6 +553,30 @@ export function bookSites(yml = readFileSync(new URL('../sources.yml', import.me
 }
 
 /**
+ * Every address a book is found at in Google Search: its site, then each old address in
+ * sources.yml `moved` that now points there. Google keeps ranking an old address
+ * (bookdown.org/mike/data_analysis) long after it starts redirecting, so a book's search
+ * numbers are the sum over all of them. Kept apart from bookSites, whose hosts mark
+ * referrals between book sites (E9): a visit forwarded from a book's old address is not
+ * one book referring another.
+ */
+export function searchSites(yml = readFileSync(new URL('../sources.yml', import.meta.url), 'utf8')): { book: string; site: string }[] {
+  const moved = (YAML.parse(yml) as { moved?: { from: string; to: string }[] }).moved ?? [];
+  return bookSites(yml).flatMap((b) => [b, ...moved.filter((m) => m.to === b.site).map((m) => ({ book: b.book, site: m.from }))]);
+}
+
+const GSC_DAILY = ['date', 'book', 'clicks', 'impressions', 'ctr', 'position', 'site'];
+const GSC_TOP = ['kind', 'book', 'key', 'clicks', 'impressions', 'ctr', 'position', 'site'];
+
+/**
+ * Stored gsc_daily rows with their site filled in. Rows written before the site column
+ * existed came from the book's own site (`home`), the only address read then.
+ */
+export function withSite(stored: Row[], home: Map<string, string>): Row[] {
+  return stored.map((r) => (r[6] ? r : [...r.slice(0, 6), home.get(String(r[1])) ?? '']));
+}
+
+/**
  * The Search Console property that covers a site: the longest URL-prefix property that
  * the site starts with, else a domain property (sc-domain:) for its host.
  */
@@ -566,9 +591,10 @@ interface GscReport {
 }
 
 /**
- * Google Search clicks, impressions, click-through, and average position per day and
- * book, plus each book's top queries and pages over the last 28 days. Reads every
- * property shared with the service account; skipped until Search Console is set up.
+ * Google Search clicks, impressions, click-through, and average position per day, book,
+ * and address (searchSites), plus each address's top queries and pages over the last 28
+ * days. Reads every property shared with the service account; skipped until Search
+ * Console is set up.
  */
 async function syncSearchConsole(sheet: Sheet, token: string) {
   let properties: string[];
@@ -580,14 +606,13 @@ async function syncSearchConsole(sheet: Sheet, token: string) {
     if (/failed: 403/.test((e as Error).message)) return console.log('Search Console is not set up; skipping.');
     throw e;
   }
-  const books = bookSites()
+  const sites = searchSites()
     .map((b) => ({ ...b, property: coveringProperty(b.site, properties) }))
     .filter((b): b is { book: string; site: string; property: string } => !!b.property);
-  if (!books.length) return console.log('No Search Console property covers a book site; skipping.');
+  if (!sites.length) return console.log('No Search Console property covers a book site; skipping.');
 
-  const stored = await sheet.read('gsc_daily');
-  const n = stored.length ? GSC_RECENT_DAYS : BACKFILL_DAYS;
-  const dates = new Set(lastDays(n));
+  const stored = withSite(await sheet.read('gsc_daily'), new Map(bookSites().map((b) => [b.book, b.site])));
+  const synced = new Set(stored.map((r) => String(r[6])));
   const query = (b: { site: string; property: string }, body: Record<string, unknown>) =>
     google<GscReport>(token, `${SEARCH_CONSOLE}/sites/${encodeURIComponent(b.property)}/searchAnalytics/query`, {
       method: 'POST',
@@ -602,25 +627,35 @@ async function syncSearchConsole(sheet: Sheet, token: string) {
   const daily: Row[] = [];
   const top: Row[] = [];
   const failed: string[] = [];
-  for (const b of books) {
+  /** Per address read in full this run, the dates its fresh rows replace. */
+  const replaced = new Map<string, Set<string>>();
+  for (const b of sites) {
+    // An address with no stored rows (newly shared, or added to `moved`) is backfilled.
+    const days = lastDays(synced.has(b.site) ? GSC_RECENT_DAYS : BACKFILL_DAYS);
     try {
-      const r = await query(b, { startDate: lastDays(n).at(-1), endDate: iso(new Date()), dimensions: ['date'], rowLimit: 25000 });
-      for (const x of r.rows ?? []) daily.push([x.keys[0], b.book, x.clicks, x.impressions, round(x.ctr, 4), round(x.position, 1)]);
+      const siteDaily: Row[] = [];
+      const siteTop: Row[] = [];
+      const r = await query(b, { startDate: days.at(-1), endDate: days[0], dimensions: ['date'], rowLimit: 25000 });
+      for (const x of r.rows ?? []) siteDaily.push([x.keys[0], b.book, x.clicks, x.impressions, round(x.ctr, 4), round(x.position, 1), b.site]);
       for (const kind of ['query', 'page']) {
         const t = await query(b, { startDate: lastDays(29).at(-1), endDate: lastDays(2).at(-1), dimensions: [kind], rowLimit: 50 });
-        for (const x of t.rows ?? []) top.push([kind, b.book, x.keys[0], x.clicks, x.impressions, round(x.ctr, 4), round(x.position, 1)]);
+        for (const x of t.rows ?? []) siteTop.push([kind, b.book, x.keys[0], x.clicks, x.impressions, round(x.ctr, 4), round(x.position, 1), b.site]);
       }
+      // Only an address whose every query worked replaces its stored rows, so a failure
+      // part-way leaves the old rows in place instead of doubling some of them.
+      daily.push(...siteDaily);
+      top.push(...siteTop);
+      replaced.set(b.site, new Set(days));
     } catch (e) {
-      failed.push(`${b.book}: ${(e as Error).message.slice(0, 200)}`);
+      failed.push(`${b.site}: ${(e as Error).message.slice(0, 200)}`);
     }
   }
-  const failedBooks = new Set(failed.map((f) => f.split(':')[0]));
-  const kept = stored.filter((r) => !dates.has(String(r[0])) || failedBooks.has(String(r[1])));
-  written.gsc = [...kept, ...daily].sort((a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])));
-  await sheet.write('gsc_daily', ['date', 'book', 'clicks', 'impressions', 'ctr', 'position'], written.gsc);
-  if (top.length || !failed.length) {
-    await sheet.write('gsc_top', ['kind', 'book', 'key', 'clicks', 'impressions', 'ctr', 'position'], top.sort((a, b) => Number(b[3]) - Number(a[3])));
-  }
+  const kept = stored.filter((r) => !replaced.get(String(r[6]))?.has(String(r[0])));
+  written.gsc = [...kept, ...daily].sort(
+    (a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[1]).localeCompare(String(b[1])) || String(a[6]).localeCompare(String(b[6])),
+  );
+  await sheet.write('gsc_daily', GSC_DAILY, written.gsc);
+  if (top.length || !failed.length) await sheet.write('gsc_top', GSC_TOP, top.sort((a, b) => Number(b[3]) - Number(a[3])));
   if (failed.length) throw new Error(`Search Console failed for ${failed.length} sites:\n${failed.join('\n')}`);
 }
 
@@ -1076,7 +1111,7 @@ export const MEASURES: Record<string, Measure> = {
     ...sourcesRate((r) => AI_SOURCE.test(String(r[3]))),
   },
   E8: {
-    label: 'Google Search click-through %, data_analysis (Search Console)',
+    label: 'Google Search click-through %, data_analysis, all its addresses (Search Console)',
     kind: 'ratio', target: (b) => b + 1,
     series: (w) => pair(byDate(w.gsc, 2, (r) => r[1] === 'data_analysis'), byDate(w.gsc, 3, (r) => r[1] === 'data_analysis')),
   },
