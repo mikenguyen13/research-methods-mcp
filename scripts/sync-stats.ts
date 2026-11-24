@@ -25,6 +25,7 @@
 //   UPSTASH_REDIS_REST_URL              the Redis REST URL
 //   UPSTASH_REDIS_REST_READONLY_TOKEN   a read-only token (KV_REST_API_READ_ONLY_TOKEN)
 //   GITHUB_TOKEN                        optional, raises the GitHub API rate limit
+//   BING_WEBMASTER_API_KEY              optional, Bing Webmaster Tools API key (Bing search numbers)
 
 import { createSign } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -340,6 +341,7 @@ const written: {
   sources?: Row[];
   campaigns?: Row[];
   gsc?: Row[];
+  bing?: Row[];
 } = {};
 
 async function syncMcp(sheet: Sheet) {
@@ -657,6 +659,121 @@ async function syncSearchConsole(sheet: Sheet, token: string) {
   await sheet.write('gsc_daily', GSC_DAILY, written.gsc);
   if (top.length || !failed.length) await sheet.write('gsc_top', GSC_TOP, top.sort((a, b) => Number(b[3]) - Number(a[3])));
   if (failed.length) throw new Error(`Search Console failed for ${failed.length} sites:\n${failed.join('\n')}`);
+}
+
+// ---------------------------------------------------------------- Bing Webmaster Tools
+
+const BING = 'https://ssl.bing.com/webmaster/api.svc/json';
+
+/** Bing's JSON dates look like /Date(1763884800000-0800)/: milliseconds, then the zone the day is in. */
+export function bingDate(s: string): string {
+  const m = /\/Date\((-?\d+)([+-]\d{2})(\d{2})?\)\//.exec(s);
+  if (!m) return '';
+  const offsetMin = Number(m[2]) * 60 + Math.sign(Number(m[2]) || 1) * Number(m[3] ?? 0);
+  return iso(new Date(Number(m[1]) + offsetMin * 60_000));
+}
+
+/**
+ * Which addresses (searchSites) each Bing site answers for: every address is given to the
+ * most specific Bing site covering it, so a site imported per book and a whole github.io
+ * site can both be present without counting a book twice.
+ */
+export function bingCoverage(addresses: { book: string; site: string }[], bingSites: string[]): Map<string, { book: string; site: string }[]> {
+  const out = new Map<string, { book: string; site: string }[]>();
+  for (const a of addresses) {
+    const site = coveringProperty(a.site, bingSites.filter((s) => !s.startsWith('sc-domain:')));
+    if (site) out.set(site, [...(out.get(site) ?? []), a]);
+  }
+  return out;
+}
+
+async function bing<T>(key: string, method: string, params: Record<string, string> = {}): Promise<T> {
+  const q = new URLSearchParams({ ...params, apikey: key });
+  const res = await fetch(`${BING}/${method}?${q}`, { headers: { accept: 'application/json' } });
+  // Never print the URL with its query: it carries the key, and the Action logs are public.
+  if (!res.ok) throw new Error(`Bing ${method} failed: ${res.status} ${(await res.text()).slice(0, 200)}`);
+  return ((await res.json()) as { d: T }).d;
+}
+
+const BING_DAILY = ['date', 'books', 'clicks', 'impressions', 'site'];
+const BING_TOP = ['kind', 'book', 'key', 'clicks', 'impressions', 'avg_click_position', 'avg_impression_position', 'site'];
+
+interface BingStats {
+  Date: string;
+  Clicks: number;
+  Impressions: number;
+  Query?: string;
+  AvgClickPosition?: number;
+  AvgImpressionPosition?: number;
+}
+
+/**
+ * Bing Search clicks and impressions per day and Bing site, plus the top queries and pages
+ * over the last 28 days. Bing keeps about six months, so every run re-reads all of it and
+ * older stored days are kept. Skipped until BING_WEBMASTER_API_KEY is set (docs/DASHBOARD.md, step 9).
+ */
+async function syncBing(sheet: Sheet) {
+  const key = env.BING_WEBMASTER_API_KEY;
+  if (!key) return console.log('BING_WEBMASTER_API_KEY is not set; skipping Bing.');
+  const sites = (await bing<{ Url: string; IsVerified: boolean }[]>(key, 'GetUserSites')).filter((s) => s.IsVerified).map((s) => s.Url);
+  const coverage = bingCoverage(searchSites(), sites);
+  if (!coverage.size) return console.log('No verified Bing site covers a book site; skipping Bing.');
+
+  const stored = await sheet.read('bing_daily');
+  const from = lastDays(29).at(-1)!;
+  const daily: Row[] = [];
+  const top: Row[] = [];
+  const failed: string[] = [];
+  const replaced = new Map<string, Set<string>>();
+  for (const [site, addresses] of coverage) {
+    const books = [...new Set(addresses.map((a) => a.book))].sort().join(', ');
+    /** The book a page belongs to: the longest address it starts with. */
+    const bookOf = (page: string) => addresses.filter((a) => page.startsWith(a.site)).sort((a, b) => b.site.length - a.site.length)[0]?.book ?? '';
+    try {
+      const traffic = await bing<BingStats[]>(key, 'GetRankAndTrafficStats', { siteUrl: site });
+      const siteDaily = traffic.map((x): Row => [bingDate(x.Date), books, x.Clicks, x.Impressions, site]).filter((r) => r[0]);
+      const siteTop: Row[] = [];
+      for (const [kind, method] of [['query', 'GetQueryStats'], ['page', 'GetPageStats']] as const) {
+        const totals = new Map<string, { clicks: number; impressions: number; click: number; impression: number }>();
+        for (const x of await bing<BingStats[]>(key, method, { siteUrl: site })) {
+          if (bingDate(x.Date) < from || !x.Query) continue;
+          // A page outside every book's address (another site on a shared host) is left out.
+          if (kind === 'page' && !bookOf(x.Query)) continue;
+          const t = totals.get(x.Query) ?? { clicks: 0, impressions: 0, click: 0, impression: 0 };
+          t.clicks += x.Clicks;
+          t.impressions += x.Impressions;
+          // Positions are averaged over the rows, weighted by their clicks and impressions.
+          t.click += (x.AvgClickPosition ?? 0) * x.Clicks;
+          t.impression += (x.AvgImpressionPosition ?? 0) * x.Impressions;
+          totals.set(x.Query, t);
+        }
+        const rows = [...totals]
+          .sort((a, b) => b[1].clicks - a[1].clicks || b[1].impressions - a[1].impressions)
+          .slice(0, 50)
+          .map(([k, t]): Row => [
+            kind,
+            kind === 'page' ? bookOf(k) : books,
+            k,
+            t.clicks,
+            t.impressions,
+            t.clicks ? Math.round((t.click / t.clicks) * 10) / 10 : '',
+            t.impressions ? Math.round((t.impression / t.impressions) * 10) / 10 : '',
+            site,
+          ]);
+        siteTop.push(...rows);
+      }
+      daily.push(...siteDaily);
+      top.push(...siteTop);
+      replaced.set(site, new Set(siteDaily.map((r) => String(r[0]))));
+    } catch (e) {
+      failed.push(`${site}: ${(e as Error).message}`);
+    }
+  }
+  const kept = stored.filter((r) => !replaced.get(String(r[4]))?.has(String(r[0])));
+  written.bing = [...kept, ...daily].sort((a, b) => String(b[0]).localeCompare(String(a[0])) || String(a[4]).localeCompare(String(b[4])));
+  await sheet.write('bing_daily', BING_DAILY, written.bing);
+  if (top.length || !failed.length) await sheet.write('bing_top', BING_TOP, top.sort((a, b) => Number(b[3]) - Number(a[3])));
+  if (failed.length) throw new Error(`Bing failed for ${failed.length} sites:\n${failed.join('\n')}`);
 }
 
 
@@ -979,6 +1096,9 @@ export function summaryRows(w: typeof written, now = new Date()): Row[] {
   if (w.gsc) {
     out.push(line('Google Search clicks (Search Console)', w.gsc, 2), line('Google Search impressions (Search Console)', w.gsc, 3));
   }
+  if (w.bing) {
+    out.push(line('Bing Search clicks (Bing Webmaster Tools)', w.bing, 2), line('Bing Search impressions (Bing Webmaster Tools)', w.bing, 3));
+  }
   if (w.github) {
     const total = (rows: Row[]) => rows.reduce((t, r) => t + Number(r[2]), 0);
     const weekAgo = (w.githubHistory ?? []).filter((r) => r[0] === days[6]);
@@ -1296,6 +1416,7 @@ export async function main() {
   await run('Book-site traffic sources', () => syncBookSources(sheet, token));
   await run('Book-site campaigns', () => syncBookCampaigns(sheet, token));
   await run('Search Console', () => syncSearchConsole(sheet, token));
+  await run('Bing Webmaster Tools', () => syncBing(sheet));
   await run('GitHub', () => syncGithub(sheet));
   // After GitHub, so the day's row carries the star count.
   await run('Bio numbers', () => syncBio(sheet, token));

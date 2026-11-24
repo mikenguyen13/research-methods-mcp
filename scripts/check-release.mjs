@@ -11,6 +11,7 @@ const server = JSON.parse(read('server.json'));
 const manifest = JSON.parse(read('manifest.json'));
 const cff = read('CITATION.cff');
 const plugin = JSON.parse(read('openai-plugin/plugin.json'));
+const gemini = JSON.parse(read('gemini-extension.json'));
 
 const versions = {
   'package.json': pkg.version,
@@ -19,6 +20,7 @@ const versions = {
   'manifest.json': manifest.version,
   'CITATION.cff': /^version:\s*(\S+)/m.exec(cff)?.[1],
   'openai-plugin/plugin.json': plugin.version,
+  'gemini-extension.json': gemini.version,
 };
 
 // ChatGPT plugin directory limits (developers.openai.com/plugins/deploy/submission).
@@ -34,6 +36,9 @@ if ((tests.positive ?? []).length < 5 || (tests.negative ?? []).length < 3) erro
 const pluginMcp = JSON.parse(read('openai-plugin/mcp.json'));
 const pluginUrl = Object.values(pluginMcp.mcpServers ?? {})[0]?.url;
 if (pluginUrl !== pkg.config?.endpoint) errors.push(`openai-plugin/mcp.json url ${pluginUrl} != package.json config.endpoint ${pkg.config?.endpoint}`);
+// Gemini CLI extensions gallery (geminicli.com/extensions): the endpoint with its own ?src= label.
+const geminiUrl = Object.values(gemini.mcpServers ?? {})[0]?.httpUrl ?? '';
+if (geminiUrl.split('?')[0] !== pkg.config?.endpoint) errors.push(`gemini-extension.json httpUrl ${geminiUrl} != package.json config.endpoint ${pkg.config?.endpoint}`);
 const npmPublished = pkg.config?.npmPublished === true;
 if (Boolean(server.packages?.length) !== npmPublished) {
   errors.push(`server.json packages must ${npmPublished ? '' : 'not '}be listed while config.npmPublished is ${npmPublished}; run npm run set-endpoint`);

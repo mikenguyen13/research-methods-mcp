@@ -17,7 +17,7 @@ import { createApp } from '../src/http.ts';
 import { resetJwksCache } from '../src/oidc.ts';
 import { configureWebAnalytics } from '../src/pages.ts';
 import { clientLabel, describeCall, sourceLabel, usageFields, type UsageStore } from '../src/usage.ts';
-import { bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, searchSites, seriesVolumes, storedCitations, withSite, workCitations } from '../scripts/sync-stats.ts';
+import { bingCoverage, bingDate, bioMilestones, bookSites, coveringProperty, dedupe, MEASURES, mcpRows, orcidWorks, reachRows, scorecardRows, searchSites, seriesVolumes, storedCitations, withSite, workCitations } from '../scripts/sync-stats.ts';
 import { Library } from '../src/library.ts';
 import { loadLibrary } from '../src/load.ts';
 
@@ -380,6 +380,24 @@ for (const p of ['/icon.png', '/icon-192.png', '/apple-touch-icon.png', '/favico
         coveringProperty('https://advanced-data-analysis.netlify.app/', props) === 'sc-domain:netlify.app' &&
         coveringProperty('https://mike-data-analysis.share.connect.posit.cloud/', props) === undefined,
       'each book site maps to the most specific Search Console property that covers it',
+    );
+    check(
+      bingDate('/Date(1763884800000-0800)/') === '2025-11-23' && bingDate('/Date(1763856000000+0000)/') === '2025-11-23' && bingDate('garbage') === '',
+      'Bing dates are read in the zone Bing gives them',
+    );
+    const covered = bingCoverage(
+      [
+        { book: 'data_analysis', site: 'https://mikenguyen13.github.io/data_analysis/' },
+        { book: 'data_analysis', site: 'https://bookdown.org/mike/data_analysis/' },
+        { book: 'credit_score', site: 'https://mikenguyen13.github.io/credit_score/' },
+      ],
+      ['https://mikenguyen13.github.io/', 'https://mikenguyen13.github.io/credit_score/'],
+    );
+    check(
+      covered.get('https://mikenguyen13.github.io/')?.map((a) => a.book).join() === 'data_analysis' &&
+        covered.get('https://mikenguyen13.github.io/credit_score/')?.map((a) => a.book).join() === 'credit_score' &&
+        covered.size === 2,
+      'each book address is counted under one Bing site only, the most specific; uncovered addresses are left out',
     );
     const orcid = {
       group: [

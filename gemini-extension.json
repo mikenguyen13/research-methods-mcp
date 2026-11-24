@@ -1,0 +1,10 @@
+{
+  "name": "research-methods",
+  "version": "0.1.1",
+  "description": "Research methods for AI assistants: study design guidance, R and Python code, and citations",
+  "mcpServers": {
+    "research-methods": {
+      "httpUrl": "https://research-methods-mcp.vercel.app/mcp?src=gemini-cli"
+    }
+  }
+}

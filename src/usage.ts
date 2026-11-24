@@ -21,6 +21,7 @@ const PROMPTS = new Set(['plan_analysis', 'write_methods_section', 'explain_meth
 export const SOURCES: ReadonlySet<string> = new Set([
   // MCP directories and registries (`registry` also covers its mirrors: PulseMCP, mcptry, GitHub)
   'anthropic', 'registry', 'glama', 'docker', 'cline', 'cursor-directory', 'mcp-market', 'mcpso', 'openai',
+  'gemini-cli', 'modelscope', 'mcpservers', 'toolhive',
   // Our own pages
   'readme', 'landing', 'llms-txt',
   // Book sites (sources.yml ids, with hyphens)
