@@ -12,7 +12,7 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 <a href="https://mcptry.com/servers/io.github.mikenguyen13/research-methods-mcp"><img src="https://mcptry.com/badge/io.github.mikenguyen13/research-methods-mcp" alt="mcptry: live status and score"></a>
 </p>
 
-The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 8 books, an R package, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
+The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 8 books, 2 R packages, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
 
 The server works with Claude, ChatGPT, Amazon Bedrock AgentCore, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
 
@@ -69,7 +69,7 @@ Each response links to the specific section consulted and carries the citation o
 | `fetch` | Reads a section in full, with its code, link, and citation. Compatible with ChatGPT deep research. |
 | `get_code` | Runnable R, Python, or Julia code for a task, with the packages it uses. |
 | `cite` | References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted, deduplicated by work. |
-| `list_sources` | The works in the library (textbooks, an R package, and research articles), with topics, languages, licenses, and links. |
+| `list_sources` | The works in the library (textbooks, R packages, and research articles), with topics, languages, licenses, and links. |
 
 Prompts (slash commands in clients that support them): `plan_analysis`, `write_methods_section`, `explain_method`. Resources: the library catalog and a table of contents for each work.
 
@@ -82,6 +82,7 @@ All tools are read-only. The server makes no calls to language models and stores
 | --- | --- | ---: | --- | --- |
 | [A Guide on Data Analysis](https://mikenguyen13.github.io/data_analysis/) | Python, R | 1,634 | Full text | CC BY-NC-SA 4.0 |
 | [causalverse: The All-in-One Causal Inference Toolkit](https://mikenguyen13.github.io/causalverse/) | R | 1,163 | Full text and function reference | GPL-3.0 |
+| [regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias](https://mikenguyen13.github.io/regsensitivity/) | R | 109 | Full text and function reference | MIT |
 | [Credit Scoring: Theory, Methods, and Practice](https://mikenguyen13.github.io/credit_score/) | Python | 2,625 | Full text | CC BY 4.0 text, MIT code |
 | [Marketing Research: A Technical and Academic Treatment](https://mikenguyen13.github.io/marketing_research/) | Python, R | 1,997 | Excerpts and code; full text on the website | All rights reserved text, MIT code |
 | [AI in Action: A Reference for Artificial Intelligence](https://mikenguyen13.github.io/ai_in_action/) | Julia, Python | 6,266 | Excerpts and code; full text on the website | All rights reserved |

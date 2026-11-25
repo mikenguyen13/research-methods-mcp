@@ -23,7 +23,7 @@ export const SERVER_ICONS = [
   { src: `${PUBLIC_ORIGIN}/icon-192.png`, mimeType: 'image/png', sizes: ['192x192'] },
 ];
 
-const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from books, an R package, and research articles by Mike Nguyen on data analysis, statistics, causal inference, econometrics, experimental design, marketing research, empirical finance, credit scoring, machine learning, and AI.
+const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R and Python code, and formatted citations from books, R packages, and research articles by Mike Nguyen on data analysis, statistics, causal inference, econometrics, experimental design, marketing research, empirical finance, credit scoring, machine learning, and AI.
 
 The library is relevant whenever a user asks how to analyze data or answer a research question: which statistical test, model, or study design fits their data; how to estimate a causal or treatment effect; how to check assumptions or robustness; how to plan an experiment or compute sample size; how to write analysis code in R or Python; or how to cite a method.
 
@@ -73,7 +73,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'Search the research methods library',
       description:
-        'Search sections of textbooks and an R package on research methods and data analysis: statistics and hypothesis testing, regression and generalized linear models, causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning), econometrics, experimental design, survey methods, marketing research, credit scoring, machine learning, and AI. Returns matching sections with their ids, a link, a snippet, the code languages they contain, and a citation.',
+        'Search sections of textbooks and R packages on research methods and data analysis: statistics and hypothesis testing, regression and generalized linear models, causal inference (difference-in-differences, synthetic control, regression discontinuity, instrumental variables, matching, double machine learning, sensitivity analysis for omitted variable bias), econometrics, experimental design, survey methods, marketing research, credit scoring, machine learning, and AI. Returns matching sections with their ids, a link, a snippet, the code languages they contain, and a citation.',
       inputSchema: z.object({
         query: z.string().min(1).describe('What to look for, in plain words, e.g. "staggered difference-in-differences with never-treated controls".'),
         source: Source.optional(),
@@ -217,7 +217,7 @@ export function createServer(lib: Library): McpServer {
     {
       title: 'List the works in the library',
       description:
-        'List the works in the library (textbooks, an R package, and research articles) with their topics, code languages, section counts, licenses, links, and how to cite each one. Suited to questions about what the library covers or which work to consult. Takes no parameters and returns one entry per work.',
+        'List the works in the library (textbooks, R packages, and research articles) with their topics, code languages, section counts, licenses, links, and how to cite each one. Suited to questions about what the library covers or which work to consult. Takes no parameters and returns one entry per work.',
       inputSchema: z.object({}),
       annotations: { title: 'List the works in the library', ...READ_ONLY },
     },
