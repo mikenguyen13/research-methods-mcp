@@ -12,7 +12,7 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 <a href="https://mcptry.com/servers/io.github.mikenguyen13/research-methods-mcp"><img src="https://mcptry.com/badge/io.github.mikenguyen13/research-methods-mcp" alt="mcptry: live status and score"></a>
 </p>
 
-The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 8 books, 2 R packages, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
+The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 9 books, 2 R packages, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
 
 The server works with Claude, ChatGPT, Amazon Bedrock AgentCore, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
 
@@ -90,6 +90,7 @@ All tools are read-only. The server makes no calls to language models and stores
 | [Applying Tidy Finance with Python to Vietnam](https://mikenguyen13.github.io/tidy_finance_vn/) | Python | 1,331 | Excerpts and code; full text on the website | All rights reserved |
 | [Tài Chính Ứng Dụng với Python](https://mikenguyen13.github.io/tidy_finance_vn_vi/) | Python | 1,310 | Excerpts and code; full text on the website | All rights reserved |
 | [Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business](https://mikenguyen13.github.io/social-theory/) | R | 1,118 | Full text | CC BY 4.0 text, MIT code |
+| [Meta-Analysis: A Practical and Modern Guide with R](https://mikenguyen13.github.io/meta_analysis/) | R | 392 | Full text | CC BY-NC-SA 4.0 |
 | [Research Articles and Publications](https://orcid.org/0000-0002-3432-8595) | — | 7 | Abstracts, DOIs, and citations | Publishers' terms |
 
 Sections of *A Guide on Data Analysis* that appear in the Springer print volumes are cited as their published chapter, then the volume. For example, a section on causal inference is cited as Nguyen, M. (2025). Causal inference. In *Experimental design* (Vol. 4, pp. 7–48). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7_2, in Nguyen, M. (2025). *Experimental design* (Vol. 4). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7
