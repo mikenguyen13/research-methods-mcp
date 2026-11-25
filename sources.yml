@@ -76,12 +76,14 @@ sources:
     github: https://github.com/mikenguyen13/data_analysis
     # Published by hand: gh-pages holds a render of lit-review/2026-08-12 at 1b617e6e5
     # (2026-10-24; its timing-IV section is live, c09b96cbc's measurement-error section
-    # is not), patched in place by df592f0b7 (E3 box). Its commits do not name the
-    # source, so the source is pinned.
+    # is not), patched in place by df592f0b7 (E3 box) and b314fde75 (the regsensitivity
+    # sections of #9). Branch published/2026-11-24 at b356a11c5 is 1b617e6e5 plus that
+    # text, i.e. the source of what is live. Its commits do not name the source, so
+    # the source is pinned.
     deploy:
       branch: gh-pages
-      source: "1b617e6e5bac0db06317166f9bfe530c2b72e462"
-      tip: "df592f0b772ebc1c8643480a47101cad6b4e3442"
+      source: "b356a11c5bcb52089e32d5e8c1f1df3dff8538a8"
+      tip: "b314fde75e8ae75ca0915e5dbc2722b6da3a87b9"
     text_access: full
     license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
     exclude:
