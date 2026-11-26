@@ -4,6 +4,7 @@ import { McpServer } from '@modelcontextprotocol/server';
 import * as z from 'zod';
 import pkg from '../package.json' with { type: 'json' };
 import { formatWork, STYLES } from './cite.ts';
+import { CAUSALVERSE_URL, CODE_KINDS, exportCode, findJournal, JOURNAL_IDS, JOURNAL_LISTS, journalSummary, listJournals, REGISTRY_VERIFIED, requirementsMarkdown } from './journals.ts';
 import { LANGUAGES, type Library } from './library.ts';
 import type { Work } from './types.ts';
 
@@ -27,7 +28,9 @@ const INSTRUCTIONS = `Research Methods Library: searchable sections, runnable R 
 
 The library is relevant whenever a user asks how to analyze data or answer a research question: which statistical test, model, or study design fits their data; how to estimate a causal or treatment effect; how to check assumptions or robustness; how to plan an experiment or compute sample size; how to write analysis code in R or Python; or how to cite a method.
 
-For a study-design question, start with choose_method. To read the material, use search and then fetch. For runnable code, use get_code. For a reference list, use cite with the ids of the sections you used. Every result includes the section URL and the citation of the work it comes from.`;
+For a study-design question, start with choose_method. To read the material, use search and then fetch. For runnable code, use get_code. For a reference list, use cite with the ids of the sections you used. Every result includes the section URL and the citation of the work it comes from.
+
+For preparing a manuscript for a top business or economics journal (FT50, UTD24), journal_requirements gives that journal's table and figure formatting rules (significance stars, parentheses, leading zeros, captions, notes, figure formats, dpi, widths), list_journals lists the journals covered, and export_code returns R code that applies the rules with the causalverse package.`;
 
 const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } as const;
 
@@ -239,6 +242,94 @@ export function createServer(lib: Library): McpServer {
         `## ${s.title}\n${s.summary}\n- Code: ${s.languages.join(', ') || 'none'} · ${s.sections} sections · ${s.code_blocks} code blocks\n- Read: ${s.url}\n- ${s.text_access === 'full' ? 'Full text available through fetch' : 'Excerpts and code through fetch; full text on the website'}\n- Cite: ${s.cite_as}`,
       );
       return markdown(lines.join('\n\n'), { sources });
+    },
+  );
+
+  // --- journal formatting ---------------------------------------------------
+  const journalHint = `A journal id (e.g. "smj", "aer", "jf"), abbreviation ("SMJ", "MS"), or full name ("Strategic Management Journal"). Ids: ${JOURNAL_IDS.join(', ')}.`;
+  const unknownJournal = (journal: string) => {
+    const { candidates } = findJournal(journal);
+    const hint = candidates.length
+      ? ` Did you mean: ${candidates.map((c) => `${c.id} (${c.name})`).join('; ')}?`
+      : ' Call list_journals to see the journals covered.';
+    return fail(`No unique journal matches "${journal}".${hint}`);
+  };
+
+  server.registerTool(
+    'journal_requirements',
+    {
+      title: 'Journal table and figure formatting rules',
+      description:
+        `Table and figure formatting rules for submitting to a top business or economics journal (the FT50 and UTD24 lists: AER, Econometrica, JF, JFE, RFS, Management Science, Marketing Science, JM, JMR, AMJ, SMJ, ASQ, MIS Quarterly, The Accounting Review, and others). Returns the significance-star policy and thresholds (or whether the journal bans stars or wants exact p-values), what goes in parentheses, the leading-zero rule, decimal places, table numbering and caption style, the order of table notes, where tables go and the "insert table here" marker text, the maximum number of columns, and for figures the accepted file formats, minimum dpi, column widths, font and sizes, grayscale and alt-text requirements, and whether the title may sit inside the image. Also returns how confident the rules are, when they were verified, caveats, and the guideline URLs they come from. Rules come from the causalverse R package's journal registry, verified ${REGISTRY_VERIFIED}.`,
+      inputSchema: z.object({
+        journal: z.string().min(1).describe(journalHint),
+      }),
+      annotations: { title: 'Journal table and figure formatting rules', ...READ_ONLY },
+    },
+    async ({ journal }) => {
+      const { journal: j, candidates } = findJournal(journal);
+      if (!j) return unknownJournal(journal);
+      const also = candidates.map((c) => `${c.name} (id "${c.id}")`).join('; ');
+      const text = (also ? `> "${journal}" also abbreviates ${also}; ask with that id if you meant it.\n\n` : '') + requirementsMarkdown(j);
+      return markdown(text, { ...j, ...(also ? { also_matches: candidates.map((c) => c.id) } : {}) });
+    },
+  );
+
+  server.registerTool(
+    'list_journals',
+    {
+      title: 'List journals with formatting rules',
+      description:
+        'List the journals whose table and figure formatting rules are available through journal_requirements and export_code: the Financial Times 50 (the current 2026 list or the 2016 list), the UT Dallas 24, or all of them. Returns each journal\'s id, name, abbreviation, publisher, list membership, and how confident the rules are (high: read from the journal\'s own current guidelines; medium: older copy, search excerpt, or partly publisher-wide; low: publisher-wide rules only).',
+      inputSchema: z.object({
+        list: z.enum(JOURNAL_LISTS).optional().describe('ft50 or ft50_2026 (the FT50 as revised in April 2026), ft50_2016 (the FT50 as published in 2016), utd24 (UT Dallas 24), or all (default).'),
+      }),
+      annotations: { title: 'List journals with formatting rules', ...READ_ONLY },
+    },
+    async ({ list = 'all' }) => {
+      const journals = listJournals(list).map(journalSummary);
+      const counts = journals.reduce<Record<string, number>>((a, j) => ({ ...a, [j.confidence]: (a[j.confidence] ?? 0) + 1 }), {});
+      const tags = (j: (typeof journals)[number]) =>
+        [j.ft50_2026 && 'FT50 2026', j.ft50_2016 && 'FT50 2016', j.utd24 && 'UTD24'].filter(Boolean).join(', ');
+      const lines = [
+        `${journals.length} journals (${list}); confidence: ${['high', 'medium', 'low'].filter((c) => counts[c]).map((c) => `${counts[c]} ${c}`).join(', ')}. Rules verified ${REGISTRY_VERIFIED}.`,
+        '',
+        '| id | Journal | Publisher | Lists | Confidence |',
+        '| --- | --- | --- | --- | --- |',
+        ...journals.map((j) => `| \`${j.id}\` | ${j.name} (${j.abbrev}) | ${j.publisher} | ${tags(j)} | ${j.confidence} |`),
+        '',
+        'Use journal_requirements with an id for the rules, or export_code for R code that applies them.',
+      ];
+      return markdown(lines.join('\n'), { list, verified: REGISTRY_VERIFIED, count: journals.length, confidence: counts, journals });
+    },
+  );
+
+  server.registerTool(
+    'export_code',
+    {
+      title: 'R code to format tables and figures for a journal',
+      description:
+        'Runnable R code that formats a regression table and/or a ggplot figure to a journal\'s submission rules with the causalverse package: journal_table() and export_tab() for tables (stars or no stars, parentheses, digits, caption, notes; Word, LaTeX, and Excel files), theme_journal() and scale_colour_journal() for figures, export_fig() for files at the journal\'s widths, formats, and dpi, and journal_check() to flag rule violations. Covers the FT50 and UTD24 journals listed by list_journals. The code uses example models and data to replace with the user\'s own.',
+      inputSchema: z.object({
+        journal: z.string().min(1).describe(journalHint),
+        kind: z.enum(CODE_KINDS).optional().describe('table, figure, or both (default).'),
+      }),
+      annotations: { title: 'R code to format tables and figures for a journal', ...READ_ONLY },
+    },
+    async ({ journal, kind = 'both' }) => {
+      const { journal: j } = findJournal(journal);
+      if (!j) return unknownJournal(journal);
+      const code = exportCode(j, kind);
+      const text = [
+        `R code for ${j.name} (${j.abbrev}), ${kind === 'both' ? 'tables and figures' : `${kind}s`}. Rules verified ${j.verified}, ${j.confidence} confidence${j.caveats.length ? `; caveats: ${j.caveats.join(' ')}` : ''}.`,
+        '',
+        '```r',
+        code,
+        '```',
+        '',
+        `Package: causalverse (${CAUSALVERSE_URL}). For the full rule list, call journal_requirements with "${j.id}".`,
+      ].join('\n');
+      return markdown(text, { journal: j.id, name: j.name, kind, language: 'r', code, confidence: j.confidence, verified: j.verified, caveats: j.caveats, package: 'causalverse' });
     },
   );
 

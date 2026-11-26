@@ -31,7 +31,10 @@
     { "name": "fetch", "description": "Read a section with its code, link, and citation." },
     { "name": "get_code", "description": "Get runnable R, Python, or Julia code for a task." },
     { "name": "cite", "description": "Format references in APA, Chicago, MLA, Harvard, BibTeX, or RIS." },
-    { "name": "list_sources", "description": "List the works in the library: textbooks, R packages, and research articles." }
+    { "name": "list_sources", "description": "List the works in the library: textbooks, R packages, and research articles." },
+    { "name": "journal_requirements", "description": "Table and figure formatting rules for an FT50 or UTD24 journal, with sources and confidence." },
+    { "name": "list_journals", "description": "List the FT50 and UTD24 journals with formatting rules." },
+    { "name": "export_code", "description": "R code that formats tables and figures for a journal with causalverse." }
   ],
   "keywords": ["research methods", "causal inference", "econometrics", "statistics", "R", "Python", "citations", "data analysis"],
   "license": "MIT",

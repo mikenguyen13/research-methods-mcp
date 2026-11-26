@@ -1,0 +1,5837 @@
+{
+  "generator": "scripts/build-journals.R",
+  "registry": {
+    "package": "causalverse",
+    "verified": "2026-11-25",
+    "kind": "source",
+    "commit": "f782612",
+    "uncommitted_changes": true
+  },
+  "lists": {
+    "ft50_2026": "FT50 after the April 2026 revision (current FT50)",
+    "ft50_2016": "FT50 as published in 2016",
+    "utd24": "UT Dallas 24"
+  },
+  "journals": [
+    {
+      "id": "tar",
+      "name": "The Accounting Review",
+      "abbrev": "TAR",
+      "publisher": "American Accounting Association",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "aaa",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Titles, notes and alt text go in the manuscript, not in the image file."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": true,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "TABLE 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "pdf", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 264,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "FIGURE",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "FIGURE 1 / Title",
+        "panel_label": "Panel A",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": true,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://aaahq.org/Research/Journals/Manuscript-Preparation-Guide"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://aaahq.org/portals/0/documents/journals/2026/Manuscript%20Preparation%20Guide_110926.pdf"
+        },
+        {
+          "scope": "journal",
+          "url": "https://aaahq.org/Research/Journals/The-Accounting-Review/Editorial-Policy"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://aaahq.org/portals/0/documents/publications/2025/Alt%20Text%20Guidelines.pdf"
+        }
+      ]
+    },
+    {
+      "id": "jar",
+      "name": "Journal of Accounting Research",
+      "abbrev": "JAR",
+      "publisher": "Wiley",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "wiley",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["Wiley author page unreadable; publisher-wide figure rules only."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://onlinelibrary.wiley.com/page/journal/1475679x/homepage/forauthors.html"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.chicagobooth.edu/research/chookaszian/journal-of-accounting-research"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "jae",
+      "name": "Journal of Accounting and Economics",
+      "abbrev": "JAE",
+      "publisher": "Elsevier",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "elsevier",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["ScienceDirect guide unreadable; Elsevier-wide artwork rules only."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 500
+        },
+        "widths_mm": {
+          "single": 90,
+          "onehalf": 140,
+          "double": 190
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged after acceptance"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.sciencedirect.com/journal/journal-of-accounting-and-economics/publish/guide-for-authors"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-types"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-formats-checklist"
+        }
+      ]
+    },
+    {
+      "id": "car",
+      "name": "Contemporary Accounting Research",
+      "abbrev": "CAR",
+      "publisher": "Wiley",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "wiley",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Stars go in the same cell as the estimate; CAR Author Style Guide (May 2026)."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "t",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": true,
+          "label_bold": false,
+          "sep": " ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": true,
+          "position": "above"
+        },
+        "caption_example": "TABLE 1 Title.",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A:",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "FIGURE",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "FIGURE 1 Title.",
+        "panel_label": "(A)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://caaa.ca/car-info-for-authors"
+        },
+        {
+          "scope": "journal",
+          "url": "https://caaa.ca/car-editorial-policies"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "rast",
+      "name": "Review of Accounting Studies",
+      "abbrev": "RAST",
+      "publisher": "Springer Nature",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "springer",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1200,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 84,
+          "onehalf": 129,
+          "double": 174
+        },
+        "widths_generic": false,
+        "font_family": "Arial",
+        "min_font_pt": 8,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Fig.",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Fig. 1. Title",
+        "panel_label": "a",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged; must survive B/W conversion"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://link.springer.com/journal/11142/submission-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "aos",
+      "name": "Accounting, Organizations and Society",
+      "abbrev": "AOS",
+      "publisher": "Elsevier",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "elsevier",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["ScienceDirect guide unreadable; Elsevier-wide artwork rules only."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 500
+        },
+        "widths_mm": {
+          "single": 90,
+          "onehalf": 140,
+          "double": 190
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged after acceptance"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.sciencedirect.com/journal/accounting-organizations-and-society/publish/guide-for-authors"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-types"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-formats-checklist"
+        }
+      ]
+    },
+    {
+      "id": "jm",
+      "name": "Journal of Marketing",
+      "abbrev": "JM",
+      "publisher": "SAGE (American Marketing Association)",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "ama",
+      "artwork": "ama",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["No significance stars (AMA editorial policy); exact three-digit p-values.", "Table and figure titles should state the takeaway.", "Supply original Excel/PowerPoint source files at acceptance."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "never",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ": ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1: Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Notes:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 800
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "Arial",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1: Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": true,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.ama.org/submission-guidelines-journal-of-marketing/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.ama.org/ama-journals-editorial-policies-procedures/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.ama.org/ama-journals-word-templates-and-samples-2/"
+        }
+      ]
+    },
+    {
+      "id": "jmr",
+      "name": "Journal of Marketing Research",
+      "abbrev": "JMR",
+      "publisher": "SAGE (American Marketing Association)",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "ama",
+      "artwork": "ama",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["No significance stars (AMA editorial policy); exact three-digit p-values.", "Table and figure titles should state the takeaway."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "never",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ": ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1: Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Notes:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 800
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "Arial",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1: Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": true,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.ama.org/submission-guidelines-journal-of-marketing-research/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.ama.org/ama-journals-editorial-policies-procedures/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.ama.org/ama-journals-word-templates-and-samples-2/"
+        }
+      ]
+    },
+    {
+      "id": "jcr",
+      "name": "Journal of Consumer Research",
+      "abbrev": "JCR",
+      "publisher": "Oxford University Press",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "oup",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Exact p-values (p = .035), 95% CIs as [.03, .57]."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "ci",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "TABLE",
+        "caption": {
+          "label_upper": true,
+          "label_bold": false,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": true,
+          "align": "center",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "TABLE 1 / TITLE",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "FIGURE",
+        "numbering": "arabic",
+        "caption_position": "above",
+        "caption_example": "FIGURE 1 / TITLE",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": true,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://consumerresearcher.com/manuscript-preparation"
+        },
+        {
+          "scope": "journal",
+          "url": "https://consumerresearcher.com/accepted-manuscripts"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://consumerresearcher.com/wp-content/uploads/2021/01/stylesheet.pdf"
+        },
+        {
+          "scope": "journal",
+          "url": "https://academic.oup.com/jcr/pages/General_Instructions"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://academic.oup.com/pages/authoring/journals/preparing_your_manuscript"
+        }
+      ]
+    },
+    {
+      "id": "jcp",
+      "name": "Journal of Consumer Psychology",
+      "abbrev": "JCP",
+      "publisher": "Wiley",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "apa7",
+      "artwork": "wiley",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Live page unreadable; 2020 author-guidelines PDF (cites APA 6)."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": true,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "INSERT TABLE {n} ABOUT HERE",
+        "insert_marker_example": "INSERT TABLE 1 ABOUT HERE",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 8,
+        "max_font_pt": 14,
+        "title_in_image": false,
+        "label": "Fig.",
+        "numbering": "arabic",
+        "caption_position": "above",
+        "caption_example": "Fig. 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://myscp.onlinelibrary.wiley.com/hub/journal/15327663/forauthors.html"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://onlinelibrary.wiley.com/pb-assets/assets/15327663/JCP%20Author%20Guidelines%202020-1575297310460.pdf"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/tables"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/figures"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/instructional-aids/numbers-statistics-guide.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "jams",
+      "name": "Journal of the Academy of Marketing Science",
+      "abbrev": "JAMS",
+      "publisher": "Springer Nature",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "springer",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Journal PDF (Aug 2025) has no figure specifications; Springer-wide rules used."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1200,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 84,
+          "onehalf": 129,
+          "double": 174
+        },
+        "widths_generic": false,
+        "font_family": "Arial",
+        "min_font_pt": 8,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged; must survive B/W conversion"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://link.springer.com/journal/11747/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://media.springer.com/full/springer-instructions-for-authors-assets/pdf/11747_Instructions%20for%20Authors%20-%20Aug2025.pdf"
+        }
+      ]
+    },
+    {
+      "id": "jf",
+      "name": "Journal of Finance",
+      "abbrev": "JF",
+      "publisher": "Wiley (American Finance Association)",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "econ",
+      "artwork": "wiley",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["JF style guide dated 2017; tables need a self-contained legend (max 300 words)."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "roman",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table I. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": 8,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; $500 per printed colour page"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://afajof.org/submissions/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://afajof.org/wp-content/uploads/JF_Submission_Guidelines.pdf"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://afajof.org/wp-content/uploads/files/policies-and-guidelines/JF_Style_-_February_2017.pdf"
+        },
+        {
+          "scope": "journal",
+          "url": "https://onlinelibrary.wiley.com/page/journal/15406261/homepage/forauthors.html"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "jfe",
+      "name": "Journal of Financial Economics",
+      "abbrev": "JFE",
+      "publisher": "Elsevier",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "econ",
+      "artwork": "elsevier",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Elsevier guide unreadable; jfinec.com accepted-paper instructions used."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 500
+        },
+        "widths_mm": {
+          "single": 90,
+          "onehalf": 140,
+          "double": 190
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged after acceptance"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.sciencedirect.com/journal/journal-of-financial-economics/publish/guide-for-authors"
+        },
+        {
+          "scope": "journal",
+          "url": "https://jfinec.com/submissions"
+        },
+        {
+          "scope": "journal",
+          "url": "https://jfinec.com/accepted-paper-instructions"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-types"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-formats-checklist"
+        }
+      ]
+    },
+    {
+      "id": "rfs",
+      "name": "Review of Financial Studies",
+      "abbrev": "RFS",
+      "publisher": "Oxford University Press",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "econ",
+      "artwork": "oup",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": true,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "$100 per colour figure file; CMYK"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://academic.oup.com/rfs/pages/Instructions_To_Authors"
+        },
+        {
+          "scope": "journal",
+          "url": "https://sfs.org/review-of-financial-studies/submit-a-paper/submit-a-paper-format/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://sfs.org/guidelines-for-submissions/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://sfs.org/accepted-papers-checklist/"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://academic.oup.com/pages/authoring/journals/preparing_your_manuscript"
+        }
+      ]
+    },
+    {
+      "id": "jfqa",
+      "name": "Journal of Financial and Quantitative Analysis",
+      "abbrev": "JFQA",
+      "publisher": "Cambridge University Press",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "cambridge",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Significance note must list all three levels even if unused; editable (Excel-compatible) source."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ": ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1: Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["xlsx", "docx", "tex"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "above",
+        "caption_example": "Figure 1: Title",
+        "panel_label": "Graph A",
+        "grayscale": false,
+        "gray_range": [0.15, 0.85],
+        "gray_step": 0.15,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://jfqa.org/submissions/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://jfqa.org/submissions/style-guide-for-accepted-and-conditionally-accepted-papers/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://jfqa.org/submissions/jfqa-style-sheet-for-copyeditors-and-proofreaders/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.cambridge.org/core/journals/journal-of-financial-and-quantitative-analysis/information/author-instructions/preparing-your-materials"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.cambridge.org/core/services/authors/journals/journals-artwork-guide"
+        }
+      ]
+    },
+    {
+      "id": "rof",
+      "name": "Review of Finance",
+      "abbrev": "RoF",
+      "publisher": "Oxford University Press",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "oup",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Minus signs in tables must be en dashes."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": true,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "EUR 525 per printed colour figure"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://revfin.org/for-authors/manuscript-guidelines/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://revfin.org/accepted-papers/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://academic.oup.com/rof/pages/General_Instructions"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://academic.oup.com/pages/authoring/journals/preparing_your_manuscript"
+        }
+      ]
+    },
+    {
+      "id": "aer",
+      "name": "American Economic Review",
+      "abbrev": "AER",
+      "publisher": "American Economic Association",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "aea",
+      "artwork": "aea",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Do not use asterisks; max 9 columns, portrait, horizontal rules only."],
+      "table": {
+        "significance": "none",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": 9,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf"],
+        "formats_final": ["pdf", "eps"],
+        "vector_preferred": true,
+        "vector_required": true,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "style_guide",
+          "url": "https://www.aeaweb.org/journals/aer/style-guide"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aeaweb.org/journals/aer/submissions/accepted-articles/styleguide"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.aeaweb.org/journals/aer/submissions/guidelines"
+        }
+      ]
+    },
+    {
+      "id": "ecta",
+      "name": "Econometrica",
+      "abbrev": "ECTA",
+      "publisher": "Wiley (Econometric Society)",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "wiley",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Live pages no longer state table/figure rules; legacy rules (Roman numerals, SEs) not enforced."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.econometricsociety.org/publications/econometrica/information-authors/instructions-submitting-articles"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.econometricsociety.org/publications/econometrica/information-authors/instructions-preparing-articles-publication"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "jpe",
+      "name": "Journal of Political Economy",
+      "abbrev": "JPE",
+      "publisher": "University of Chicago Press",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "chicago",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Chicago pages blocked; rules from search excerpts."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1200,
+          "halftone": 300,
+          "combination": 800
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.journals.uchicago.edu/journals/jpe/instruct"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.journals.uchicago.edu/journals/jpe/prep-table"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.journals.uchicago.edu/journals/jpe/prep-art"
+        }
+      ]
+    },
+    {
+      "id": "qje",
+      "name": "Quarterly Journal of Economics",
+      "abbrev": "QJE",
+      "publisher": "Oxford University Press",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "oup",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "roman",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "center",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table I / Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "roman",
+        "caption_position": "below",
+        "caption_example": "Figure I / Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": true,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "print edition is black and white"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://academic.oup.com/qje/pages/Instructions_To_Authors"
+        },
+        {
+          "scope": "journal",
+          "url": "https://academic.oup.com/qje/pages/General_Instructions"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://academic.oup.com/pages/authoring/journals/preparing_your_manuscript"
+        }
+      ]
+    },
+    {
+      "id": "restud",
+      "name": "Review of Economic Studies",
+      "abbrev": "REStud",
+      "publisher": "Oxford University Press",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "econ",
+      "artwork": "oup",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "source", "significance"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": true,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "GBP 350 / USD 600 per printed colour image"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.restud.com/submissions/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://academic.oup.com/restud/pages/General_Instructions"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://academic.oup.com/pages/authoring/journals/preparing_your_manuscript"
+        }
+      ]
+    },
+    {
+      "id": "mnsc",
+      "name": "Management Science",
+      "abbrev": "MS",
+      "publisher": "INFORMS",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/mnsc/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "mksc",
+      "name": "Marketing Science",
+      "abbrev": "MKSC",
+      "publisher": "INFORMS",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/mksc/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "isr",
+      "name": "Information Systems Research",
+      "abbrev": "ISR",
+      "publisher": "INFORMS",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/isre/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "opre",
+      "name": "Operations Research",
+      "abbrev": "OR",
+      "publisher": "INFORMS",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Tables grouped after the references; figures embedded."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/opre/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "orsc",
+      "name": "Organization Science",
+      "abbrev": "OrgSci",
+      "publisher": "INFORMS",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Effect sizes and N required for every model."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/orsc/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/filesorsc/PageLengthPolicyFinal-1728561990830.pdf"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "msom",
+      "name": "Manufacturing & Service Operations Management",
+      "abbrev": "MSOM",
+      "publisher": "INFORMS",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/msom/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "ijoc",
+      "name": "INFORMS Journal on Computing",
+      "abbrev": "IJOC",
+      "publisher": "INFORMS",
+      "lists": ["utd24"],
+      "family": "informs",
+      "artwork": "informs",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.10; **p < 0.05; ***p < 0.01."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["source", "general", "specific", "significance"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 900,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 82.5,
+          "onehalf": 124,
+          "double": 165
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://pubsonline.informs.org/page/ijoc/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://pubsonline.informs.org/pb-assets/INFORMS_style_guide-1.7.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/preparing-manuscript-and-figure-files"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/file-preparation"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://pubsonline.informs.org/authorportal/manuscript-templates-and-formatting-resources"
+        }
+      ]
+    },
+    {
+      "id": "misq",
+      "name": "MIS Quarterly",
+      "abbrev": "MISQ",
+      "publisher": "MIS Research Center",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "default",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["No figure resolution/format rules found; new style-guide PDF not located."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "Arial",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://misq.umn.edu/pages/submission_guidelines"
+        },
+        {
+          "scope": "journal",
+          "url": "https://misq.umn.edu/formatting-your-manuscript"
+        },
+        {
+          "scope": "journal",
+          "url": "https://misq.umn.edu/accepted-papers"
+        }
+      ]
+    },
+    {
+      "id": "jmis",
+      "name": "Journal of Management Information Systems",
+      "abbrev": "JMIS",
+      "publisher": "Taylor & Francis",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "tandf",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1200,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.jmis-web.org/info-for-contributors"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.tandfonline.com/action/authorSubmission?show=instructions&journalCode=mmis20"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authorservices.taylorandfrancis.com/publishing-your-research/making-your-submission/submit-electronic-artwork/"
+        }
+      ]
+    },
+    {
+      "id": "pom",
+      "name": "Production and Operations Management",
+      "abbrev": "POM",
+      "publisher": "SAGE",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Moved from Wiley to SAGE; journal-specific SAGE page unreadable."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://poms.org/journal/author_instructions"
+        },
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/PAO"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "jom",
+      "name": "Journal of Operations Management",
+      "abbrev": "JOM",
+      "publisher": "Wiley",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "wiley",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.jom-hub.com/submissions/author-guidelines"
+        },
+        {
+          "scope": "journal",
+          "url": "https://onlinelibrary.wiley.com/page/journal/18731317/homepage/author-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "amj",
+      "name": "Academy of Management Journal",
+      "abbrev": "AMJ",
+      "publisher": "Academy of Management",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "aom",
+      "artwork": "aom",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "**",
+            "p": 0.01
+          },
+          {
+            "symbol": "*",
+            "p": 0.05
+          },
+          {
+            "symbol": "†",
+            "p": 0.1
+          }
+        ],
+        "star_note": "stacked",
+        "star_note_text": ["† p < .10", "* p < .05", "** p < .01"],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 2,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "Insert Table {n} about here",
+        "insert_marker_example": "Insert Table 1 about here",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["docx", "tex", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["tiff", "png"],
+        "formats_final": ["tiff", "jpeg"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.aom.org/publications/journals/publishing-with-aom/author-and-reviewer-resources/author-resources/submitting-to-journal/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aom.org/publications/journals/publishing-with-aom/author-and-reviewer-resources/author-resources/author-resources-editorial-style-guides/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aom.org/wp-content/uploads/2025/07/aom_journal_style_guidea3b84b773e3649569a17a05e14cc6eaf.pdf"
+        }
+      ]
+    },
+    {
+      "id": "amr",
+      "name": "Academy of Management Review",
+      "abbrev": "AMR",
+      "publisher": "Academy of Management",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "aom",
+      "artwork": "aom",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "**",
+            "p": 0.01
+          },
+          {
+            "symbol": "*",
+            "p": 0.05
+          },
+          {
+            "symbol": "†",
+            "p": 0.1
+          }
+        ],
+        "star_note": "stacked",
+        "star_note_text": ["† p < .10", "* p < .05", "** p < .01"],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 2,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "Insert Table {n} about here",
+        "insert_marker_example": "Insert Table 1 about here",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["docx", "tex", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["tiff", "png"],
+        "formats_final": ["tiff", "jpeg"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.aom.org/publications/journals/publishing-with-aom/author-and-reviewer-resources/author-resources/submitting-to-review/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aom.org/publications/journals/publishing-with-aom/author-and-reviewer-resources/author-resources/author-resources-editorial-style-guides/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aom.org/wp-content/uploads/2025/07/aom_journal_style_guidea3b84b773e3649569a17a05e14cc6eaf.pdf"
+        }
+      ]
+    },
+    {
+      "id": "annals",
+      "name": "Academy of Management Annals",
+      "abbrev": "AMA",
+      "publisher": "Academy of Management",
+      "lists": ["ft50_2026"],
+      "family": "aom",
+      "artwork": "aom",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "**",
+            "p": 0.01
+          },
+          {
+            "symbol": "*",
+            "p": 0.05
+          },
+          {
+            "symbol": "†",
+            "p": 0.1
+          }
+        ],
+        "star_note": "stacked",
+        "star_note_text": ["† p < .10", "* p < .05", "** p < .01"],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 2,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "Insert Table {n} about here",
+        "insert_marker_example": "Insert Table 1 about here",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["docx", "tex", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["tiff", "png"],
+        "formats_final": ["tiff", "jpeg"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.aom.org/publications/journals/publishing-with-aom/author-and-reviewer-resources/author-resources/submitting-to-annals/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aom.org/publications/journals/publishing-with-aom/author-and-reviewer-resources/author-resources/author-resources-editorial-style-guides/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.aom.org/wp-content/uploads/2025/07/aom_journal_style_guidea3b84b773e3649569a17a05e14cc6eaf.pdf"
+        }
+      ]
+    },
+    {
+      "id": "asq",
+      "name": "Administrative Science Quarterly",
+      "abbrev": "ASQ",
+      "publisher": "SAGE",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["ASQ advises against marking p < .10; current symbol glyphs not verified.", "SAGE pages blocked; formatting-guidelines PDF (c. Dec 2025) via search."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.001
+          },
+          {
+            "symbol": "**",
+            "p": 0.01
+          },
+          {
+            "symbol": "*",
+            "p": 0.05
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < 0.05; **p < 0.01; ***p < 0.001 (two-tailed tests)."],
+        "tails": "two-tailed tests",
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 8,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/asq"
+        },
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/page/asq/4.asq-formatting-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://journals.sagepub.com/pb-assets/cmscontent/ASQ/4.+Formatting+Guidelines-1766128331857.pdf"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://journals.sagepub.com/pb-assets/cmscontent/ASQ/ASQ%20Style%20Guide%20Final%20revised%202024-1715943072.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "smj",
+      "name": "Strategic Management Journal",
+      "abbrev": "SMJ",
+      "publisher": "Wiley (Strategic Management Society)",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "smj",
+      "artwork": "wiley",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["No cutoff levels of significance: report SEs and/or exact p-values.", "Latest guideline PDF is behind a SharePoint sign-in; June 2023 PDF used."],
+      "table": {
+        "significance": "none",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": true,
+          "label_bold": false,
+          "sep": " ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "TABLE 1 Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "INSERT TABLE {n} HERE",
+        "insert_marker_example": "INSERT TABLE 1 HERE",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["png", "pdf"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "FIGURE",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "FIGURE 1 Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.strategicmanagement.net/publications-resources/sms-journals/submissions-for-sms-journals/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.strategicmanagement.net/wp-content/uploads/2024/09/SMJ-Author-Instructions-06-08-23-FINAL.pdf"
+        },
+        {
+          "scope": "journal",
+          "url": "https://sms.onlinelibrary.wiley.com/hub/journal/10970266/homepage/forauthors.html"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "sej",
+      "name": "Strategic Entrepreneurship Journal",
+      "abbrev": "SEJ",
+      "publisher": "Wiley (Strategic Management Society)",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "smj",
+      "artwork": "wiley",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Same template as SMJ but no ban on stars."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": true,
+          "label_bold": false,
+          "sep": " ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "TABLE 1 Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "INSERT TABLE {n} HERE",
+        "insert_marker_example": "INSERT TABLE 1 HERE",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["png", "pdf"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "FIGURE",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "FIGURE 1 Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.strategicmanagement.net/sej/overview/submission"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.strategicmanagement.net/wp-content/uploads/2024/09/SEJ-Author-Instructions-June-2023-FINAL.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "jmgt",
+      "name": "Journal of Management",
+      "abbrev": "JOM",
+      "publisher": "SAGE",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["SAGE pages blocked; JOM Style Guide (2024) via search excerpts only."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/JOM"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://journals.sagepub.com/pb-assets/cmscontent/JOM/JOM_Style_Guide_revised_2024-1705959439.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "jms",
+      "name": "Journal of Management Studies",
+      "abbrev": "JMS",
+      "publisher": "Wiley",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "wiley",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": [],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "roman",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table I. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "Insert Table {n} about here",
+        "insert_marker_example": "Insert Table 1 about here",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journalofmanagementstudies.ac.uk/publish/author-guidance/manuscript-preparation-guidelines/"
+        },
+        {
+          "scope": "journal",
+          "url": "https://onlinelibrary.wiley.com/page/journal/14676486/homepage/forauthors.html"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "orgstud",
+      "name": "Organization Studies",
+      "abbrev": "OS",
+      "publisher": "SAGE",
+      "lists": ["ft50_2016"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["Removed from FT50 in April 2026.", "SAGE pages blocked."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/OSS"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "jap",
+      "name": "Journal of Applied Psychology",
+      "abbrev": "JAP",
+      "publisher": "American Psychological Association",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "apa7",
+      "artwork": "apa",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["apa.org blocked by CAPTCHA; JAP checklist PDF + APA 7 guides used."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": true,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["tiff", "eps", "jpeg"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 8,
+        "max_font_pt": 14,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "above",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour fee (JAP: $900 first figure)"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.apa.org/pubs/journals/apl/submit"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.apa.org/pubs/journals/features/apl-manuscript-checklist.pdf"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/tables"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/figures"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/instructional-aids/numbers-statistics-guide.pdf"
+        }
+      ]
+    },
+    {
+      "id": "obhdp",
+      "name": "Organizational Behavior and Human Decision Processes",
+      "abbrev": "OBHDP",
+      "publisher": "Elsevier",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "apa7",
+      "artwork": "elsevier",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Each figure as a separate file."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": true,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 500
+        },
+        "widths_mm": {
+          "single": 90,
+          "onehalf": 140,
+          "double": 190
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 14,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "above",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged after acceptance"
+      },
+      "sources": [
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/tables"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/figures"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/instructional-aids/numbers-statistics-guide.pdf"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.sciencedirect.com/journal/organizational-behavior-and-human-decision-processes/publish/guide-for-authors"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-types"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-formats-checklist"
+        }
+      ]
+    },
+    {
+      "id": "hr",
+      "name": "Human Relations",
+      "abbrev": "HR",
+      "publisher": "SAGE",
+      "lists": ["ft50_2016"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Removed from FT50 in April 2026.", "LaTeX no longer accepted (Jan 2026)."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ": ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1: Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Notes:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": "INSERT TABLE {n} ABOUT HERE",
+        "insert_marker_example": "INSERT TABLE 1 ABOUT HERE",
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1: Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/HUM"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.humanrelationsjournal.org/journal/submission-guidelines/"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.humanrelationsjournal.org/wp-content/uploads/2026/01/Human-Relations-How-to-prepare-your-submission-Jan-2026-1.pdf"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "hrm",
+      "name": "Human Resource Management",
+      "abbrev": "HRM",
+      "publisher": "Wiley",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "wiley",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Wayback copy (Sep 2024) of Wiley page."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "tiff", "png"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 80,
+          "onehalf": 130,
+          "double": 180
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://onlinelibrary.wiley.com/page/journal/1099050x/homepage/forauthors.html"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://authors.wiley.com/author-resources/Journal-Authors/Prepare/manuscript-preparation-guidelines.html/figure-preparation.html"
+        }
+      ]
+    },
+    {
+      "id": "jibs",
+      "name": "Journal of International Business Studies",
+      "abbrev": "JIBS",
+      "publisher": "Springer Nature (Palgrave)",
+      "lists": ["ft50_2016", "ft50_2026", "utd24"],
+      "family": "default",
+      "artwork": "springer",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["No asterisks (2017 'What's in a p?' editorial); report SEs, exact p, effect sizes."],
+      "table": {
+        "significance": "none",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1200,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 84,
+          "onehalf": 129,
+          "double": 174
+        },
+        "widths_generic": false,
+        "font_family": "Arial",
+        "min_font_pt": 6,
+        "max_font_pt": 8,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged; must survive B/W conversion"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://link.springer.com/journal/41267/submission-guidelines"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://link.springer.com/article/10.1057/s41267-017-0078-8"
+        }
+      ]
+    },
+    {
+      "id": "etp",
+      "name": "Entrepreneurship Theory and Practice",
+      "abbrev": "ETP",
+      "publisher": "SAGE",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Wayback copy (Jun 2025)."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/ETP"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.etpjournal.org/resources-for-authors"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "jbv",
+      "name": "Journal of Business Venturing",
+      "abbrev": "JBV",
+      "publisher": "Elsevier",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "elsevier",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Wayback copy (Feb 2024)."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 500
+        },
+        "widths_mm": {
+          "single": 90,
+          "onehalf": 140,
+          "double": 190
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged after acceptance"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.sciencedirect.com/journal/journal-of-business-venturing/publish/guide-for-authors"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-types"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-formats-checklist"
+        }
+      ]
+    },
+    {
+      "id": "jbe",
+      "name": "Journal of Business Ethics",
+      "abbrev": "JBE",
+      "publisher": "Springer Nature",
+      "lists": ["ft50_2016"],
+      "family": "default",
+      "artwork": "springer",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Removed from FT50 in April 2026."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1200,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 84,
+          "onehalf": 129,
+          "double": 174
+        },
+        "widths_generic": false,
+        "font_family": "Arial",
+        "min_font_pt": 8,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Fig.",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Fig. 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged; must survive B/W conversion"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://link.springer.com/journal/10551/submission-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "respol",
+      "name": "Research Policy",
+      "abbrev": "RP",
+      "publisher": "Elsevier",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "elsevier",
+      "confidence": "medium",
+      "verified": "2026-11-25",
+      "caveats": ["Wayback copy (Feb 2024)."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 1000,
+          "halftone": 300,
+          "combination": 500
+        },
+        "widths_mm": {
+          "single": 90,
+          "onehalf": 140,
+          "double": 190
+        },
+        "widths_generic": false,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; print colour charged after acceptance"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://www.sciencedirect.com/journal/research-policy/publish/guide-for-authors"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-types"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-sizing"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions/artwork-formats-checklist"
+        }
+      ]
+    },
+    {
+      "id": "asr",
+      "name": "American Sociological Review",
+      "abbrev": "ASR",
+      "publisher": "SAGE (American Sociological Association)",
+      "lists": ["ft50_2026"],
+      "family": "default",
+      "artwork": "sage",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Do not mark p < .10 as significant; state one- or two-tailed tests."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.001
+          },
+          {
+            "symbol": "**",
+            "p": 0.01
+          },
+          {
+            "symbol": "*",
+            "p": 0.05
+          }
+        ],
+        "star_note": "inline",
+        "star_note_text": ["*p < .05; **p < .01; ***p < .001 (two-tailed tests)."],
+        "tails": "two-tailed tests",
+        "uncertainty": "se",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "end",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://journals.sagepub.com/author-instructions/ASR"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "psci",
+      "name": "Psychological Science",
+      "abbrev": "PS",
+      "publisher": "SAGE (Association for Psychological Science)",
+      "lists": ["ft50_2026"],
+      "family": "apa7",
+      "artwork": "sage",
+      "confidence": "high",
+      "verified": "2026-11-25",
+      "caveats": ["Effect sizes with CIs; figures in Helvetica Neue Condensed (falls back to sans)."],
+      "table": {
+        "significance": "exact_p",
+        "stars": [],
+        "star_note": "sentence",
+        "star_note_text": [],
+        "tails": null,
+        "uncertainty": "ci",
+        "leading_zero": "bounded",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": "\n",
+          "title_italic": true,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1 / Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note.",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "embedded",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["eps", "tiff", "pdf"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 800,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 9,
+        "max_font_pt": 10,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1 / Title",
+        "panel_label": "(a)",
+        "grayscale": true,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": 7,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "free online; greyscale in print unless paid; no colour words in captions"
+      },
+      "sources": [
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/tables"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/style-grammar-guidelines/tables-figures/figures"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://apastyle.apa.org/instructional-aids/numbers-statistics-guide.pdf"
+        },
+        {
+          "scope": "journal",
+          "url": "https://www.psychologicalscience.org/publications/psychological_science/ps-submissions"
+        },
+        {
+          "scope": "style_guide",
+          "url": "https://www.psychologicalscience.org/index.php/publications/aps-figure-format-style-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/artwork-guidelines"
+        },
+        {
+          "scope": "publisher",
+          "url": "https://www.sagepub.com/journals/information-for-authors/preparing-your-manuscript/accessibility-guidelines"
+        }
+      ]
+    },
+    {
+      "id": "hbr",
+      "name": "Harvard Business Review",
+      "abbrev": "HBR",
+      "publisher": "Harvard Business Publishing",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "default",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["Practitioner outlet; no table/figure specifications published."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://hbr.org/guidelines-for-authors-hbr"
+        }
+      ]
+    },
+    {
+      "id": "smr",
+      "name": "MIT Sloan Management Review",
+      "abbrev": "SMR",
+      "publisher": "MIT Sloan School of Management",
+      "lists": ["ft50_2016", "ft50_2026"],
+      "family": "default",
+      "artwork": "default",
+      "confidence": "low",
+      "verified": "2026-11-25",
+      "caveats": ["No table/figure specifications published.", "Print ends after fall 2026; relaunching digital-only."],
+      "table": {
+        "significance": "stars",
+        "stars": [
+          {
+            "symbol": "***",
+            "p": 0.01
+          },
+          {
+            "symbol": "**",
+            "p": 0.05
+          },
+          {
+            "symbol": "*",
+            "p": 0.1
+          }
+        ],
+        "star_note": "sentence",
+        "star_note_text": ["*, **, and *** indicate significance at the 10%, 5%, and 1% levels, respectively."],
+        "tails": null,
+        "uncertainty": "se",
+        "leading_zero": "always",
+        "digits": 3,
+        "p_digits": 3,
+        "numbering": "arabic",
+        "label": "Table",
+        "caption": {
+          "label_upper": false,
+          "label_bold": true,
+          "sep": ". ",
+          "title_italic": false,
+          "title_upper": false,
+          "align": "left",
+          "end_period": false,
+          "position": "above"
+        },
+        "caption_example": "Table 1. Title",
+        "notes_order": ["general", "specific", "significance", "source"],
+        "note_label": "Note:",
+        "specific_marks": "letters",
+        "panel_label": "Panel A",
+        "placement": "either",
+        "insert_marker": null,
+        "insert_marker_example": null,
+        "max_columns": null,
+        "vertical_rules": false,
+        "formats": ["tex", "docx", "xlsx"]
+      },
+      "figure": {
+        "formats_initial": ["pdf", "png"],
+        "formats_final": ["pdf", "eps", "tiff"],
+        "vector_preferred": true,
+        "vector_required": false,
+        "dpi": {
+          "line_art": 600,
+          "halftone": 300,
+          "combination": 600
+        },
+        "widths_mm": {
+          "single": 89,
+          "onehalf": 136,
+          "double": 183
+        },
+        "widths_generic": true,
+        "font_family": "sans",
+        "min_font_pt": 7,
+        "max_font_pt": 12,
+        "title_in_image": false,
+        "label": "Figure",
+        "numbering": "arabic",
+        "caption_position": "below",
+        "caption_example": "Figure 1. Title",
+        "panel_label": "(a)",
+        "grayscale": false,
+        "gray_range": [0.2, 0.8],
+        "gray_step": 0.2,
+        "max_series": null,
+        "alt_text": false,
+        "alt_text_label": "Alt text:",
+        "source_data": false,
+        "color_print": "not specified"
+      },
+      "sources": [
+        {
+          "scope": "journal",
+          "url": "https://sloanreview.mit.edu/authors"
+        }
+      ]
+    }
+  ]
+}

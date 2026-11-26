@@ -44,6 +44,7 @@ function llmsTxt(lib: Library): string {
     '- get_code: runnable R, Python, or Julia code for an analysis task.',
     '- cite: references in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.',
     '- list_sources: the works in the library, with licenses and citations.',
+    '- journal_requirements, list_journals, and export_code: table and figure formatting rules for the FT50 and UTD24 journals, and R code (causalverse) that applies them.',
     '',
     `## Sources (${lib.index.records.length.toLocaleString('en-US')} sections)`,
     '',

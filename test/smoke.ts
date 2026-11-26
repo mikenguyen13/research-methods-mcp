@@ -62,7 +62,7 @@ check(/^https:\/\//.test(info?.websiteUrl ?? ''), 'serverInfo has a website URL'
 
 const { tools } = await client.listTools();
 const names = tools.map((t) => t.name).sort();
-check(JSON.stringify(names) === JSON.stringify(['choose_method', 'cite', 'fetch', 'get_code', 'list_sources', 'search']), `tool names: ${names}`);
+check(JSON.stringify(names) === JSON.stringify(['choose_method', 'cite', 'export_code', 'fetch', 'get_code', 'journal_requirements', 'list_journals', 'list_sources', 'search']), `tool names: ${names}`);
 for (const t of tools) {
   check(t.annotations?.readOnlyHint === true && t.annotations?.destructiveHint === false && t.annotations?.openWorldHint === false, `${t.name}: annotations`);
   check(t.title && t.description && t.description.length > 60, `${t.name}: title and description`);
@@ -159,6 +159,45 @@ check(/Information Systems Research\*\. https:\/\/doi\.org\/10\.1287\/isre\.2024
 const ls = await call('list_sources', {});
 check((ls.structuredContent?.sources ?? []).length === lib.index.sources.length, 'list_sources');
 
+// journal formatting: rules from the causalverse registry snapshot (data/journals.json)
+{
+  const req = async (journal: string) => (await call('journal_requirements', { journal })).structuredContent;
+  const stars = (j: any) => j.table.stars.map((s: any) => `${s.symbol}${s.p}`).join(' ');
+  const aer = await req('aer');
+  check(aer?.table.significance === 'none' && aer.table.max_columns === 9 && aer.table.uncertainty === 'se' && aer.figure.vector_required && aer.figure.formats_final.join() === 'pdf,eps' && aer.confidence === 'high', 'journal_requirements: AER bans stars, 9 columns, vector figures');
+  const jf = await req('Journal of Finance');
+  check(jf?.id === 'jf' && jf.table.numbering === 'roman' && jf.table.max_columns === 8 && stars(jf) === '***0.01 **0.05 *0.1' && jf.table.caption_example === 'Table I. Title' && jf.figure.widths_mm.single === 80, 'journal_requirements: JF Roman numerals, 8 columns, Wiley widths');
+  const smj = await req('SMJ');
+  check(smj?.id === 'smj' && smj.table.significance === 'none' && smj.table.leading_zero === 'bounded' && smj.table.placement === 'end' && smj.table.insert_marker_example === 'INSERT TABLE 1 HERE' && smj.figure.grayscale && smj.confidence === 'medium', 'journal_requirements: SMJ no cutoffs, tables at end with marker');
+  const jm = await req('jm');
+  check(jm?.table.significance === 'exact_p' && jm.table.leading_zero === 'never' && jm.table.caption_example === 'Table 1: Title' && jm.figure.font_family === 'Arial' && jm.figure.source_data && jm.figure.dpi.line_art === 800, 'journal_requirements: JM exact p, no leading zero, Arial');
+  const amj = await req('Academy of Management Journal');
+  check(amj?.id === 'amj' && stars(amj) === '**0.01 *0.05 †0.1' && amj.table.digits === 2 && amj.table.insert_marker_example === 'Insert Table 1 about here' && amj.figure.formats_final.join() === 'tiff,jpeg', 'journal_requirements: AMJ dagger at .10, 2 digits, insert marker');
+  const ms = await req('Management Science');
+  check(ms?.id === 'mnsc' && ms.table.notes_order[0] === 'source' && ms.table.star_note === 'inline' && ms.figure.dpi.line_art === 900 && ms.figure.widths_mm.single === 82.5, 'journal_requirements: Management Science INFORMS rules');
+  check(aer?.sources.length > 0 && aer.sources.every((s: any) => /^https:\/\//.test(s.url)) && /^\d{4}-\d{2}-\d{2}$/.test(aer.verified), 'journal_requirements: sources and verified date');
+  const smjText = (await call('journal_requirements', { journal: 'smj' })).content[0].text!;
+  check(/No significance stars/.test(smjText) && /INSERT TABLE 1 HERE/.test(smjText) && /Caveats/.test(smjText), 'journal_requirements: Markdown text');
+  const amb = await call('journal_requirements', { journal: 'JOM' });
+  check(amb.structuredContent?.id === 'jom' && amb.structuredContent.also_matches?.join() === 'jmgt' && /Journal of Management \(id "jmgt"\)/.test(amb.content[0].text!), 'journal_requirements: shared abbreviation names the other journal');
+  check((await req('Journal of Management'))?.id === 'jmgt', 'journal_requirements: exact name beats partial match');
+  check((await call('journal_requirements', { journal: 'Nature' })).isError === true, 'journal_requirements: unknown journal is an error');
+
+  const count = async (list?: string) => (await call('list_journals', list ? { list } : {})).structuredContent;
+  const all = await count();
+  check(all?.count === 54 && all.journals.every((j: any) => j.id && j.confidence), `list_journals: all 54 (${all?.count})`);
+  check((await count('ft50')).count === 50 && (await count('ft50_2016')).count === 50 && (await count('utd24')).count === 24, 'list_journals: FT50 2026 and 2016 have 50, UTD24 has 24');
+
+  const code = async (journal: string, kind?: string) => (await call('export_code', kind ? { journal, kind } : { journal })).structuredContent;
+  const aerCode = (await code('aer'))?.code ?? '';
+  check(/journal_table\(models, journal = "aer"/.test(aerCode) && /export_tab\(/.test(aerCode) && /theme_journal\("aer"\)/.test(aerCode) && /scale_colour_journal\("aer"\)/.test(aerCode) && /export_fig\(p, "figure1"/.test(aerCode) && /journal_check\(/.test(aerCode) && /does not allow significance stars/.test(aerCode), 'export_code: AER table and figure code');
+  const smjTab = (await code('smj', 'table'))?.code ?? '';
+  check(/INSERT TABLE 1 HERE/.test(smjTab) && !/ggplot/.test(smjTab), 'export_code: table only, with the SMJ insert marker');
+  const rfsFig = (await code('rfs', 'figure'))?.code ?? '';
+  check(/alt_text = "/.test(rfsFig) && !/journal_table/.test(rfsFig), 'export_code: figure only, alt text where required');
+  check(/```r\n/.test((await call('export_code', { journal: 'jm' })).content[0].text!), 'export_code: R code block');
+}
+
 // prompts and resources
 const { prompts } = await client.listPrompts();
 check(prompts.length === 3, 'three prompts');
@@ -174,7 +213,7 @@ await client.close();
 const v1 = new V1Client({ name: 'smoke-v1', version: '1.0.0' });
 await v1.connect(new V1HttpTransport(new URL(`${base}/mcp`)));
 const v1Tools = await v1.listTools();
-check(v1Tools.tools.length === 6, '2025-protocol client lists tools');
+check(v1Tools.tools.length === 9, '2025-protocol client lists tools');
 const v1Res = (await v1.callTool({ name: 'search', arguments: { query: 'weak instruments' } })) as ToolResult;
 check((v1Res.structuredContent?.results ?? []).length > 0, '2025-protocol client calls search');
 await v1.close();

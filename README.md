@@ -70,6 +70,11 @@ Each response links to the specific section consulted and carries the citation o
 | `get_code` | Runnable R, Python, or Julia code for a task, with the packages it uses. |
 | `cite` | References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted, deduplicated by work. |
 | `list_sources` | The works in the library (textbooks, R packages, and research articles), with topics, languages, licenses, and links. |
+| `journal_requirements` | Table and figure formatting rules for one FT50 or UTD24 journal: significance stars, parentheses, leading zeros, digits, captions, notes, placement, figure formats, dpi, widths, fonts, grayscale, and alt text, with confidence, verification date, caveats, and guideline URLs. |
+| `list_journals` | The 54 journals covered (FT50 2026, FT50 2016, UTD24), with how confident each journal's rules are. |
+| `export_code` | Runnable R code that formats tables and figures for a journal with causalverse (`journal_table()`, `export_tab()`, `theme_journal()`, `export_fig()`, `journal_check()`). |
+
+The journal rules are a snapshot of the [causalverse](https://github.com/mikenguyen13/causalverse) journal registry in `data/journals.json`. To refresh it after the registry changes, run `npm run build:journals` with a causalverse checkout at `../causalverse` (or `CAUSALVERSE_PATH=/path/to/causalverse`), then `npm run build`.
 
 Prompts (slash commands in clients that support them): `plan_analysis`, `write_methods_section`, `explain_method`. Resources: the library catalog and a table of contents for each work.
 

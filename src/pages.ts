@@ -128,6 +128,7 @@ ${NPM_PUBLISHED ? `<dt>Local installation (requires Node.js 20 or later)</dt><dd
 <dt><code>get_code</code></dt><dd>Runnable R, Python, or Julia code for a task.</dd>
 <dt><code>cite</code></dt><dd>References in APA, Chicago, MLA, Harvard, BibTeX, or RIS for the sections consulted.</dd>
 <dt><code>list_sources</code></dt><dd>The works in the library: textbooks, R packages, and research articles.</dd>
+<dt><code>journal_requirements</code>, <code>list_journals</code>, and <code>export_code</code></dt><dd>Table and figure formatting rules for the FT50 and UTD24 journals, and R code that applies them.</dd>
 </dl>
 
 <h2>Sources</h2>
