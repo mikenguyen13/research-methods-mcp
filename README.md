@@ -82,7 +82,7 @@ All tools are read-only. The server makes no calls to language models and stores
 | --- | --- | ---: | --- | --- |
 | [A Guide on Data Analysis](https://mikenguyen13.github.io/data_analysis/) | Python, R | 1,634 | Full text | CC BY-NC-SA 4.0 |
 | [causalverse: The All-in-One Causal Inference Toolkit](https://mikenguyen13.github.io/causalverse/) | R | 1,164 | Full text and function reference | GPL-3.0 |
-| [regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias](https://mikenguyen13.github.io/regsensitivity/) | R | 111 | Full text and function reference | MIT |
+| [regsensitivity: Regression Sensitivity Analysis for Omitted Variable Bias](https://mikenguyen13.github.io/regsensitivity/) | R | 113 | Full text and function reference | MIT |
 | [Credit Scoring: Theory, Methods, and Practice](https://mikenguyen13.github.io/credit_score/) | Python | 2,625 | Full text | CC BY 4.0 text, MIT code |
 | [Marketing Research: A Technical and Academic Treatment](https://mikenguyen13.github.io/marketing_research/) | Python, R | 1,997 | Excerpts and code; full text on the website | All rights reserved text, MIT code |
 | [AI in Action: A Reference for Artificial Intelligence](https://mikenguyen13.github.io/ai_in_action/) | Julia, Python | 6,266 | Excerpts and code; full text on the website | All rights reserved |
@@ -90,7 +90,7 @@ All tools are read-only. The server makes no calls to language models and stores
 | [Applying Tidy Finance with Python to Vietnam](https://mikenguyen13.github.io/tidy_finance_vn/) | Python | 1,331 | Excerpts and code; full text on the website | All rights reserved |
 | [Tài Chính Ứng Dụng với Python](https://mikenguyen13.github.io/tidy_finance_vn_vi/) | Python | 1,310 | Excerpts and code; full text on the website | All rights reserved |
 | [Social Science Theory: A Field Guide to the Theories, Effects, and Frameworks Behind Research and Business](https://mikenguyen13.github.io/social-theory/) | R | 1,118 | Full text | CC BY 4.0 text, MIT code |
-| [Meta-Analysis: A Practical and Modern Guide with R](https://mikenguyen13.github.io/meta_analysis/) | R | 392 | Full text | CC BY-NC-SA 4.0 |
+| [Meta-Analysis: A Practical and Modern Guide with R](https://mikenguyen13.github.io/meta_analysis/) | R | 438 | Full text | CC BY-NC-SA 4.0 |
 | [Research Articles and Publications](https://orcid.org/0000-0002-3432-8595) | — | 7 | Abstracts, DOIs, and citations | Publishers' terms |
 
 Sections of *A Guide on Data Analysis* that appear in the Springer print volumes are cited as their published chapter, then the volume. For example, a section on causal inference is cited as Nguyen, M. (2025). Causal inference. In *Experimental design* (Vol. 4, pp. 7–48). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7_2, in Nguyen, M. (2025). *Experimental design* (Vol. 4). Springer Cham. https://doi.org/10.1007/978-3-032-01839-7
