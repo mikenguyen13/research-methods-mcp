@@ -404,3 +404,32 @@ sources:
       publisher: Zenodo
       doi: 10.5281/zenodo.23708720
       url: https://mikenguyen13.github.io/social-theory/
+
+  - id: meta_analysis
+    title: "Meta-Analysis: A Practical and Modern Guide with R"
+    summary: >-
+      Research synthesis in R: systematic review workflow and PRISMA, effect
+      sizes and conversions, common- and random-effects models, heterogeneity
+      and meta-regression, dependent effects (three-level, RVE, CHE),
+      publication bias (selection models, PET-PEESE, RoBMA), sensitivity
+      diagnostics, Bayesian and network meta-analysis, MASEM, multivariate and
+      IPD meta-analysis, diagnostic test accuracy, pooling causal estimates, and
+      GRADE reporting.
+    repo: meta_analysis
+    format: bookdown
+    site: https://mikenguyen13.github.io/meta_analysis/
+    github: https://github.com/mikenguyen13/meta_analysis
+    # .github/workflows renders each push to master and deploys it to gh-pages as
+    # "Deploy <sha> from master"; the site's /SOURCE_COMMIT holds the same SHA.
+    deploy: { branch: gh-pages, source: message }
+    text_access: full
+    license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
+    exclude:
+      - 99-references.Rmd
+    citation:
+      key: Nguyen2026MetaAnalysis
+      type: book
+      title: "Meta-Analysis: A Practical and Modern Guide with R"
+      authors: *mike
+      year: 2026
+      url: https://mikenguyen13.github.io/meta_analysis/
