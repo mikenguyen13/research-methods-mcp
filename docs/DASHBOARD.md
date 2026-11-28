@@ -224,8 +224,8 @@ publishes carries them (see "Source labels" in `docs/LISTING.md`):
 ### 8. Search Console (done 2026-11-23, except one Social Theory address)
 
 Shared with `stats-sync@…` (Restricted): the URL-prefix properties of `data_analysis`,
-`causalverse`, `credit_score`, `marketing_research`, `ai_in_action`, `tidy_finance_vn`, and
-`tidy_finance_vn_vi` under `mikenguyen13.github.io`, `advanced-data-analysis.netlify.app`,
+`causalverse`, `credit_score`, `marketing_research`, `ai_in_action`, `tidy_finance_vn`,
+`tidy_finance_vn_vi`, and `meta_analysis` (added 2026-11-27, verified through Google Analytics) under `mikenguyen13.github.io`, `advanced-data-analysis.netlify.app`,
 and the old addresses `bookdown.org/mike/data_analysis/`, `bookdown.org/mike/marketing_research/`,
 and `bookdown.org/mike/social-theory/`. Google still ranks the bookdown.org addresses, so
 most of a moved book's search traffic shows up there, not on its new site.

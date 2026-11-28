@@ -116,6 +116,10 @@ const expect: [string, string][] = [
   ['How many participants do I need to detect a 2 percentage point lift?', 'power'],
   ['Wages are only observed for people who work', 'selection'],
   ['Effect of a new store opening on nearby stores sales; the treatment spills over', 'interference'],
+  ['I collected 25 published studies of the same intervention; how do I combine their results?', 'meta_analysis'],
+  ['Most studies in my review report several outcomes each, so the effect sizes are correlated', 'meta_dependent'],
+  ['Only significant studies seem to get published; is my pooled estimate inflated?', 'publication_bias'],
+  ['Rank five drugs when each trial compared only two of them', 'network_meta'],
 ];
 for (const [q, id] of expect) {
   const r = await call('choose_method', { question: q });

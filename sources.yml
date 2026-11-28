@@ -76,12 +76,14 @@ sources:
     github: https://github.com/mikenguyen13/data_analysis
     # Published by hand: gh-pages holds a render of lit-review/2026-08-12 at 1b617e6e5
     # (2026-10-24; its timing-IV section is live, c09b96cbc's measurement-error section
-    # is not), patched in place by df592f0b7 (E3 box). Its commits do not name the
-    # source, so the source is pinned.
+    # is not), patched in place by df592f0b7 (E3 box) and 61b833757 (the regsensitivity
+    # text of f36d675a5, spliced into sec-matching-methods and sec-endogeneity). The index
+    # is built from 1b617e6e5, so those two spliced sections are not indexed; every page
+    # it links to is live. Its commits do not name the source, so the source is pinned.
     deploy:
       branch: gh-pages
       source: "1b617e6e5bac0db06317166f9bfe530c2b72e462"
-      tip: "df592f0b772ebc1c8643480a47101cad6b4e3442"
+      tip: "61b83375782a1e60b00a921079038b142db91f96"
     text_access: full
     license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
     exclude:
@@ -373,3 +375,30 @@ sources:
       publisher: Zenodo
       doi: 10.5281/zenodo.23708720
       url: https://mikenguyen13.github.io/social-theory/
+
+  - id: meta_analysis
+    title: "Meta-Analysis: A Practical and Modern Guide with R"
+    summary: >-
+      Systematic reviews and meta-analysis in R: effect sizes, common- and
+      random-effects models, heterogeneity and meta-regression, dependent
+      effects, publication bias, sensitivity analysis, Bayesian and network
+      meta-analysis, MASEM, multivariate and IPD models, diagnostic accuracy,
+      pooling causal estimates, and GRADE reporting.
+    repo: meta_analysis
+    format: bookdown
+    site: https://mikenguyen13.github.io/meta_analysis/
+    github: https://github.com/mikenguyen13/meta_analysis
+    # .github/workflows/deploy.yml renders each push to master and deploys it to
+    # gh-pages as "Deploy <sha> from master".
+    deploy: { branch: gh-pages, source: message }
+    text_access: full
+    license: { text: CC-BY-NC-SA-4.0, code: CC-BY-NC-SA-4.0 }
+    exclude:
+      - 99-references.Rmd
+    citation:
+      key: Nguyen2026MetaAnalysis
+      type: book
+      title: "Meta-Analysis: A Practical and Modern Guide with R"
+      authors: *mike
+      year: 2026
+      url: https://mikenguyen13.github.io/meta_analysis/

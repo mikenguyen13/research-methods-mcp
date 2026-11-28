@@ -26,7 +26,7 @@ export const SOURCES: ReadonlySet<string> = new Set([
   'readme', 'landing', 'llms-txt',
   // Book sites (sources.yml ids, with hyphens)
   ...['data-analysis', 'advanced-data-analysis', 'causalverse', 'credit-score', 'marketing-research', 'ai-in-action',
-    'tidy-finance-vn', 'tidy-finance-vn-vi', 'mlpy', 'social-theory'].map((b) => `book-${b}`),
+    'tidy-finance-vn', 'tidy-finance-vn-vi', 'mlpy', 'social-theory', 'meta-analysis'].map((b) => `book-${b}`),
   // Campaigns
   'youtube', 'linkedin', 'bluesky', 'x', 'reddit', 'hn', 'course', 'talk', 'email',
 ]);
