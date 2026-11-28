@@ -5,7 +5,7 @@ how each change is tagged so the dashboard's `experiment_scorecard` tab can meas
 (see "Reading the experiment scorecard" and "Tagging links for experiments" in
 `docs/DASHBOARD.md`).
 
-The nine books (id, repository folder next to this one, site):
+The book sites (id, repository folder next to this one, site):
 
 | id | folder | format | site |
 | --- | --- | --- | --- |
@@ -18,6 +18,7 @@ The nine books (id, repository folder next to this one, site):
 | tidy_finance_vn | `tidy_finance_vn` | Quarto | https://mikenguyen13.github.io/tidy_finance_vn/ |
 | tidy_finance_vn_vi | `tidy_finance_vn_vi` | Quarto | https://mikenguyen13.github.io/tidy_finance_vn_vi/ |
 | social_theory | `social-theory` | bookdown | https://mikenguyen13.github.io/social-theory/ |
+| meta_analysis | `meta_analysis` | bookdown | https://mikenguyen13.github.io/meta_analysis/ (live since 2026-11-24, after the experiments started; canonical links and Search Console since 2026-11-27) |
 
 `sources.yml` holds each book's citation (title, authors, year, DOI where there is one).
 

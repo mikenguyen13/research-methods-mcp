@@ -21,11 +21,12 @@ const PROMPTS = new Set(['plan_analysis', 'write_methods_section', 'explain_meth
 export const SOURCES: ReadonlySet<string> = new Set([
   // MCP directories and registries (`registry` also covers its mirrors: PulseMCP, mcptry, GitHub)
   'anthropic', 'registry', 'glama', 'docker', 'cline', 'cursor-directory', 'mcp-market', 'mcpso', 'openai',
+  'gemini-cli', 'modelscope', 'mcpservers', 'toolhive',
   // Our own pages
   'readme', 'landing', 'llms-txt',
   // Book sites (sources.yml ids, with hyphens)
   ...['data-analysis', 'advanced-data-analysis', 'causalverse', 'credit-score', 'marketing-research', 'ai-in-action',
-    'tidy-finance-vn', 'tidy-finance-vn-vi', 'mlpy', 'social-theory', 'regsensitivity'].map((b) => `book-${b}`),
+    'tidy-finance-vn', 'tidy-finance-vn-vi', 'mlpy', 'social-theory', 'regsensitivity', 'meta-analysis'].map((b) => `book-${b}`),
   // Campaigns
   'youtube', 'linkedin', 'bluesky', 'x', 'reddit', 'hn', 'course', 'talk', 'email',
 ]);

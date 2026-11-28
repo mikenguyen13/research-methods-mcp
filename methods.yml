@@ -577,3 +577,40 @@ methods:
     keywords: [differential privacy, privacy budget, epsilon, laplace mechanism, synthetic data, privacy-preserving]
     sections: [data_analysis:sec-differential-privacy]
     packages: { r: [], python: [opendp] }
+
+  # --- Research synthesis ----------------------------------------------------
+  - id: meta_analysis
+    name: Meta-analysis (pooling results across studies)
+    family: Research synthesis
+    use_when: Several studies estimate the same or a comparable effect, and the goal is an average effect, how much true effects vary, or what explains the variation.
+    assumptions: [Comparable effect sizes with sampling variances, Studies independent or the dependence modeled, A random-effects model when true effects may differ, Enough studies to estimate heterogeneity]
+    keywords: [meta-analysis, meta analysis, systematic review, pool studies, pooled effect, combine studies, effect size, random effects meta, heterogeneity, i2, tau2, forest plot, meta-regression, metafor, prediction interval, research synthesis]
+    sections: [meta_analysis:sec-models, meta_analysis:sec-effect-sizes, meta_analysis:sec-heterogeneity, meta_analysis:sec-models#sec-models-prediction, meta_analysis:sec-systematic-review]
+    packages: { r: [metafor, meta, esc], python: [statsmodels] }
+
+  - id: meta_dependent
+    name: Meta-analysis with dependent effect sizes
+    family: Research synthesis
+    use_when: Studies report several effect sizes each (multiple outcomes, time points, or samples), so the effects are not independent.
+    assumptions: [Clusters of dependent effects identified, A working correlation or robust variance estimation, Enough clusters for robust standard errors]
+    keywords: [dependent effect sizes, multiple outcomes per study, three-level meta-analysis, multilevel meta-analysis, robust variance estimation, rve, correlated effects, che model, robumeta, clubsandwich]
+    sections: [meta_analysis:sec-dependent-effects, meta_analysis:sec-dependent-effects#sec-dependent-three-level-model, meta_analysis:sec-dependent-effects#sec-dependent-che, meta_analysis:sec-dependent-effects#sec-dependent-rve]
+    packages: { r: [metafor, clubSandwich, robumeta], python: [] }
+
+  - id: publication_bias
+    name: Publication bias and small-study effects
+    family: Research synthesis
+    use_when: A literature or meta-analysis may overstate an effect because significant results are likelier to be published or reported.
+    assumptions: [Selection depends on significance or study size, Several methods compared rather than one trusted, Enough studies for funnel-based tests]
+    keywords: [publication bias, file drawer, funnel plot, egger test, trim and fill, pet-peese, selection model, p-curve, p-uniform, z-curve, small-study effects, robma, excess significance, p-hacking]
+    sections: [meta_analysis:sec-publication-bias, meta_analysis:sec-publication-bias#sec-publication-bias-selection, meta_analysis:sec-publication-bias#sec-publication-bias-workflow, data_analysis:sec-biases#sec-publication-bias]
+    packages: { r: [metafor, puniform, weightr, RoBMA], python: [] }
+
+  - id: network_meta
+    name: Network meta-analysis (comparing several treatments)
+    family: Research synthesis
+    use_when: Several treatments are compared across trials that each test only some of them, and the goal is to rank them or estimate comparisons no trial made directly.
+    assumptions: [Transitivity across trials, Consistency of direct and indirect evidence, A connected network]
+    keywords: [network meta-analysis, nma, mixed treatment comparison, indirect comparison, treatment ranking, sucra, netmeta, multinma, gemtc, matching-adjusted indirect comparison, maic]
+    sections: [meta_analysis:sec-network, meta_analysis:sec-network#sec-network-transitivity, meta_analysis:sec-network#sec-network-consistency, meta_analysis:sec-network#sec-network-population-adjustment]
+    packages: { r: [netmeta, multinma, gemtc], python: [] }

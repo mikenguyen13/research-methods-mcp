@@ -12,7 +12,7 @@ A Model Context Protocol server that grounds AI assistants in methodological tex
 <a href="https://mcptry.com/servers/io.github.mikenguyen13/research-methods-mcp"><img src="https://mcptry.com/badge/io.github.mikenguyen13/research-methods-mcp" alt="mcptry: live status and score"></a>
 </p>
 
-The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 9 books, 2 R packages, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, marketing research, credit scoring, machine learning, and artificial intelligence.
+The Research Methods Library is a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server. Given a research question, it recommends candidate designs, states their identifying assumptions, returns runnable R and Python code, and supplies a formatted citation for every source consulted. Its index contains approximately 19,000 sections from 9 books, 2 R packages, and the author's research articles (listed under [Sources](#sources)) covering causal inference, econometrics, experimental design, meta-analysis, marketing research, credit scoring, machine learning, and artificial intelligence.
 
 The server works with Claude, ChatGPT, Amazon Bedrock AgentCore, Cursor, Visual Studio Code, and any other MCP-compatible client. Access is free and requires no account or API key.
 
@@ -64,7 +64,7 @@ Each response links to the specific section consulted and carries the citation o
 
 | Tool | What it does |
 | --- | --- |
-| `choose_method` | Matches a research question to methods, with when to use each, key assumptions, R and Python packages, and readings. 62 curated methods. |
+| `choose_method` | Matches a research question to methods, with when to use each, key assumptions, R and Python packages, and readings. 66 curated methods. |
 | `search` | Finds sections across all works, with links, snippets, code languages, and a citation. Compatible with ChatGPT deep research. |
 | `fetch` | Reads a section in full, with its code, link, and citation. Compatible with ChatGPT deep research. |
 | `get_code` | Runnable R, Python, or Julia code for a task, with the packages it uses. |

@@ -4,7 +4,8 @@
 # Identity Federation in the research-methods-stats Cloud project, for a one-hour
 # token of the stats-sync service account. Only this repository may do that.
 # MCP counts come from the endpoint's /stats.json, which accepts this workflow's
-# GitHub OIDC token (from main) and nothing else, so no secret is stored anywhere.
+# GitHub OIDC token (from main) and nothing else. The only stored secret is the
+# optional BING_WEBMASTER_API_KEY (Bing Webmaster Tools has no keyless access).
 # Skipped until the STATS_SHEET_ID variable is set. The script prints no counts,
 # because this repository's Action logs are public. Setup: docs/DASHBOARD.md.
 # The one public output is stats/bio.json (round milestones the bio page shows), which is
@@ -46,6 +47,8 @@ jobs:
           STATS_SHEET_ID: ${{ vars.STATS_SHEET_ID }}
           GOOGLE_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
           GITHUB_TOKEN: ${{ github.token }}
+          # Optional: Bing has no keyless access. Unset, the Bing step is skipped.
+          BING_WEBMASTER_API_KEY: ${{ secrets.BING_WEBMASTER_API_KEY }}
       - name: Publish the bio milestones if they changed
         if: ${{ !cancelled() }}
         run: |

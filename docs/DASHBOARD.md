@@ -12,7 +12,8 @@ any time, and it costs nothing.
 Upstash Redis (MCP counters) ─┐
 Google Analytics 4 (books)  ──┤
 Google Search Console       ──┼─ GitHub Action, hourly ─→ Google Sheet ─→ Looker Studio
-GitHub API (stars, forks)   ──┘   scripts/sync-stats.ts     (private)       (private link)
+Bing Webmaster Tools        ──┤   scripts/sync-stats.ts     (private)       (private link)
+GitHub API (stars, forks)   ──┘
 ```
 
 Freshness: the workflow is scheduled every hour, but GitHub runs scheduled workflows only
@@ -28,7 +29,7 @@ tab names and row counts, never a number from the data. Google access is keyless
 service-account key exists): the workflow trades GitHub’s OIDC token for a one-hour token
 through Workload Identity Federation, and only this repository is allowed to. MCP counts
 are read the same way, by the workflow proving itself to the endpoint, so nothing
-secret is stored in GitHub at all.
+secret is stored in GitHub for them. The one exception is the optional Bing key (step 9).
 
 ## Setup (done 2026-11-14)
 
@@ -68,7 +69,7 @@ Admin → Account “Mike Nguyen” → Account access management: `stats-sync@�
 
 Repository → **Settings → Secrets and variables → Actions → Variables**:
 `STATS_SHEET_ID` = the sheet id. The workflow is skipped while it is unset. No secrets
-are needed.
+are needed for Google, the MCP counts, or GitHub.
 
 ### 5. MCP counts without a secret
 
@@ -98,6 +99,8 @@ re-read only the last three days. The sheet gets these tabs:
 | `books_campaigns` | day, book, `utm_campaign`, source, and medium, for tagged links only: sessions, engaged sessions, views; 120 days |
 | `gsc_daily` | day, book, and `site` (the address searched: the book's site, or an old address from `moved` in `sources.yml`, such as `bookdown.org/mike/data_analysis/`): Google Search clicks, impressions, click-through, average position. Sum clicks and impressions over `site` for a book's total; recompute click-through from the sums rather than averaging it |
 | `gsc_top` | the top 50 queries and the top 50 pages per book and `site` over the last 28 days (replaced each run) |
+| `bing_daily` | day and Bing site: Bing Search clicks and impressions, with the `books` that site covers (a whole `github.io` site covers several; see step 9). Bing keeps about six months; older days stay in the tab |
+| `bing_top` | the top 50 queries and the top 50 pages per Bing site over the last 28 days, pages with their `book` (replaced each run) |
 | `experiments` | one experiment from the growth plan, filled in by hand; the sync creates the tab once and never writes to it again |
 | `experiment_scorecard` | experiment, rewritten every run: its metric over the 28 days before its start (`baseline`) and over its run so far (`current`, at most the last 28 complete days), `target`, `change_pct`, the same change in the control, engaged sessions from all channels but Direct and Unassigned (`all_books_change_pct`), the change net of it (`adjusted_change_pct`), and a `status`. A rate is averaged over the days its tab has data, and the status says when the baseline rests on fewer than 28 days |
 | `github_daily` | day and repository: stars, forks, watchers |
@@ -221,8 +224,8 @@ publishes carries them (see "Source labels" in `docs/LISTING.md`):
 ### 8. Search Console (done 2026-11-23, except one Social Theory address)
 
 Shared with `stats-sync@…` (Restricted): the URL-prefix properties of `data_analysis`,
-`causalverse`, `credit_score`, `marketing_research`, `ai_in_action`, `tidy_finance_vn`, and
-`tidy_finance_vn_vi` under `mikenguyen13.github.io`, `advanced-data-analysis.netlify.app`,
+`causalverse`, `credit_score`, `marketing_research`, `ai_in_action`, `tidy_finance_vn`,
+`tidy_finance_vn_vi`, and `meta_analysis` (added 2026-11-27, verified through Google Analytics) under `mikenguyen13.github.io`, `advanced-data-analysis.netlify.app`,
 and the old addresses `bookdown.org/mike/data_analysis/`, `bookdown.org/mike/marketing_research/`,
 and `bookdown.org/mike/social-theory/`. Google still ranks the bookdown.org addresses, so
 most of a moved book's search traffic shows up there, not on its new site.
@@ -244,6 +247,31 @@ shared as below. The Posit Connect copies in `moved` have no property and are sk
    then re-reads the last five days each hour. Until step 1 is done it logs "Search Console
    is not set up; skipping" and the run still succeeds.
 
+### 9. Bing Webmaster Tools (not set up yet)
+
+Bing is the second search engine for the books (628 sessions from Bing organic search
+from late July to November 2026, against 7,324 from Google), and some AI search tools
+draw on its index. Bing has no keyless access like Google's, so this is the one source
+that needs a stored secret. Until it is set, the sync logs "BING_WEBMASTER_API_KEY is not
+set; skipping Bing" and the run still succeeds.
+
+1. **maintainer** Sign in at https://www.bing.com/webmasters and choose **Import from
+   Google Search Console**: it adds and verifies every Search Console property in one
+   step, including the old `bookdown.org` addresses. Add a site Search Console does not
+   have by hand (Social Theory on `github.io`). Import the per-book URL-prefix
+   properties where Bing offers them: a book with its own Bing site gets its own rows,
+   while a whole `https://mikenguyen13.github.io/` site is reported as one row per day
+   for all the books it covers (`books` lists them; `bing_top` pages still show each book).
+2. **maintainer** Settings (gear) → **API access** → **API Key** → generate. The key is per
+   user and opens every verified site, read and write, so keep it out of chat, files and
+   URLs.
+3. **maintainer** Repository → **Settings → Secrets and variables → Actions → Secrets** →
+   New repository secret `BING_WEBMASTER_API_KEY` = the key.
+4. Run the workflow. The script never prints the request URL (it carries the key). Bing
+   takes about 48 hours to show data for newly added sites.
+
+Rotate the key in Bing (delete, generate, update the secret) if it may have leaked.
+
 ## Maintenance
 
 - **A new AI application shows up as `bot`.** Add the start of its client name to
@@ -255,8 +283,8 @@ shared as below. The Posit Connect copies in `moved` have no property and are sk
 - **GitHub pauses scheduled workflows** in a public repository after 60 days without a
   commit. If the dashboard stops updating, open **Actions → Usage dashboard** and
   click **Enable workflow**.
-- **No secrets to rotate.** Google access and the MCP counts both rely on GitHub’s
-  short-lived OIDC tokens.
+- **One secret to rotate, only if Bing is set up.** Google access and the MCP counts both
+  rely on GitHub’s short-lived OIDC tokens; Bing needs `BING_WEBMASTER_API_KEY` (step 9).
 - **Running locally.** Set `GOOGLE_ACCESS_TOKEN` (for example from
   `gcloud auth print-access-token --impersonate-service-account=stats-sync@research-methods-stats.iam.gserviceaccount.com`)
   or `GOOGLE_SERVICE_ACCOUNT_KEY`, plus the variables above, and run `npx tsx scripts/sync-stats.ts`.
